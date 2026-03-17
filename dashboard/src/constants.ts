@@ -31,7 +31,15 @@ export const METRICS: Record<string, MetricDef[]> = {
             description: 'Composite index (0-100) based on accessibility, car share, and vehicle ownership.',
             format: (v) => (v || 0).toFixed(1),
             higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true
-        }
+        },
+        {
+            id: 'IMPT_dynamic',
+            label: 'IMPT dynamic (manual calculation)', category: 'Mobility Poverty Index',
+            description: 'Computed on the fly based on user weightings of dimensions.',
+            format: (v) => (v || 0).toFixed(1),
+            higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true,
+            isCalculated: true
+        },
     ],
     'Dimensions': [
         {
@@ -39,28 +47,32 @@ export const METRICS: Record<string, MetricDef[]> = {
             label: 'Accessibility', category: 'Dimensions', icon: '🏘️',
             description: 'Aggregated index for accessibility to key services and opportunities',
             format: (v) => getQuintileRange(v || 0),
-            higherTheBetter: true, showDetails: true
+            higherTheBetter: true, showDetails: true,
+            isContributory: true, defaultWeight: 0.25
         },
         {
             id: 'Mobility_Index',
             label: 'Mobility', category: 'Dimensions', icon: '🚲',
             description: 'Aggregated index for commuting and mobility infrastructure',
             format: (v) => getQuintileRange(v || 0),
-            higherTheBetter: true, showDetails: true
+            higherTheBetter: true, showDetails: true,
+            isContributory: true, defaultWeight: 0.25
         },
         {
             id: 'Safety_Index',
             label: 'Safety', category: 'Dimensions', icon: '🛡️',
             description: 'Aggregated index for safety data related to accidents',
             format: (v) => getQuintileRange(v || 0),
-            higherTheBetter: true, showDetails: true
+            higherTheBetter: true, showDetails: true,
+            isContributory: true, defaultWeight: 0.25
         },
         {
             id: 'Affordability_Index',
             label: 'Affordability', category: 'Dimensions', icon: '💰',
             description: 'Aggregated index for affordability, considering income and housing costs',
             format: (v) => getQuintileRange(v || 0),
-            higherTheBetter: true, showDetails: true
+            higherTheBetter: true, showDetails: true,
+            isContributory: true, defaultWeight: 0.25
         }
     ]
 };

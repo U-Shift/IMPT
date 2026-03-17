@@ -19,6 +19,13 @@ const Dashboard = () => {
     const [selectedModeId, setSelectedModeId] = useState<ModeId>('all');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
     const [zoomRequest, setZoomRequest] = useState<{ id: string | number, timestamp: number } | null>(null);
+    const [weights, setWeights] = useState<Record<string, number>>(() => {
+        const initial: Record<string, number> = {};
+        FLAT_METRICS.filter(m => m.isContributory).forEach(m => {
+            initial[m.id] = m.defaultWeight || 1;
+        });
+        return initial;
+    });
     const [showAbout, setShowAbout] = useState(false);
     const [showDownload, setShowDownload] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -109,7 +116,7 @@ const Dashboard = () => {
         }
     }, [selectedMetricId, selectedModeId, viewLevel, dataState.geo]);
 
-    const activeGeoData = useMemo(() => {
+    const computedGeoData = useMemo(() => {
         let raw = dataState.geo[viewLevel];
         if (!raw || !raw.features) return { type: "FeatureCollection", features: [] };
 
@@ -117,29 +124,59 @@ const Dashboard = () => {
         if (nutFilter !== REGION_KEYS[0]) {
             features = features.filter((f: any) => f.properties?.region_id === nutFilter || f.properties?.nuts2 === REGIONS[nutFilter].name);
         }
+
+        // Inject dynamic IMPT metric computed on-the-fly based on user weights
+        const dynamicMetricConfig = FLAT_METRICS.find(m => m.isCalculated);
+        if (dynamicMetricConfig) {
+            const dynamicId = `${dynamicMetricConfig.id}${selectedMode.suffix}`;
+            
+            features = features.map((f: any) => {
+                let weightedSum = 0;
+                let totalWeight = 0;
+                
+                Object.entries(weights).forEach(([metricId, weight]) => {
+                    const effectiveMetricId = `${metricId}${selectedMode.suffix}`;
+                    const val = f.properties[effectiveMetricId] ?? f.properties[metricId] ?? 0;
+                    weightedSum += val * weight;
+                    totalWeight += weight;
+                });
+
+                const computedIndex = totalWeight > 0 ? weightedSum / totalWeight : 0;
+                
+                return {
+                    ...f,
+                    properties: {
+                        ...f.properties,
+                        [dynamicId]: computedIndex,
+                        [dynamicMetricConfig.id]: computedIndex // Fallback without suffix
+                    }
+                };
+            });
+        }
+
         return { ...raw, features };
-    }, [viewLevel, nutFilter, dataState]);
+    }, [viewLevel, nutFilter, dataState, weights, selectedMode.suffix]);
 
     const currentDomain = useMemo(() => {
         const defaultDomain: [number, number] = [0, 1];
-        if (!activeGeoData?.features?.length) return defaultDomain;
+        if (!computedGeoData?.features?.length) return defaultDomain;
         const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
-        const values = activeGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[selectedMetric.id]).filter((v: any) => v !== undefined && !isNaN(v));
+        const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[selectedMetric.id]).filter((v: any) => v !== undefined && !isNaN(v));
         if (values.length === 0) return defaultDomain;
         return [Math.min(...values), Math.max(...values)] as [number, number];
-    }, [activeGeoData, selectedMetric, selectedMode]);
+    }, [computedGeoData, selectedMetric, selectedMode]);
 
     // Precompute domains for all metrics shown in details to support dynamic coloring
     const allDomains = useMemo(() => {
         const result: Record<string, [number, number]> = {};
-        if (!activeGeoData?.features?.length) return result;
+        if (!computedGeoData?.features?.length) return result;
         FLAT_METRICS.filter(m => m.showDetails).forEach(m => {
             const effectiveId = `${m.id}${selectedMode.suffix}`;
-            const values = activeGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[m.id]).filter((v: any) => v !== undefined && !isNaN(v));
+            const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[m.id]).filter((v: any) => v !== undefined && !isNaN(v));
             result[m.id] = values.length > 0 ? [Math.min(...values), Math.max(...values)] : [0, 1];
         });
         return result;
-    }, [activeGeoData, selectedMode]);
+    }, [computedGeoData, selectedMode]);
 
     const getColor = (val: number, domain: [number, number], metric: MetricDef) => {
         if (val === null || val === undefined) return '#333';
@@ -225,9 +262,9 @@ const Dashboard = () => {
     }, [viewLevel, selectedFeature, selectedMetric, selectedMode, dataState]);
 
     const chartData = useMemo(() => {
-        if (!activeGeoData?.features) return { top10: [], worst10: [] };
+        if (!computedGeoData?.features) return { top10: [], worst10: [] };
         const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
-        const feats = activeGeoData.features.map((f: any) => ({
+        const feats = computedGeoData.features.map((f: any) => ({
             id: f.properties?.id,
             name: String(f.properties?.name || f.properties?.id || 'Unknown'),
             group: f.properties?.group_id || '',
@@ -235,7 +272,7 @@ const Dashboard = () => {
         }));
         const sorted = [...feats].sort((a, b) => b.value - a.value);
         return { top10: sorted.slice(0, 10), worst10: [...sorted].reverse().slice(0, 10).reverse() };
-    }, [activeGeoData, selectedMetric, selectedMode]);
+    }, [computedGeoData, selectedMetric, selectedMode]);
 
     if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-4`}>
@@ -306,17 +343,52 @@ const Dashboard = () => {
                                                             <span className="truncate">{m.label}</span>
                                                             {m.isFake && <AlertTriangle className="w-2.5 h-2.5 text-amber-500 ml-auto opacity-60" />}
                                                         </span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Dynamic Weights Sliders Section */}
+                {selectedMetric.isCalculated && (
+                    <section className={`pt-6 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
+                        <div className="flex items-center justify-between mb-5">
+                            <h3 className="text-[9px] font-black opacity-40 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <Activity className="w-3.5 h-3.5 text-emerald-500" /> Dimension Weighting
+                            </h3>
+                            <button onClick={() => {
+                                const initial: Record<string, number> = {};
+                                FLAT_METRICS.filter(m => m.isContributory).forEach(m => {
+                                    initial[m.id] = m.defaultWeight || 1;
+                                });
+                                setWeights(initial);
+                            }} className="text-[9px] font-black uppercase text-indigo-500 hover:text-indigo-600 tracking-wider">Reset</button>
+                        </div>
+                        <div className="space-y-4">
+                            {FLAT_METRICS.filter(m => m.isContributory).map(m => (
+                                <div key={m.id} className="space-y-2">
+                                    <div className="flex justify-between items-center text-[10px] font-bold">
+                                        <span className={isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}>{m.icon} {m.label}</span>
+                                        <span className="text-indigo-500 font-black">{weights[m.id]?.toFixed(2)}</span>
+                                    </div>
+                                    <input
+                                        type="range" min="0" max="1" step="0.05"
+                                        value={weights[m.id] || 0}
+                                        onChange={(e) => setWeights(prev => ({ ...prev, [m.id]: parseFloat(e.target.value) }))}
+                                        className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                    />
                                 </div>
                             ))}
                         </div>
                     </section>
-                </div>
+                )}
+
             </div>
+        </div>
 
             {/* Map Canvas: Main View */}
             <div className="flex-1 relative bg-neutral-950 flex flex-col">
@@ -384,11 +456,11 @@ const Dashboard = () => {
                 <div className="flex-1">
                     <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
-                        <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={activeGeoData} />
+                        <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
                         <TileLayer url={isDarkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"} attribution='&copy; CARTO' />
-                        {activeGeoData?.features && (
-                            <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${isDarkMode}-${selectedFeature?.id}`} data={activeGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                        {computedGeoData?.features && (
+                            <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${isDarkMode}-${selectedFeature?.id}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
                         {viewLevel !== 'municipality' && dataState.limits && (
                             <GeoJSON data={dataState.limits as any} style={{ fillOpacity: 0, weight: 4, color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }} interactive={false} />
@@ -533,7 +605,7 @@ const Dashboard = () => {
                                         isDark={isDarkMode}
                                         type="highest"
                                         onSelect={(id) => {
-                                            const f = activeGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
+                                            const f = computedGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
                                             if (f) {
                                                 setSelectedFeature(f.properties);
                                                 setZoomRequest({ id, timestamp: Date.now() });
@@ -551,7 +623,7 @@ const Dashboard = () => {
                                         isDark={isDarkMode}
                                         type="lowest"
                                         onSelect={(id) => {
-                                            const f = activeGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
+                                            const f = computedGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
                                             if (f) {
                                                 setSelectedFeature(f.properties);
                                                 setZoomRequest({ id, timestamp: Date.now() });
