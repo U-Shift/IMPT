@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useEffect } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
@@ -139,6 +139,15 @@ const SelectedFeatureCentering = ({ feature, activeGeoData }: { feature: any, ac
     return null;
 };
 
+const MapDeselectHandler = ({ onDeselect }: { onDeselect: () => void }) => {
+    useMapEvents({
+        click: () => {
+            onDeselect();
+        }
+    });
+    return null;
+};
+
 const Dashboard = () => {
     const [viewLevel, setViewLevel] = useState<ViewLevel>('freguesia');
     const [nutFilter, setNutFilter] = useState<RegionKey>(DEFAULT_REGION);
@@ -272,7 +281,8 @@ const Dashboard = () => {
         `, { sticky: true, opacity: 0.95 });
 
         layer.on({
-            click: () => {
+            click: (e: L.LeafletMouseEvent) => {
+                L.DomEvent.stopPropagation(e);
                 setSelectedFeature(props);
             }
         });
@@ -443,6 +453,7 @@ const Dashboard = () => {
                     <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
                         <SelectedFeatureCentering feature={selectedFeature} activeGeoData={activeGeoData} />
+                        <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
                         <TileLayer url={isDarkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"} attribution='&copy; CARTO' />
                         {activeGeoData?.features && (
                             <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${isDarkMode}-${selectedFeature?.id}`} data={activeGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
