@@ -175,7 +175,7 @@ const Dashboard = () => {
         const defaultDomain: [number, number] = [0, 1];
         if (!computedGeoData?.features?.length) return defaultDomain;
         const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
-        const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[selectedMetric.id]).filter((v: any) => v !== undefined && !isNaN(v));
+        const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId]).filter((v: any) => v !== undefined && !isNaN(v));
         if (values.length === 0) return defaultDomain;
         return [Math.min(...values), Math.max(...values)] as [number, number];
     }, [computedGeoData, selectedMetric, selectedMode]);
@@ -186,7 +186,7 @@ const Dashboard = () => {
         if (!computedGeoData?.features?.length) return result;
         FLAT_METRICS.filter(m => m.showDetails).forEach(m => {
             const effectiveId = `${m.id}${selectedMode.suffix}`;
-            const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[m.id]).filter((v: any) => v !== undefined && !isNaN(v));
+            const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId]).filter((v: any) => v !== undefined && !isNaN(v));
             result[m.id] = values.length > 0 ? [Math.min(...values), Math.max(...values)] : [0, 1];
         });
         return result;
@@ -218,7 +218,7 @@ const Dashboard = () => {
 
     const getStyle = (feature: any) => {
         const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
-        const val = feature.properties[effectiveId] ?? feature.properties[selectedMetric.id];
+        const val = feature.properties[effectiveId];
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
             fillColor: getColor(val || 0, currentDomain, selectedMetric),
@@ -474,7 +474,7 @@ const Dashboard = () => {
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
                         <TileLayer url={isDarkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"} attribution='&copy; CARTO' />
                         {computedGeoData?.features && (
-                            <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${isDarkMode}-${selectedFeature?.id}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                            <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${selectedModeId}-${isDarkMode}-${selectedFeature?.id}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
                         {viewLevel !== 'municipality' && dataState.limits && (
                             <GeoJSON data={dataState.limits as any} style={{ fillOpacity: 0, weight: 4, color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }} interactive={false} />
