@@ -16,7 +16,7 @@ export const METRICS: Record<string, MetricDef[]> = {
             label: 'IMPT with entropy', category: 'Mobility Poverty Index',
             description: 'Composite index (0-100) based on accessibility, car share, and vehicle ownership.',
             format: (v) => (v || 0).toFixed(1),
-            higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true
+            higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true, default: true
         },
         {
             id: 'IMPT_score_pca_geom',
@@ -34,7 +34,7 @@ export const METRICS: Record<string, MetricDef[]> = {
         },
         {
             id: 'IMPT_dynamic',
-            label: 'IMPT dynamic (manual calculation)', category: 'Mobility Poverty Index',
+            label: 'IMPT dynamic (custom weights)', category: 'Mobility Poverty Index',
             description: 'Computed on the fly based on user weightings of dimensions.',
             format: (v) => (v || 0).toFixed(1),
             higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true,

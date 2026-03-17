@@ -15,7 +15,7 @@ import { DownloadCard } from './components/DownloadCard';
 const Dashboard = () => {
     const [viewLevel, setViewLevel] = useState<ViewLevel>('freguesia');
     const [nutFilter, setNutFilter] = useState<RegionKey>(DEFAULT_REGION);
-    const [selectedMetricId, setSelectedMetricId] = useState<string>('IMPT_entropy_pca');
+    const [selectedMetricId, setSelectedMetricId] = useState<string>(FLAT_METRICS.find(m => m.default)?.id || FLAT_METRICS[0].id);
     const [selectedModeId, setSelectedModeId] = useState<ModeId>('all');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
     const [zoomRequest, setZoomRequest] = useState<{ id: string | number, timestamp: number } | null>(null);
@@ -85,19 +85,38 @@ const Dashboard = () => {
     // Helper to check if a specific mode is available for a metric at a certain view level
     const isModeAvailable = (modeId: string, metricId: string, level: string) => {
         if (modeId === 'all') return true;
+
+        const metric = FLAT_METRICS.find(m => m.id === metricId);
+        let checkMetricId = metricId;
+        
+        // For calculated metrics, evaluate availability based on the default reference metric
+        if (metric?.isCalculated) {
+            const defaultMetric = FLAT_METRICS.find(m => m.default);
+            if (defaultMetric) checkMetricId = defaultMetric.id;
+        }
+
         const mode = MODES.find(m => m.id === modeId);
         if (!mode || !dataState.geo[level as ViewLevel]) return false;
         const feature = dataState.geo[level as ViewLevel]?.features[0];
-        const effectiveId = `${metricId}${mode.suffix}`;
+        const effectiveId = `${checkMetricId}${mode.suffix}`;
         return !!(feature?.properties && feature.properties[effectiveId] !== undefined);
     };
 
     // Helper to check if a metric is available at a certain view level with the current mode
     const isMetricAvailable = (metricId: string, level: string, modeSuffix: string = selectedMode.suffix) => {
+        const metric = FLAT_METRICS.find(m => m.id === metricId);
+        let checkMetricId = metricId;
+
+        // For calculated metrics, evaluate availability based on the default reference metric
+        if (metric?.isCalculated) {
+            const defaultMetric = FLAT_METRICS.find(m => m.default);
+            if (defaultMetric) checkMetricId = defaultMetric.id;
+        }
+
         if (!dataState.geo[level as ViewLevel]) return false;
         const feature = dataState.geo[level as ViewLevel]?.features[0];
-        const effectiveId = `${metricId}${modeSuffix}`;
-        return feature && feature.properties && (feature.properties[effectiveId] !== undefined || feature.properties[metricId] !== undefined);
+        const effectiveId = `${checkMetricId}${modeSuffix}`;
+        return feature && feature.properties && (feature.properties[effectiveId] !== undefined || feature.properties[checkMetricId] !== undefined);
     };
 
     // Auto-switch view level OR reset mode if not available for selected metric
@@ -129,11 +148,11 @@ const Dashboard = () => {
         const dynamicMetricConfig = FLAT_METRICS.find(m => m.isCalculated);
         if (dynamicMetricConfig) {
             const dynamicId = `${dynamicMetricConfig.id}${selectedMode.suffix}`;
-            
+
             features = features.map((f: any) => {
                 let weightedSum = 0;
                 let totalWeight = 0;
-                
+
                 Object.entries(weights).forEach(([metricId, weight]) => {
                     const effectiveMetricId = `${metricId}${selectedMode.suffix}`;
                     const val = f.properties[effectiveMetricId] ?? f.properties[metricId] ?? 0;
@@ -142,7 +161,7 @@ const Dashboard = () => {
                 });
 
                 const computedIndex = totalWeight > 0 ? weightedSum / totalWeight : 0;
-                
+
                 return {
                     ...f,
                     properties: {
@@ -343,52 +362,52 @@ const Dashboard = () => {
                                                             <span className="truncate">{m.label}</span>
                                                             {m.isFake && <AlertTriangle className="w-2.5 h-2.5 text-amber-500 ml-auto opacity-60" />}
                                                         </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Dynamic Weights Sliders Section */}
-                {selectedMetric.isCalculated && (
-                    <section className={`pt-6 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                        <div className="flex items-center justify-between mb-5">
-                            <h3 className="text-[9px] font-black opacity-40 uppercase tracking-[0.2em] flex items-center gap-2">
-                                <Activity className="w-3.5 h-3.5 text-emerald-500" /> Dimension Weighting
-                            </h3>
-                            <button onClick={() => {
-                                const initial: Record<string, number> = {};
-                                FLAT_METRICS.filter(m => m.isContributory).forEach(m => {
-                                    initial[m.id] = m.defaultWeight || 1;
-                                });
-                                setWeights(initial);
-                            }} className="text-[9px] font-black uppercase text-indigo-500 hover:text-indigo-600 tracking-wider">Reset</button>
-                        </div>
-                        <div className="space-y-4">
-                            {FLAT_METRICS.filter(m => m.isContributory).map(m => (
-                                <div key={m.id} className="space-y-2">
-                                    <div className="flex justify-between items-center text-[10px] font-bold">
-                                        <span className={isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}>{m.icon} {m.label}</span>
-                                        <span className="text-indigo-500 font-black">{weights[m.id]?.toFixed(2)}</span>
-                                    </div>
-                                    <input
-                                        type="range" min="0" max="1" step="0.05"
-                                        value={weights[m.id] || 0}
-                                        onChange={(e) => setWeights(prev => ({ ...prev, [m.id]: parseFloat(e.target.value) }))}
-                                        className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                                    />
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </section>
-                )}
 
+                    {/* Dynamic Weights Sliders Section */}
+                    {selectedMetric.isCalculated && (
+                        <section className={`pt-6 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
+                            <div className="flex items-center justify-between mb-5">
+                                <h3 className="text-[9px] font-black opacity-40 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <Activity className="w-3.5 h-3.5 text-emerald-500" /> Dimension Weighting
+                                </h3>
+                                <button onClick={() => {
+                                    const initial: Record<string, number> = {};
+                                    FLAT_METRICS.filter(m => m.isContributory).forEach(m => {
+                                        initial[m.id] = m.defaultWeight || 1;
+                                    });
+                                    setWeights(initial);
+                                }} className="text-[9px] font-black uppercase text-indigo-500 hover:text-indigo-600 tracking-wider">Reset</button>
+                            </div>
+                            <div className="space-y-4">
+                                {FLAT_METRICS.filter(m => m.isContributory).map(m => (
+                                    <div key={m.id} className="space-y-2">
+                                        <div className="flex justify-between items-center text-[10px] font-bold">
+                                            <span className={isDarkMode ? 'text-neutral-400' : 'text-neutral-600'}>{m.icon} {m.label}</span>
+                                            <span className="text-indigo-500 font-black">{weights[m.id]?.toFixed(2)}</span>
+                                        </div>
+                                        <input
+                                            type="range" min="0" max="1" step="0.05"
+                                            value={weights[m.id] || 0}
+                                            onChange={(e) => setWeights(prev => ({ ...prev, [m.id]: parseFloat(e.target.value) }))}
+                                            className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                </div>
             </div>
-        </div>
 
             {/* Map Canvas: Main View */}
             <div className="flex-1 relative bg-neutral-950 flex flex-col">

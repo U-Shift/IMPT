@@ -12,6 +12,7 @@ export type MetricDef = {
     unit?: string;
     viewLevel?: 'municipality' | 'all'; // Restrict visibility
     isFake?: boolean; // Label as placeholder data
+    default?: boolean; // Show by default
     // Area details sidebar (opens on the right, when user clicks on a feature)
     showDetails?: boolean; // Show in "Area details" section
     showDetailsOnlyWhenSelected?: boolean; // Show in details only when active
