@@ -116,7 +116,7 @@ const ZoomHandler = ({ extent }: { extent: RegionKey }) => {
     const map = useMap();
     useEffect(() => {
         const config = REGIONS[extent];
-        map.setView(config.center as L.LatLngExpression, config.zoom);
+        map.setView(config.center as unknown as L.LatLngExpression, config.zoom);
     }, [extent, map]);
     return null;
 };
@@ -163,27 +163,41 @@ const Dashboard = () => {
 
     const [dataState, setDataState] = useState<{
         geo: Record<string, any>; limits: any; loading: boolean; error: string | null;
-    }>({ geo: {}, limits: null, loading: true, error: null });
+        parentLookup: Record<string, string>;
+    }>({ geo: {}, limits: null, loading: true, error: null, parentLookup: {} });
 
-    const LEVEL_FILES = {
-        'municipality': 'data/municipios_aggregated.geojson',
-        'freguesia': 'data/freguesias_aggregated.geojson',
-        'hex': 'data/grid_aggregated.geojson'
+    const LEVEL_CONFIG: Record<ViewLevel, { file: string, parent?: ViewLevel }> = {
+        'municipality': { file: 'data/municipios_aggregated.geojson' },
+        'freguesia': { file: 'data/freguesias_aggregated.geojson', parent: 'municipality' },
+        'hex': { file: 'data/grid_aggregated.geojson', parent: 'freguesia' }
     };
 
     useEffect(() => {
         const load = async () => {
             try {
-                const levels = Object.keys(LEVEL_FILES);
+                const levels = Object.keys(LEVEL_CONFIG) as ViewLevel[];
                 const results = await Promise.all([
-                    ...levels.map(l => fetch(LEVEL_FILES[l as keyof typeof LEVEL_FILES]).then(r => r.json())),
+                    ...levels.map(l => fetch(LEVEL_CONFIG[l].file).then(r => r.json())),
                     fetch('data/municipios_limits.json').then(r => r.json())
                 ]);
 
                 const geo: Record<string, any> = {};
                 levels.forEach((l, i) => { geo[l] = results[i]; });
 
-                setDataState({ geo, limits: results[levels.length], loading: false, error: null });
+                // Create parent lookups for each level that serves as a parent
+                const parentLookup: Record<string, string> = {};
+                levels.forEach(l => {
+                    const parentLevel = LEVEL_CONFIG[l].parent;
+                    if (parentLevel && geo[parentLevel]) {
+                        geo[parentLevel].features.forEach((f: any) => {
+                            // Store in a way that we can identify which parent level it belongs to if needed
+                            // For now, a flat map of ID -> Name works if IDs are unique across parents
+                            parentLookup[`${parentLevel}-${f.properties.id}`] = f.properties.name || f.properties.id;
+                        });
+                    }
+                });
+
+                setDataState({ geo, limits: results[levels.length], loading: false, error: null, parentLookup });
             } catch (err) {
                 console.error(err);
                 setDataState(s => ({ ...s, loading: false, error: "System encountered a data loading error." }));
@@ -283,9 +297,14 @@ const Dashboard = () => {
         const val = props[selectedMetric.id];
         const formattedVal = selectedMetric.format(val || 0);
 
+        const parentLevel = LEVEL_CONFIG[viewLevel].parent;
+        const parentName = (parentLevel && props.group_id)
+            ? (dataState.parentLookup[`${parentLevel}-${props.group_id}`] || props.group_id)
+            : 'LMA';
+
         layer.bindTooltip(`
             <div style="font-family: sans-serif; padding: 4px;">
-                <div style="font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">${props.group_id || 'LMA'}</div>
+                <div style="font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">${parentName}</div>
                 <div style="font-size: 12px; font-weight: 700; color: #111;">${props.name || 'N/A'}</div>
                 <div style="font-size: 11px; font-weight: 900; color: #6366f1; margin-top: 4px;">${selectedMetric.label}: ${formattedVal} ${selectedMetric.unit || ''}</div>
             </div>
@@ -488,7 +507,14 @@ const Dashboard = () => {
                         {selectedFeature ? (
                             <div className={`${isDarkMode ? 'bg-neutral-800/40 border-neutral-700/50' : 'bg-neutral-50 border-neutral-100'} rounded-[32px] p-7 border shadow-sm`}>
                                 <div className="mb-6">
-                                    <span className={`text-[9px] font-black ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'} uppercase tracking-[0.2em]`}>{selectedFeature.group_id || 'LMA'}</span>
+                                    <span className={`text-[9px] font-black ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'} uppercase tracking-[0.2em]`}>
+                                        {(() => {
+                                            const parentLevel = LEVEL_CONFIG[viewLevel].parent;
+                                            return (parentLevel && selectedFeature.group_id)
+                                                ? (dataState.parentLookup[`${parentLevel}-${selectedFeature.group_id}`] || selectedFeature.group_id)
+                                                : 'LMA';
+                                        })()}
+                                    </span>
                                     <h3 className="font-bold text-xl leading-tight mt-1.5 tracking-tight">{selectedFeature.name || selectedFeature.id}</h3>
                                 </div>
 
@@ -750,7 +776,7 @@ const DownloadCard = ({ title, id, isDark, data, filename }: { title: string, id
 };
 
 const DetailCard = ({ label, value, color = "", isDark = true, hexColor }: { label: string, value: string, color?: string, isDark?: boolean, hexColor?: string }) => (
-    <div 
+    <div
         className={`${isDark ? 'bg-neutral-800/60 border-neutral-700/30' : 'bg-neutral-50 border-neutral-100 shadow-sm'} rounded-2xl border transition-all hover:border-indigo-500/30 flex flex-col overflow-hidden`}
     >
         <div className="p-4 flex-1 flex flex-col justify-between">
