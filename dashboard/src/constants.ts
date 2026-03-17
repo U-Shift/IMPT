@@ -14,28 +14,28 @@ export const METRICS: Record<string, MetricDef[]> = {
         {
             id: 'IMPT_entropy_pca',
             label: 'IMPT with entropy', category: 'Mobility Poverty Index',
-            description: 'Composite index (0-100) based on accessibility, car share, and vehicle ownership.',
+            description: 'Composite index using entropy, which gives more weight to variables that show the most contrast',
             format: (v) => (v || 0).toFixed(1),
             higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true, default: true
         },
         {
             id: 'IMPT_score_pca_geom',
-            label: 'IMPT with geometric progression', category: 'Mobility Poverty Index',
-            description: 'Composite index (0-100) based on accessibility, car share, and vehicle ownership.',
+            label: 'IMPT with geometric mean', category: 'Mobility Poverty Index',
+            description: 'Composite index using geometric mean, which penalizes low scores in any dimension, ensuring that a single low score significantly drags down the entire result',
             format: (v) => (v || 0).toFixed(1),
             higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true
         },
         {
             id: 'IMPT_score_pca_avg',
-            label: 'IMPT with average', category: 'Mobility Poverty Index',
-            description: 'Composite index (0-100) based on accessibility, car share, and vehicle ownership.',
+            label: 'IMPT with equal weights', category: 'Mobility Poverty Index',
+            description: 'Composite index considering equal weights for each dimension',
             format: (v) => (v || 0).toFixed(1),
             higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true
         },
         {
             id: 'IMPT_dynamic',
             label: 'IMPT dynamic (custom weights)', category: 'Mobility Poverty Index',
-            description: 'Computed on the fly based on user weightings of dimensions.',
+            description: 'Computed on the fly based on user weightings of dimensions',
             format: (v) => (v || 0).toFixed(1),
             higherTheBetter: true, showDetails: true, showDetailsOnlyWhenSelected: true,
             isCalculated: true
@@ -45,7 +45,7 @@ export const METRICS: Record<string, MetricDef[]> = {
         {
             id: 'Accessibility_Index',
             label: 'Accessibility', category: 'Dimensions', icon: '🏘️',
-            description: 'Aggregated index for accessibility to key services and opportunities',
+            description: 'Aggregated accessibility metric, measuring access to key services and opportunities',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25
@@ -53,7 +53,7 @@ export const METRICS: Record<string, MetricDef[]> = {
         {
             id: 'Mobility_Index',
             label: 'Mobility', category: 'Dimensions', icon: '🚲',
-            description: 'Aggregated index for commuting and mobility infrastructure',
+            description: 'Aggregated mobility metric, considering commuting and mobility infrastructure',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25
@@ -61,7 +61,7 @@ export const METRICS: Record<string, MetricDef[]> = {
         {
             id: 'Safety_Index',
             label: 'Safety', category: 'Dimensions', icon: '🛡️',
-            description: 'Aggregated index for safety data related to accidents',
+            description: 'Aggregated safety metric, considering accidents',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25
@@ -69,7 +69,7 @@ export const METRICS: Record<string, MetricDef[]> = {
         {
             id: 'Affordability_Index',
             label: 'Affordability', category: 'Dimensions', icon: '💰',
-            description: 'Aggregated index for affordability, considering income and housing costs',
+            description: 'Aggregated affordability metric, considering income and housing costs',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25

@@ -88,7 +88,7 @@ const Dashboard = () => {
 
         const metric = FLAT_METRICS.find(m => m.id === metricId);
         let checkMetricId = metricId;
-        
+
         // For calculated metrics, evaluate availability based on the default reference metric
         if (metric?.isCalculated) {
             const defaultMetric = FLAT_METRICS.find(m => m.default);
@@ -151,13 +151,13 @@ const Dashboard = () => {
 
             features = features.map((f: any) => {
                 let computedIndex = 0;
-                
+
                 Object.entries(weights).forEach(([metricId, weight]) => {
                     const effectiveMetricId = `${metricId}${selectedMode.suffix}`;
                     const val = f.properties[effectiveMetricId] ?? 0;
                     computedIndex += val * weight;
                 });
-                
+
                 return {
                     ...f,
                     properties: {
@@ -332,7 +332,7 @@ const Dashboard = () => {
                         </h3>
                         <div className="space-y-4">
                             {Object.keys(METRICS).map(cat => (
-                                <div key={cat} className={`border rounded-2xl overflow-hidden transition-all ${isDarkMode ? 'border-neutral-800 bg-neutral-800/10' : 'border-neutral-100 bg-neutral-50/30'} ${!collapsedSections[cat] ? 'ring-1 ring-indigo-500/20' : ''}`}>
+                                <div key={cat} className={`border rounded-2xl transition-all ${isDarkMode ? 'border-neutral-800 bg-neutral-800/10' : 'border-neutral-100 bg-neutral-50/30'} ${!collapsedSections[cat] ? 'ring-1 ring-indigo-500/20' : ''}`}>
                                     <button onClick={() => toggleSection(cat)}
                                         className={`w-full flex items-center justify-between px-4 py-3.5 text-[10px] font-black uppercase tracking-widest transition-colors ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-600'}`}
                                     >
@@ -348,6 +348,7 @@ const Dashboard = () => {
                                                 if (!isVisible) return null;
                                                 return (
                                                     <button key={m.id} onClick={() => setSelectedMetricId(m.id)}
+                                                        data-tooltip={m.description}
                                                         className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[10px] font-bold transition-all ${selectedMetricId === m.id
                                                             ? 'bg-indigo-600 text-white shadow-lg'
                                                             : (isDarkMode ? 'hover:bg-neutral-800 text-neutral-500' : 'hover:bg-neutral-100 text-neutral-500')}`}
@@ -461,7 +462,7 @@ const Dashboard = () => {
                             </div>
                             <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
                                 <p className="text-[11px] font-black leading-tight mb-2 uppercase tracking-tight">{selectedMetric.label} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
-                                <p className="text-[9px] opacity-40 leading-relaxed font-bold uppercase tracking-tight">{selectedMetric.description || `Spatial distribution and variance of ${selectedMetric.label.toLowerCase()} across the ${viewLevel} network.`}</p>
+                                <p className="text-[9px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description || `Spatial distribution and variance of ${selectedMetric.label.toLowerCase()} across the ${viewLevel} network.`}</p>
                             </div>
                         </div>
                     </div>
