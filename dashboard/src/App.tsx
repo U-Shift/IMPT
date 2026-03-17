@@ -51,28 +51,28 @@ const METRICS: Record<string, MetricDef[]> = {
     ],
     'Dimensions': [
         {
-            id: 'Accessibility_PCA',
+            id: 'Accessibility_Index',
             label: 'Accessibility', category: 'Dimensions', icon: '👋',
             description: 'Aggregated index for accessibility to key services and opportunities',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true
         },
         {
-            id: 'Mobility_PCA',
+            id: 'Mobility_Index',
             label: 'Mobility', category: 'Dimensions', icon: '🚲',
             description: 'Aggregated index for commuting and mobility infrastructure',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true
         },
         {
-            id: 'Safety_PCA',
+            id: 'Safety_Index',
             label: 'Safety', category: 'Dimensions', icon: '🛡️',
             description: 'Aggregated index for safety data related to accidents',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true
         },
         {
-            id: 'Affordability_PCA',
+            id: 'Affordability_Index',
             label: 'Affordability', category: 'Dimensions', icon: '💰',
             description: 'Aggregated index for affordability, considering income and housing costs',
             format: (v) => getQuintileRange(v || 0),
@@ -97,6 +97,16 @@ const REGIONS = {
     'PT1B': { name: "Grande Lisboa", center: [38.85, -9.15], zoom: 11 },
     'PT1A': { name: "Península de Setúbal", center: [38.55, -9.05], zoom: 11 }
 } as const;
+
+const MODES = [
+    { id: 'all', label: 'All', suffix: '', icon: '🌐' },
+    { id: 'bike', label: 'Bike', suffix: '_bike', icon: '🚲' },
+    { id: 'car', label: 'Car', suffix: '_car', icon: '🚗' },
+    { id: 'pt', label: 'PT', suffix: '_pt', icon: '🚍' },
+    { id: 'walk', label: 'Walk', suffix: '_walk', icon: '🚶' }
+] as const;
+
+type ModeId = (typeof MODES)[number]['id'];
 
 type RegionKey = keyof typeof REGIONS;
 
@@ -152,6 +162,7 @@ const Dashboard = () => {
     const [viewLevel, setViewLevel] = useState<ViewLevel>('freguesia');
     const [nutFilter, setNutFilter] = useState<RegionKey>(DEFAULT_REGION);
     const [selectedMetricId, setSelectedMetricId] = useState<string>('IMPT_entropy_pca');
+    const [selectedModeId, setSelectedModeId] = useState<ModeId>('all');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
     const [showAbout, setShowAbout] = useState(false);
     const [showDownload, setShowDownload] = useState(false);
@@ -207,13 +218,15 @@ const Dashboard = () => {
     }, []);
 
     const selectedMetric = useMemo(() => FLAT_METRICS.find(m => m.id === selectedMetricId) || FLAT_METRICS[0], [selectedMetricId]);
+    const selectedMode = useMemo(() => MODES.find(m => m.id === selectedModeId) || MODES[0], [selectedModeId]);
 
-    // Helper to check if a metric is available at a certain view level
-    const isMetricAvailable = (metricId: string, level: string) => {
+    // Helper to check if a metric is available at a certain view level with the current mode
+    const isMetricAvailable = (metricId: string, level: string, modeSuffix: string = selectedMode.suffix) => {
         if (!dataState.geo[level as ViewLevel]) return false;
         // Check first feature to see if the property exists
         const feature = dataState.geo[level as ViewLevel]?.features[0];
-        return feature && feature.properties && feature.properties[metricId] !== undefined;
+        const effectiveId = `${metricId}${modeSuffix}`;
+        return feature && feature.properties && (feature.properties[effectiveId] !== undefined || feature.properties[metricId] !== undefined);
     };
 
     // Auto-switch view level if not available for selected metric
@@ -224,7 +237,7 @@ const Dashboard = () => {
                 setViewLevel(availableLevel);
             }
         }
-    }, [selectedMetricId, dataState.geo]);
+    }, [selectedMetricId, selectedModeId, dataState.geo]);
 
     const activeGeoData = useMemo(() => {
         let raw = dataState.geo[viewLevel];
@@ -240,21 +253,23 @@ const Dashboard = () => {
     const currentDomain = useMemo(() => {
         const defaultDomain: [number, number] = [0, 1];
         if (!activeGeoData?.features?.length) return defaultDomain;
-        const values = activeGeoData.features.map((f: any) => f.properties?.[selectedMetric.id]).filter((v: any) => v !== undefined && !isNaN(v));
+        const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
+        const values = activeGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[selectedMetric.id]).filter((v: any) => v !== undefined && !isNaN(v));
         if (values.length === 0) return defaultDomain;
         return [Math.min(...values), Math.max(...values)] as [number, number];
-    }, [activeGeoData, selectedMetric]);
+    }, [activeGeoData, selectedMetric, selectedMode]);
 
     // Precompute domains for all metrics shown in details to support dynamic coloring
     const allDomains = useMemo(() => {
         const result: Record<string, [number, number]> = {};
         if (!activeGeoData?.features?.length) return result;
         FLAT_METRICS.filter(m => m.showDetails).forEach(m => {
-            const values = activeGeoData.features.map((f: any) => f.properties?.[m.id]).filter((v: any) => v !== undefined && !isNaN(v));
+            const effectiveId = `${m.id}${selectedMode.suffix}`;
+            const values = activeGeoData.features.map((f: any) => f.properties?.[effectiveId] ?? f.properties?.[m.id]).filter((v: any) => v !== undefined && !isNaN(v));
             result[m.id] = values.length > 0 ? [Math.min(...values), Math.max(...values)] : [0, 1];
         });
         return result;
-    }, [activeGeoData]);
+    }, [activeGeoData, selectedMode]);
 
     const getColor = (val: number, domain: [number, number], metric: MetricDef) => {
         if (val === null || val === undefined) return '#333';
@@ -281,9 +296,11 @@ const Dashboard = () => {
     };
 
     const getStyle = (feature: any) => {
+        const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
+        const val = feature.properties[effectiveId] ?? feature.properties[selectedMetric.id];
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
-            fillColor: getColor(feature.properties[selectedMetric.id] || 0, currentDomain, selectedMetric),
+            fillColor: getColor(val || 0, currentDomain, selectedMetric),
             weight: isSelected ? 3 : (viewLevel === 'hex' ? 0.3 : 0.6),
             opacity: 1,
             color: isSelected ? '#a5b4fc' : 'white',
@@ -294,7 +311,8 @@ const Dashboard = () => {
 
     const onEachFeature = (feature: any, layer: any) => {
         const props = feature.properties;
-        const val = props[selectedMetric.id];
+        const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
+        const val = props[effectiveId] ?? props[selectedMetric.id];
         const formattedVal = selectedMetric.format(val || 0);
 
         const parentLevel = LEVEL_CONFIG[viewLevel].parent;
@@ -326,24 +344,28 @@ const Dashboard = () => {
     };
 
     const subLevelData = useMemo(() => {
-        if (viewLevel !== 'municipality' || !selectedFeature || !dataState.geo['freguesia']) return [];
-        return dataState.geo['freguesia'].features
-            .filter((f: any) => String(f.properties?.group_id) === String(selectedFeature.id))
+        if (!selectedFeature || viewLevel === 'hex') return [];
+        const level = viewLevel === 'municipality' ? 'freguesia' : 'hex';
+        if (!dataState.geo[level]) return [];
+        const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
+        return dataState.geo[level].features
+            .filter((f: any) => String(f.properties.group_id) === String(selectedFeature.id))
             .map((f: any) => f.properties)
-            .sort((a: any, b: any) => (b[selectedMetric.id] || 0) - (a[selectedMetric.id] || 0));
-    }, [viewLevel, selectedFeature, selectedMetric, dataState]);
+            .sort((a: any, b: any) => ((b[effectiveId] ?? b[selectedMetric.id]) || 0) - ((a[effectiveId] ?? a[selectedMetric.id]) || 0));
+    }, [viewLevel, selectedFeature, selectedMetric, selectedMode, dataState]);
 
     const chartData = useMemo(() => {
         if (!activeGeoData?.features) return { top10: [], worst10: [] };
+        const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
         const feats = activeGeoData.features.map((f: any) => ({
             id: f.properties?.id,
             name: String(f.properties?.name || f.properties?.id || 'Unknown'),
             group: f.properties?.group_id || '',
-            value: (f.properties?.[selectedMetric.id] || 0)
+            value: (f.properties?.[effectiveId] ?? f.properties?.[selectedMetric.id] ?? 0)
         }));
         const sorted = [...feats].sort((a, b) => b.value - a.value);
         return { top10: sorted.slice(0, 10), worst10: [...sorted].reverse().slice(0, 10).reverse() };
-    }, [activeGeoData, selectedMetric]);
+    }, [activeGeoData, selectedMetric, selectedMode]);
 
     if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-4`}>
@@ -378,7 +400,7 @@ const Dashboard = () => {
                                 <Info className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-neutral-800 text-neutral-500' : 'bg-neutral-100 text-neutral-400'}`}>v3.7.0</div>
+                        <div className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-neutral-800 text-neutral-500' : 'bg-neutral-100 text-neutral-400'}`}>Beta version</div>
                     </div>
                 </div>
 
@@ -455,6 +477,16 @@ const Dashboard = () => {
                                 >{REGIONS[n].name}</button>
                             ))}
                         </div>
+                        <div className={`${isDarkMode ? 'bg-neutral-900/90 border-neutral-800 shadow-2xl' : 'bg-white/90 border-neutral-200 shadow-xl'} backdrop-blur-md px-1.5 py-1.5 rounded-2xl border flex items-center`}>
+                            {MODES.map(m => (
+                                <button key={m.id} onClick={() => setSelectedModeId(m.id)}
+                                    className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${selectedModeId === m.id ? 'bg-indigo-600 text-white shadow-xl' : `${isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-800'}`}`}
+                                >
+                                    <span className="text-xs">{m.icon}</span>
+                                    {m.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -522,15 +554,19 @@ const Dashboard = () => {
                                     {FLAT_METRICS.filter(m =>
                                         m.showDetails &&
                                         (!m.showDetailsOnlyWhenSelected || m.id === selectedMetricId)
-                                    ).map(m => (
-                                        <DetailCard
-                                            key={m.id}
-                                            label={m.label}
-                                            value={m.format(selectedFeature[m.id])}
-                                            hexColor={getColor(selectedFeature[m.id], allDomains[m.id] || [0, 1], m)}
-                                            isDark={isDarkMode}
-                                        />
-                                    ))}
+                                    ).map(m => {
+                                        const effectiveId = `${m.id}${selectedMode.suffix}`;
+                                        const val = selectedFeature[effectiveId] ?? selectedFeature[m.id];
+                                        return (
+                                            <DetailCard
+                                                key={m.id}
+                                                label={m.label}
+                                                value={m.format(val)}
+                                                hexColor={getColor(val, allDomains[m.id] || [0, 1], m)}
+                                                isDark={isDarkMode}
+                                            />
+                                        );
+                                    })}
                                 </div>
                                 {/* Modal Share Breakdown - Currently disabled as data format changed to be agnostic */}
                                 {selectedFeature.share_car !== undefined && (
@@ -586,12 +622,16 @@ const Dashboard = () => {
                                     <div className="mt-8 pt-6 border-t border-neutral-800/50">
                                         <h4 className="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Constituent Dynamics</h4>
                                         <div className="space-y-3 max-h-40 overflow-y-auto pr-2 scrollbar-thin">
-                                            {subLevelData.slice(0, 10).map(f => (
-                                                <div key={f.id || f.name} className="flex justify-between items-center text-[10px] hover:bg-neutral-800/30 p-1.5 rounded-lg transition-colors cursor-default">
-                                                    <span className="opacity-50 truncate w-36">{f.name}</span>
-                                                    <span className="font-bold text-indigo-400">{selectedMetric.format(f[selectedMetric.id] || 0)}</span>
-                                                </div>
-                                            ))}
+                                            {subLevelData.slice(0, 10).map(f => {
+                                                const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
+                                                const val = f[effectiveId] ?? f[selectedMetric.id] ?? 0;
+                                                return (
+                                                    <div key={f.id || f.name} className="flex justify-between items-center text-[10px] hover:bg-neutral-800/30 p-1.5 rounded-lg transition-colors cursor-default">
+                                                        <span className="opacity-50 truncate w-36">{f.name}</span>
+                                                        <span className="font-bold text-indigo-400">{selectedMetric.format(val)}</span>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
