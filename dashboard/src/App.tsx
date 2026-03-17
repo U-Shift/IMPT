@@ -3,8 +3,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie, Legend as RechartsLegend } from 'recharts';
-import { Info, MapPin, ChevronRight, X, Github, Activity, Loader2, MousePointer2, ChevronDown, Sun, Moon, ExternalLink, ListFilter, TrendingUp, AlertTriangle, Download } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import { Info, MapPin, X, Github, Activity, Loader2, MousePointer2, ChevronDown, Sun, Moon, ExternalLink, ListFilter, TrendingUp, AlertTriangle, Download } from 'lucide-react';
 
 // --- Types & Constants ---
 type ViewLevel = 'hex' | 'freguesia' | 'municipality';
@@ -118,6 +118,24 @@ const ZoomHandler = ({ extent }: { extent: RegionKey }) => {
         const config = REGIONS[extent];
         map.setView(config.center as L.LatLngExpression, config.zoom);
     }, [extent, map]);
+    return null;
+};
+
+const SelectedFeatureCentering = ({ feature, activeGeoData }: { feature: any, activeGeoData: any }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (!feature || !activeGeoData?.features) return;
+
+        // Find the actual feature in the geojson to get its geometry
+        const geoFeature = activeGeoData.features.find((f: any) => String(f.properties.id) === String(feature.id));
+        if (geoFeature) {
+            const layer = L.geoJSON(geoFeature);
+            const bounds = layer.getBounds();
+            if (bounds.isValid()) {
+                map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+            }
+        }
+    }, [feature, activeGeoData, map]);
     return null;
 };
 
@@ -278,6 +296,7 @@ const Dashboard = () => {
     const chartData = useMemo(() => {
         if (!activeGeoData?.features) return { top10: [], worst10: [] };
         const feats = activeGeoData.features.map((f: any) => ({
+            id: f.properties?.id,
             name: String(f.properties?.name || f.properties?.id || 'Unknown'),
             group: f.properties?.group_id || '',
             value: (f.properties?.[selectedMetric.id] || 0)
@@ -423,6 +442,7 @@ const Dashboard = () => {
                 <div className="flex-1">
                     <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
+                        <SelectedFeatureCentering feature={selectedFeature} activeGeoData={activeGeoData} />
                         <TileLayer url={isDarkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"} attribution='&copy; CARTO' />
                         {activeGeoData?.features && (
                             <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${isDarkMode}-${selectedFeature?.id}`} data={activeGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
@@ -545,13 +565,31 @@ const Dashboard = () => {
                             <div>
                                 <p className="text-[10px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">Top performers</p>
                                 <div className={`h-44 rounded-2xl p-4 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
-                                    <MiniBarChart data={chartData.top10} metric={selectedMetric} isDark={isDarkMode} type="highest" />
+                                    <MiniBarChart
+                                        data={chartData.top10}
+                                        metric={selectedMetric}
+                                        isDark={isDarkMode}
+                                        type="highest"
+                                        onSelect={(id) => {
+                                            const f = activeGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
+                                            if (f) setSelectedFeature(f.properties);
+                                        }}
+                                    />
                                 </div>
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">Low performers</p>
                                 <div className={`h-44 rounded-2xl p-4 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
-                                    <MiniBarChart data={chartData.worst10} metric={selectedMetric} isDark={isDarkMode} type="lowest" />
+                                    <MiniBarChart
+                                        data={chartData.worst10}
+                                        metric={selectedMetric}
+                                        isDark={isDarkMode}
+                                        type="lowest"
+                                        onSelect={(id) => {
+                                            const f = activeGeoData.features.find((feat: any) => String(feat.properties.id) === String(id));
+                                            if (f) setSelectedFeature(f.properties);
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -696,16 +734,17 @@ const DetailCard = ({ label, value, color = "", isDark = true }: { label: string
     </div>
 );
 
-const MiniBarChart = ({ data, metric, isDark, type }: { data: any[], metric: MetricDef, isDark: boolean, type: 'highest' | 'lowest' }) => {
-    // Logic: 
-    // If higherTheBetter is true: highest is good (blue), lowest is critical (red)
-    // If higherTheBetter is false: highest is bad (red), lowest is good (blue)
+const MiniBarChart = ({ data, metric, isDark, type, onSelect }: { data: any[], metric: MetricDef, isDark: boolean, type: 'highest' | 'lowest', onSelect?: (id: string | number) => void }) => {
     const isGood = (type === 'highest' && metric.higherTheBetter) || (type === 'lowest' && !metric.higherTheBetter);
     const chartColor = isGood ? '#6366f1' : '#ef4444';
 
+    // Enhance data with a max value for the "ghost" bar that holds labels
+    const maxValue = useMemo(() => Math.max(...data.map(d => d.value), 0), [data]);
+    const chartData = useMemo(() => data.map(d => ({ ...d, fullSpace: maxValue })), [data, maxValue]);
+
     return (
         <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} layout="vertical" margin={{ left: -35, right: 35, top: 0, bottom: 0 }}>
+            <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 35, top: 0, bottom: 0 }}>
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" hide />
                 <RechartsTooltip cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }} content={({ active, payload }) => {
@@ -721,7 +760,19 @@ const MiniBarChart = ({ data, metric, isDark, type }: { data: any[], metric: Met
                     }
                     return null;
                 }} />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12}>
+                {/* Labels anchored to the full width of the grid */}
+                <Bar dataKey="fullSpace" fill="transparent" isAnimationActive={false} onClick={(d) => d?.id && onSelect?.(d.id)} style={{ cursor: 'pointer' }}>
+                    <LabelList
+                        dataKey="name"
+                        position="insideLeft"
+                        offset={0}
+                        formatter={(val: any) => (typeof val === 'string' && val.length > 50) ? `${val.substring(0, 47)}...` : val}
+                        style={{
+                            fontSize: '9px', fontWeight: 'bold', fill: isDark ? 'white' : 'black', opacity: 0.8
+                        }}
+                    />
+                </Bar>
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={12} onClick={(d) => d?.id && onSelect?.(d.id)} style={{ cursor: 'pointer' }}>
                     {data.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={chartColor} fillOpacity={1 - (index * 0.08)} />
                     ))}
