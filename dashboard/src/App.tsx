@@ -52,7 +52,7 @@ const METRICS: Record<string, MetricDef[]> = {
     'Dimensions': [
         {
             id: 'Accessibility_Index',
-            label: 'Accessibility', category: 'Dimensions', icon: '👋',
+            label: 'Accessibility', category: 'Dimensions', icon: '🏘️',
             description: 'Aggregated index for accessibility to key services and opportunities',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true
@@ -220,24 +220,39 @@ const Dashboard = () => {
     const selectedMetric = useMemo(() => FLAT_METRICS.find(m => m.id === selectedMetricId) || FLAT_METRICS[0], [selectedMetricId]);
     const selectedMode = useMemo(() => MODES.find(m => m.id === selectedModeId) || MODES[0], [selectedModeId]);
 
+    // Helper to check if a specific mode is available for a metric at a certain view level
+    const isModeAvailable = (modeId: string, metricId: string, level: string) => {
+        if (modeId === 'all') return true;
+        const mode = MODES.find(m => m.id === modeId);
+        if (!mode || !dataState.geo[level as ViewLevel]) return false;
+        const feature = dataState.geo[level as ViewLevel]?.features[0];
+        const effectiveId = `${metricId}${mode.suffix}`;
+        return !!(feature?.properties && feature.properties[effectiveId] !== undefined);
+    };
+
     // Helper to check if a metric is available at a certain view level with the current mode
     const isMetricAvailable = (metricId: string, level: string, modeSuffix: string = selectedMode.suffix) => {
         if (!dataState.geo[level as ViewLevel]) return false;
-        // Check first feature to see if the property exists
         const feature = dataState.geo[level as ViewLevel]?.features[0];
         const effectiveId = `${metricId}${modeSuffix}`;
         return feature && feature.properties && (feature.properties[effectiveId] !== undefined || feature.properties[metricId] !== undefined);
     };
 
-    // Auto-switch view level if not available for selected metric
+    // Auto-switch view level OR reset mode if not available for selected metric
     useEffect(() => {
+        // Reset mode if current mode is not available for selected metric at this level
+        if (selectedModeId !== 'all' && !isModeAvailable(selectedModeId, selectedMetricId, viewLevel)) {
+            setSelectedModeId('all');
+            return;
+        }
+
         if (!isMetricAvailable(selectedMetricId, viewLevel)) {
             const availableLevel = (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l));
             if (availableLevel) {
                 setViewLevel(availableLevel);
             }
         }
-    }, [selectedMetricId, selectedModeId, dataState.geo]);
+    }, [selectedMetricId, selectedModeId, viewLevel, dataState.geo]);
 
     const activeGeoData = useMemo(() => {
         let raw = dataState.geo[viewLevel];
@@ -478,7 +493,7 @@ const Dashboard = () => {
                             ))}
                         </div>
                         <div className={`${isDarkMode ? 'bg-neutral-900/90 border-neutral-800 shadow-2xl' : 'bg-white/90 border-neutral-200 shadow-xl'} backdrop-blur-md px-1.5 py-1.5 rounded-2xl border flex items-center`}>
-                            {MODES.map(m => (
+                            {MODES.filter(m => isModeAvailable(m.id, selectedMetricId, viewLevel)).map(m => (
                                 <button key={m.id} onClick={() => setSelectedModeId(m.id)}
                                     className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${selectedModeId === m.id ? 'bg-indigo-600 text-white shadow-xl' : `${isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-800'}`}`}
                                 >
@@ -556,6 +571,10 @@ const Dashboard = () => {
                                         (!m.showDetailsOnlyWhenSelected || m.id === selectedMetricId)
                                     ).map(m => {
                                         const effectiveId = `${m.id}${selectedMode.suffix}`;
+                                        // Make sure the effectiveId exists in the selectedFeature
+                                        if (!selectedFeature[effectiveId]) {
+                                            return null;
+                                        }
                                         const val = selectedFeature[effectiveId] ?? selectedFeature[m.id];
                                         return (
                                             <DetailCard
