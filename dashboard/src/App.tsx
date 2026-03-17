@@ -476,7 +476,7 @@ const Dashboard = () => {
                         {computedGeoData?.features && (
                             <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${selectedModeId}-${isDarkMode}-${selectedFeature?.id}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
-                        <Pane name="limits-pane" style={{ zIndex: 650 }}>
+                        <Pane name="limits-pane" style={{ zIndex: 450 }}>
                             {viewLevel !== 'municipality' && dataState.limits && (
                                 <GeoJSON data={dataState.limits as any} style={{ fillOpacity: 0, weight: 4, color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }} interactive={false} />
                             )}
