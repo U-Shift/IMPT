@@ -13,6 +13,7 @@ import { SidebarRight } from './components/SidebarRight';
 import { AboutModal } from './components/AboutModal';
 import { DownloadModal } from './components/DownloadModal';
 import { MapFilterDropdown } from './components/MapFilterDropdown';
+import { MobileOverlay } from './components/MobileOverlay';
 
 const Dashboard = () => {
     const [viewLevel, setViewLevel] = useState<ViewLevel>('freguesia');
@@ -38,6 +39,13 @@ const Dashboard = () => {
         const keys = Object.keys(METRICS);
         return keys.slice(1).reduce((acc, key) => ({ ...acc, [key]: true }), {});
     });
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const [dataState, setDataState] = useState<{
         geo: Record<string, any>; limits: any; loading: boolean; error: string | null;
@@ -337,22 +345,24 @@ const Dashboard = () => {
     return (
         <div className={`relative h-screen w-screen ${isDarkMode ? 'bg-neutral-950 text-neutral-100' : 'bg-neutral-50 text-neutral-900'} font-sans overflow-hidden transition-colors duration-300`}>
 
-            <SidebarLeft
-                isDarkMode={isDarkMode}
-                setIsDarkMode={setIsDarkMode}
-                setShowDownload={setShowDownload}
-                setShowAbout={setShowAbout}
-                selectedMetric={selectedMetric}
-                selectedMetricId={selectedMetricId}
-                setSelectedMetricId={setSelectedMetricId}
-                viewLevel={viewLevel}
-                collapsedSections={collapsedSections}
-                toggleSection={toggleSection}
-                weights={weights}
-                setWeights={setWeights}
-                resetWeights={resetWeights}
-                setIsAHPModalOpen={setIsAHPModalOpen}
-            />
+            {!isMobile && (
+                <SidebarLeft
+                    isDarkMode={isDarkMode}
+                    setIsDarkMode={setIsDarkMode}
+                    setShowDownload={setShowDownload}
+                    setShowAbout={setShowAbout}
+                    selectedMetric={selectedMetric}
+                    selectedMetricId={selectedMetricId}
+                    setSelectedMetricId={setSelectedMetricId}
+                    viewLevel={viewLevel}
+                    collapsedSections={collapsedSections}
+                    toggleSection={toggleSection}
+                    weights={weights}
+                    setWeights={setWeights}
+                    resetWeights={resetWeights}
+                    setIsAHPModalOpen={setIsAHPModalOpen}
+                />
+            )}
 
             {/* Map Canvas: Main View */}
             <div className="absolute inset-0 bg-neutral-950 z-0">
@@ -365,63 +375,67 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                <div className="absolute top-8 left-[416px] z-[1002] flex items-start pointer-events-none">
-                    <div className="flex gap-4 pointer-events-auto items-center">
-                        <MapFilterDropdown
-                            label="View Level"
-                            value={viewLevel}
-                            isDark={isDarkMode}
-                            icon={<Layers className="w-3.5 h-3.5" />}
-                            options={(['hex', 'freguesia', 'municipality'] as const)
-                                .filter(l => isMetricAvailable(selectedMetricId, l))
-                                .map(l => ({ id: l, label: l === 'hex' ? 'Grid' : l }))}
-                            onChange={(id) => setViewLevel(id as ViewLevel)}
-                        />
+                {!isMobile && (
+                    <div className="absolute top-8 left-[416px] z-[1002] flex items-start pointer-events-none">
+                        <div className="flex gap-4 pointer-events-auto items-center">
+                            <MapFilterDropdown
+                                label="View Level"
+                                value={viewLevel}
+                                isDark={isDarkMode}
+                                icon={<Layers className="w-3.5 h-3.5" />}
+                                options={(['hex', 'freguesia', 'municipality'] as const)
+                                    .filter(l => isMetricAvailable(selectedMetricId, l))
+                                    .map(l => ({ id: l, label: l === 'hex' ? 'Grid' : l }))}
+                                onChange={(id) => setViewLevel(id as ViewLevel)}
+                            />
 
-                        <MapFilterDropdown
-                            label="Region"
-                            value={nutFilter}
-                            isDark={isDarkMode}
-                            icon={<Globe className="w-3.5 h-3.5" />}
-                            options={REGION_KEYS.map(n => ({ id: n, label: REGIONS[n].name }))}
-                            onChange={(id) => setNutFilter(id as RegionKey)}
-                        />
+                            <MapFilterDropdown
+                                label="Region"
+                                value={nutFilter}
+                                isDark={isDarkMode}
+                                icon={<Globe className="w-3.5 h-3.5" />}
+                                options={REGION_KEYS.map(n => ({ id: n, label: REGIONS[n].name }))}
+                                onChange={(id) => setNutFilter(id as RegionKey)}
+                            />
 
-                        <MapFilterDropdown
-                            label="Mode"
-                            value={selectedModeId}
-                            isDark={isDarkMode}
-                            icon={<RocketIcon className="w-3.5 h-3.5" />}
-                            options={MODES.filter(m => isModeAvailable(m.id, selectedMetricId, viewLevel))
-                                .map(m => ({ id: m.id, label: m.label, icon: m.icon }))}
-                            onChange={(id) => setSelectedModeId(id as ModeId)}
-                        />
+                            <MapFilterDropdown
+                                label="Mode"
+                                value={selectedModeId}
+                                isDark={isDarkMode}
+                                icon={<RocketIcon className="w-3.5 h-3.5" />}
+                                options={MODES.filter(m => isModeAvailable(m.id, selectedMetricId, viewLevel))
+                                    .map(m => ({ id: m.id, label: m.label, icon: m.icon }))}
+                                onChange={(id) => setSelectedModeId(id as ModeId)}
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="absolute bottom-8 right-8 z-[1000] pointer-events-none w-[280px]">
-                    <div className={`p-6 rounded-[32px] border pointer-events-auto shadow-2xl backdrop-blur-xl ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-100'}`}>
-                        <h4 className="flex items-center gap-2.5 text-[12px] font-black text-sky-800 mb-5 uppercase tracking-[0.1em]">
-                            <Activity className="w-3.5 h-3.5" /> {nutFilter !== REGION_KEYS[0] ? 'Local Rescaling' : 'Global Metric Scale'}
-                        </h4>
-                        <div className="space-y-5">
-                            <div className="flex flex-col gap-3">
-                                <div
-                                    className="h-2.5 rounded-full w-full shadow-inner"
-                                    style={{ background: getLegendGradient() }}
-                                />
-                                <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
-                                    <span>{selectedMetric.format(currentDomain[0])}</span>
-                                    <span>{selectedMetric.format(currentDomain[1])}</span>
+                {!isMobile && (
+                    <div className="absolute bottom-8 right-8 z-[1000] pointer-events-none w-[280px]">
+                        <div className={`p-6 rounded-[32px] border pointer-events-auto shadow-2xl backdrop-blur-xl ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-100'}`}>
+                            <h4 className="flex items-center gap-2.5 text-[12px] font-black text-sky-800 mb-5 uppercase tracking-[0.1em]">
+                                <Activity className="w-3.5 h-3.5" /> {nutFilter !== REGION_KEYS[0] ? 'Local Rescaling' : 'Global Metric Scale'}
+                            </h4>
+                            <div className="space-y-5">
+                                <div className="flex flex-col gap-3">
+                                    <div
+                                        className="h-2.5 rounded-full w-full shadow-inner"
+                                        style={{ background: getLegendGradient() }}
+                                    />
+                                    <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
+                                        <span>{selectedMetric.format(currentDomain[0])}</span>
+                                        <span>{selectedMetric.format(currentDomain[1])}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                                <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{selectedMetric.label} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
-                                <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description || `Spatial distribution and variance of ${selectedMetric.label.toLowerCase()} across the ${viewLevel} network.`}</p>
+                                <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
+                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{selectedMetric.label} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
+                                    <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description || `Spatial distribution and variance of ${selectedMetric.label.toLowerCase()} across the ${viewLevel} network.`}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 <div className="absolute inset-0">
                     <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
@@ -441,22 +455,24 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <SidebarRight
-                isDarkMode={isDarkMode}
-                selectedFeature={selectedFeature}
-                viewLevel={viewLevel}
-                selectedMetric={selectedMetric}
-                selectedMetricId={selectedMetricId}
-                selectedMode={selectedMode}
-                dataState={dataState}
-                allDomains={allDomains}
-                getColor={getColor}
-                subLevelData={subLevelData}
-                chartData={chartData}
-                setSelectedFeature={setSelectedFeature}
-                computedGeoData={computedGeoData}
-                setZoomRequest={setZoomRequest}
-            />
+            {!isMobile && (
+                <SidebarRight
+                    isDarkMode={isDarkMode}
+                    selectedFeature={selectedFeature}
+                    viewLevel={viewLevel}
+                    selectedMetric={selectedMetric}
+                    selectedMetricId={selectedMetricId}
+                    selectedMode={selectedMode}
+                    dataState={dataState}
+                    allDomains={allDomains}
+                    getColor={getColor}
+                    subLevelData={subLevelData}
+                    chartData={chartData}
+                    setSelectedFeature={setSelectedFeature}
+                    computedGeoData={computedGeoData}
+                    setZoomRequest={setZoomRequest}
+                />
+            )}
 
             <AboutModal
                 showAbout={showAbout}
@@ -481,6 +497,10 @@ const Dashboard = () => {
                     setIsAHPModalOpen(false);
                 }}
             />
+
+            {isMobile && !showAbout && (
+                <MobileOverlay onShowAbout={() => setShowAbout(true)} />
+            )}
         </div >
     );
 };
