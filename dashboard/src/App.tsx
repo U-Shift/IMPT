@@ -209,7 +209,7 @@ const Dashboard = () => {
         if (val === null || val === undefined) return '#333';
         const [min, max] = domain;
         const range = max - min;
-        
+
         const seq = COLORS.Sequential;
         const dng = COLORS.Danger;
         const divNeg = COLORS.Divergent.negative;
@@ -240,7 +240,7 @@ const Dashboard = () => {
         if (selectedMetric.isDivergent) {
             return `linear-gradient(to right, ${COLORS.Divergent.negative[0]}, #fff, ${COLORS.Divergent.positive[COLORS.Divergent.positive.length - 1]})`;
         }
-        
+
         const activeArray = selectedMetric.higherTheBetter ? COLORS.Sequential : COLORS.Danger;
         // For sequential colormaps like Viridis, we pick 5 equidistant stops to ensure a faithful gradient representation in CSS
         const stops = [0, Math.floor(activeArray.length * 0.25), Math.floor(activeArray.length * 0.5), Math.floor(activeArray.length * 0.75), activeArray.length - 1];
@@ -335,7 +335,7 @@ const Dashboard = () => {
     if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-4`}>
             <Loader2 className="w-12 h-12 text-sky-800 animate-spin" />
-            <p className={`font-black uppercase tracking-[0.2em] text-[12px] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>Assembling Spatial Intelligence...</p>
+            <p className={`font-black uppercase tracking-[0.2em] text-[12px] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>Loading IMPT data...</p>
         </div>
     );
 
@@ -507,9 +507,9 @@ const Dashboard = () => {
                         </h4>
                         <div className="space-y-5">
                             <div className="flex flex-col gap-3">
-                                <div 
-                                    className="h-2.5 rounded-full w-full shadow-inner" 
-                                    style={{ background: getLegendGradient() }} 
+                                <div
+                                    className="h-2.5 rounded-full w-full shadow-inner"
+                                    style={{ background: getLegendGradient() }}
                                 />
                                 <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
                                     <span>{selectedMetric.format(currentDomain[0])}</span>
