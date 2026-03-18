@@ -386,7 +386,11 @@ const Dashboard = () => {
                                 options={(['hex', 'freguesia', 'municipality'] as const)
                                     .filter(l => isMetricAvailable(selectedMetricId, l))
                                     .map(l => ({ id: l, label: l === 'hex' ? 'Grid' : l }))}
-                                onChange={(id) => setViewLevel(id as ViewLevel)}
+                                onChange={(id) => {
+                                    setViewLevel(id as ViewLevel);
+                                    setZoomRequest(null);
+                                    setSelectedFeature(null);
+                                }}
                             />
 
                             <MapFilterDropdown
@@ -395,7 +399,11 @@ const Dashboard = () => {
                                 isDark={isDarkMode}
                                 icon={<Globe className="w-3.5 h-3.5" />}
                                 options={REGION_KEYS.map(n => ({ id: n, label: REGIONS[n].name }))}
-                                onChange={(id) => setNutFilter(id as RegionKey)}
+                                onChange={(id) => {
+                                    setNutFilter(id as RegionKey);
+                                    setZoomRequest(null);
+                                    setSelectedFeature(null);
+                                }}
                             />
 
                             <MapFilterDropdown
