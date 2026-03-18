@@ -43,8 +43,8 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
 
     // Calculate AHP Weights & Consistency
     const results = useMemo(() => {
-        if (currentStep !== pairs.length) return null; // Only calculate at the end
-        
+        if (currentStep !== pairs.length) return null;
+
         const n = metrics.length;
         const matrix = Array.from({ length: n }, () => new Array(n).fill(1));
 
@@ -84,9 +84,21 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
         }
         lambdaMax /= n;
 
-        const CI = (lambdaMax - n) / (n - 1);
-        const RI = 0.90; // Standard RI for n=4
-        const CR = CI / RI;
+        // FIX: Dynamic RI Table and check for n > 2
+        let CR = 0;
+        if (n > 2) {
+            const CI = (lambdaMax - n) / (n - 1);
+
+            // Standard Saaty Random Index values for n=1 to n=10
+            const RI_TABLE: Record<number, number> = {
+                1: 0.00, 2: 0.00, 3: 0.58, 4: 0.90, 5: 1.12,
+                6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
+            };
+
+            // Fallback to 1.49 if n > 10, though AHP rarely exceeds n=9
+            const RI = RI_TABLE[n] || 1.49;
+            CR = CI / RI;
+        }
 
         return { weights, CR };
     }, [currentStep, pairs, selections, metrics.length]);
@@ -94,7 +106,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
     if (!isOpen) return null;
 
     const isComplete = currentStep === pairs.length;
-    
+
     // Convert weights array to record mapping for App.tsx
     const handleApply = () => {
         if (results) {
@@ -127,7 +139,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
             <div className={`relative w-full max-w-2xl overflow-hidden rounded-3xl shadow-2xl ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-neutral-100' : 'bg-white border-neutral-200 text-neutral-900'} border`}>
-                
+
                 {/* Header */}
                 <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-neutral-800' : 'border-neutral-100'}`}>
                     <div>
@@ -230,7 +242,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                             >
                                 <ChevronLeft className="w-4 h-4" /> Previous
                             </button>
-                            
+
                             <button
                                 onClick={() => setCurrentStep(currentStep + 1)}
                                 className="flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 transition-all"
