@@ -40,6 +40,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
     // Slider state (-8 to +8) for each pair
     const [selections, setSelections] = useState<number[]>(new Array(pairs.length).fill(0));
     const [currentStep, setCurrentStep] = useState(0);
+    const [forceConsistency, setForceConsistency] = useState(true);
 
     // Calculate AHP Weights & Consistency
     const results = useMemo(() => {
@@ -100,7 +101,17 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
             CR = CI / RI;
         }
 
-        return { weights, CR };
+        // Identify most inconsistent pairs
+        // For each pair (i,j), we check how much a_ij deviates from (w_i / w_j)
+        const inconsistencyScores = pairs.map(([i, j], idx) => {
+            const userVal = getSaatyValue(selections[idx]);
+            const weightRatio = weights[i] / weights[j];
+            // Using a ratio of deviation for consistency
+            const deviation = Math.max(userVal / weightRatio, weightRatio / userVal);
+            return { index: idx, deviation, pair: [i, j] };
+        }).sort((a, b) => b.deviation - a.deviation);
+
+        return { weights, CR, inconsistentPairs: inconsistencyScores.slice(0, 2) };
     }, [currentStep, pairs, selections, metrics.length]);
 
     if (!isOpen) return null;
@@ -142,11 +153,23 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
 
                 {/* Header */}
                 <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-neutral-800' : 'border-neutral-100'}`}>
-                    <div>
-                        <h2 className="text-xl font-black uppercase tracking-widest">Dimension Survey</h2>
-                        <p className={`text-xs mt-1 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                            Analytic Hierarchy Process (AHP)
-                        </p>
+                    <div className="flex items-center gap-4">
+                        <div>
+                            <h2 className="text-xl font-black uppercase tracking-widest">Dimension Survey</h2>
+                            <p className={`text-xs mt-1 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                                Analytic Hierarchy Process (AHP)
+                            </p>
+                        </div>
+                        <div className="h-8 w-px bg-neutral-200 dark:bg-neutral-800 hidden md:block" />
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <div
+                                onClick={() => setForceConsistency(!forceConsistency)}
+                                className={`w-10 h-5 rounded-full relative transition-colors ${forceConsistency ? 'bg-indigo-600' : (isDarkMode ? 'bg-neutral-800' : 'bg-neutral-200')}`}
+                            >
+                                <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${forceConsistency ? 'translate-x-5' : ''}`} />
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 group-hover:text-indigo-500 transition-colors">Force Consistency</span>
+                        </label>
                     </div>
                     <button onClick={onClose} className={`p-2 rounded-full transition-colors ${isDarkMode ? 'hover:bg-neutral-800' : 'hover:bg-neutral-100'}`}>
                         <X className="w-6 h-6" />
@@ -219,11 +242,36 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                             </div>
 
                             {results && results.CR > 0.1 && (
-                                <div className="flex items-start gap-3 p-4 bg-amber-500/10 text-amber-500 rounded-xl">
-                                    <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                                    <div className="text-xs">
-                                        <p className="font-bold uppercase tracking-wider mb-1">Inconsistent Answers (CR: {(results.CR).toFixed(2)})</p>
-                                        <p className="opacity-80">Your pairwise comparisons are mathematically inconsistent. The weights will still work, but you may want to retake the survey for more accurate reflection of your preferences.</p>
+                                <div className={`flex flex-col gap-4 p-4 rounded-xl ${forceConsistency ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-amber-500/10 text-amber-500'}`}>
+                                    <div className="flex items-start gap-3">
+                                        <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                                        <div className="text-xs">
+                                            <p className="font-bold uppercase tracking-wider mb-1">
+                                                {forceConsistency ? 'Mathematical Inconsistency Detected' : 'Inconsistent Answers'} (CR: {(results.CR).toFixed(2)})
+                                            </p>
+                                            <p className="opacity-80">
+                                                {forceConsistency
+                                                    ? 'Force Consistency is enabled. You must adjust your preferences to reach a Consistency Ratio below 0.10 before applying weights.'
+                                                    : 'Your pairwise comparisons are mathematically inconsistent. The weights will still work, but you may want to retake the survey for better accuracy.'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-neutral-800/50' : 'bg-white/50'} space-y-2`}>
+                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Most inconsistent comparisons:</p>
+                                        {results.inconsistentPairs.map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between text-[10px] group">
+                                                <span className="font-bold">
+                                                    {metrics[item.pair[0]].label} vs {metrics[item.pair[1]].label}
+                                                </span>
+                                                <button
+                                                    onClick={() => setCurrentStep(item.index)}
+                                                    className="px-2 py-0.5 rounded bg-indigo-500 text-white font-black uppercase tracking-tighter hover:bg-indigo-400 transition-colors"
+                                                >
+                                                    Fix
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}
@@ -253,17 +301,19 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                     ) : (
                         <>
                             <button
-                                onClick={() => { setCurrentStep(0); setSelections(new Array(pairs.length).fill(0)); }}
+                                onClick={() => { setCurrentStep(0); }}
                                 className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${isDarkMode ? 'hover:bg-neutral-800' : 'hover:bg-neutral-200'}`}
                             >
-                                Retake Survey
+                                {results && results.CR > 0.1 && forceConsistency ? 'Review Comparisons' : 'Retake Survey'}
                             </button>
-                            <button
-                                onClick={handleApply}
-                                className="flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 transition-all"
-                            >
-                                Apply Weights
-                            </button>
+                            {(!forceConsistency || (results && results.CR <= 0.1)) && (
+                                <button
+                                    onClick={handleApply}
+                                    className="flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 transition-all"
+                                >
+                                    Apply Weights
+                                </button>
+                            )}
                         </>
                     )}
                 </div>
