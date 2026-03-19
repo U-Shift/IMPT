@@ -247,7 +247,8 @@ const Dashboard = () => {
         const activeArray = selectedMetric.higherTheBetter ? COLORS.Sequential : COLORS.Danger;
         // For sequential colormaps like Viridis, we pick 5 equidistant stops to ensure a faithful gradient representation in CSS
         const stops = [0, Math.floor(activeArray.length * 0.25), Math.floor(activeArray.length * 0.5), Math.floor(activeArray.length * 0.75), activeArray.length - 1];
-        const colors = stops.map(i => activeArray[Math.min(i, activeArray.length - 1)]);
+        let colors = stops.map(i => activeArray[Math.min(i, activeArray.length - 1)]);
+        if (!selectedMetric.higherTheBetter) colors = colors.reverse();
         return `linear-gradient(to right, ${colors.join(', ')})`;
     };
 
@@ -432,8 +433,8 @@ const Dashboard = () => {
                                         style={{ background: getLegendGradient() }}
                                     />
                                     <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
-                                        <span>{selectedMetric.format(currentDomain[0])}</span>
-                                        <span>{selectedMetric.format(currentDomain[1])}</span>
+                                        <span>{selectedMetric.higherTheBetter ? selectedMetric.format(currentDomain[0]) : selectedMetric.format(currentDomain[1])}</span>
+                                        <span>{selectedMetric.higherTheBetter ? selectedMetric.format(currentDomain[1]) : selectedMetric.format(currentDomain[0])}</span>
                                     </div>
                                 </div>
                                 <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
