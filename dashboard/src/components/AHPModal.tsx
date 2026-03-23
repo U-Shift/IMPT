@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { X, ChevronRight, ChevronLeft, Check, AlertTriangle } from 'lucide-react';
 import { MetricDef } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface AHPModalProps {
     metrics: MetricDef[];
@@ -11,9 +12,6 @@ interface AHPModalProps {
 }
 
 // Maps slider [-8, 8] to Saaty Scale (1 to 9)
-// e.g., -8 -> Left is 9x more important
-//        0 -> Equally important
-//        8 -> Right is 9x more important
 const getSaatyValue = (sliderValue: number): number => {
     if (sliderValue === 0) return 1;
     if (sliderValue < 0) return Math.abs(sliderValue) + 1;
@@ -21,6 +19,7 @@ const getSaatyValue = (sliderValue: number): number => {
 };
 
 export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, onApplyWeights, isDarkMode }) => {
+    const { t } = useTranslation();
     // Generate Pairwise Combinations
     const pairs = useMemo(() => {
         const result = [];
@@ -80,28 +79,21 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
         }
         lambdaMax /= n;
 
-        // FIX: Dynamic RI Table and check for n > 2
+        // Dynamic RI Table
         let CR = 0;
         if (n > 2) {
             const CI = (lambdaMax - n) / (n - 1);
-
-            // Standard Saaty Random Index values for n=1 to n=10
             const RI_TABLE: Record<number, number> = {
                 1: 0.00, 2: 0.00, 3: 0.58, 4: 0.90, 5: 1.12,
                 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
             };
-
-            // Fallback to 1.49 if n > 10, though AHP rarely exceeds n=9
             const RI = RI_TABLE[n] || 1.49;
             CR = CI / RI;
         }
 
-        // Identify most inconsistent pairs
-        // For each pair (i,j), we check how much a_ij deviates from (w_i / w_j)
         const inconsistencyScores = pairs.map(([i, j], idx) => {
             const userVal = getSaatyValue(selections[idx]);
             const weightRatio = weights[i] / weights[j];
-            // Using a ratio of deviation for consistency
             const deviation = Math.max(userVal / weightRatio, weightRatio / userVal);
             return { index: idx, deviation, pair: [i, j] };
         }).sort((a, b) => b.deviation - a.deviation);
@@ -113,7 +105,6 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
 
     const isComplete = currentStep === pairs.length;
 
-    // Convert weights array to record mapping for App.tsx
     const handleApply = () => {
         if (results) {
             const weightsRecord: Record<string, number> = {};
@@ -134,11 +125,11 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
     // Label mapping for the slider values
     const getIntensityLabel = (val: number) => {
         const abs = Math.abs(val);
-        if (abs === 0) return 'Equally Important';
-        if (abs <= 2) return 'Slightly More Important';
-        if (abs <= 4) return 'Moderately More Important';
-        if (abs <= 6) return 'Strongly More Important';
-        return 'Extremely More Important';
+        if (abs === 0) return t('ahp.intensity.equal');
+        if (abs <= 2) return t('ahp.intensity.slight');
+        if (abs <= 4) return t('ahp.intensity.moderate');
+        if (abs <= 6) return t('ahp.intensity.strong');
+        return t('ahp.intensity.extreme');
     };
 
     return (
@@ -150,9 +141,9 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                 <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-neutral-800' : 'border-neutral-100'}`}>
                     <div className="flex items-center gap-4">
                         <div>
-                            <h2 className="text-2xl font-black uppercase tracking-widest">Dimension Survey</h2>
+                            <h2 className="text-2xl font-black uppercase tracking-widest">{t('ahp.survey_title')}</h2>
                             <p className={`text-base mt-1 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                                Analytic Hierarchy Process (AHP)
+                                {t('ahp.survey_subtitle')}
                             </p>
                         </div>
                         <div className="h-8 w-px bg-neutral-200 dark:bg-neutral-800 hidden md:block" />
@@ -163,7 +154,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                             >
                                 <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${forceConsistency ? 'translate-x-5' : ''}`} />
                             </div>
-                            <span className="text-[12px] font-bold uppercase tracking-wider text-neutral-500 group-hover:text-sky-800 transition-colors">Force Consistency</span>
+                            <span className="text-[12px] font-bold uppercase tracking-wider text-neutral-500 group-hover:text-sky-800 transition-colors">{t('ahp.force_consistency')}</span>
                         </label>
                     </div>
                     <button onClick={onClose} className={`p-2 rounded-full transition-colors ${isDarkMode ? 'hover:bg-neutral-800' : 'hover:bg-neutral-100'}`}>
@@ -177,19 +168,19 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                         <div className="space-y-12">
                             <div className="text-center space-y-2">
                                 <p className={`text-[12px] font-black uppercase tracking-widest ${isDarkMode ? 'text-sky-700' : 'text-sky-900'}`}>
-                                    Comparison {currentStep + 1} of {pairs.length}
+                                    {t('ahp.comparison_step', { current: currentStep + 1, total: pairs.length })}
                                 </p>
-                                <h3 className="text-lg font-medium">Which dimension is more important to you?</h3>
+                                <h3 className="text-lg font-medium">{t('ahp.question')}</h3>
                             </div>
 
                             <div className="flex items-center justify-between gap-6">
                                 <div className={`flex-1 text-right p-4 rounded-xl border-2 transition-colors ${selections[currentStep] < 0 ? 'border-sky-800 bg-sky-800/10 text-sky-800' : (isDarkMode ? 'border-neutral-800' : 'border-neutral-100')}`}>
-                                    <p className="font-bold text-base uppercase tracking-wider">{metrics[pairs[currentStep][0]].label}</p>
-                                    <p className="text-[12px] opacity-60 mt-1">{metrics[pairs[currentStep][0]].description}</p>
+                                    <p className="font-bold text-base uppercase tracking-wider">{t(metrics[pairs[currentStep][0]].label)}</p>
+                                    <p className="text-[12px] opacity-60 mt-1">{t(metrics[pairs[currentStep][0]].description || '')}</p>
                                 </div>
                                 <div className={`flex-1 text-left p-4 rounded-xl border-2 transition-colors ${selections[currentStep] > 0 ? 'border-sky-800 bg-sky-800/10 text-sky-800' : (isDarkMode ? 'border-neutral-800' : 'border-neutral-100')}`}>
-                                    <p className="font-bold text-base uppercase tracking-wider">{metrics[pairs[currentStep][1]].label}</p>
-                                    <p className="text-[12px] opacity-60 mt-1">{metrics[pairs[currentStep][1]].description}</p>
+                                    <p className="font-bold text-base uppercase tracking-wider">{t(metrics[pairs[currentStep][1]].label)}</p>
+                                    <p className="text-[12px] opacity-60 mt-1">{t(metrics[pairs[currentStep][1]].description || '')}</p>
                                 </div>
                             </div>
 
@@ -214,8 +205,8 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                 <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Check className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-2xl font-black uppercase tracking-widest">Survey Complete</h3>
-                                <p className={`text-base ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>Here are your calculated dimension weights.</p>
+                                <h3 className="text-2xl font-black uppercase tracking-widest">{t('ahp.complete')}</h3>
+                                <p className={`text-base ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{t('ahp.complete_desc')}</p>
                             </div>
 
                             <div className="space-y-4">
@@ -225,7 +216,7 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                     return (
                                         <div key={m.id} className="relative">
                                             <div className="flex justify-between text-[12px] font-bold uppercase tracking-wider mb-1">
-                                                <span>{m.label}</span>
+                                                <span>{t(m.label)}</span>
                                                 <span>{pct}%</span>
                                             </div>
                                             <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-neutral-800' : 'bg-neutral-100'}`}>
@@ -242,28 +233,28 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                         <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
                                         <div className="text-base">
                                             <p className="font-bold uppercase tracking-wider mb-1">
-                                                {forceConsistency ? 'Mathematical Inconsistency Detected' : 'Inconsistent Answers'} (CR: {(results.CR).toFixed(2)})
+                                                {forceConsistency ? t('ahp.inconsistency_title') : t('ahp.inconsistency_answers')} (CR: {(results.CR).toFixed(2)})
                                             </p>
                                             <p className="opacity-80">
                                                 {forceConsistency
-                                                    ? 'Force Consistency is enabled. You must adjust your preferences to reach a Consistency Ratio below 0.10 before applying weights.'
-                                                    : 'Your pairwise comparisons are mathematically inconsistent. The weights will still work, but you may want to retake the survey for better accuracy.'}
+                                                    ? t('ahp.inconsistency_desc_force')
+                                                    : t('ahp.inconsistency_desc')}
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-neutral-800/50' : 'bg-white/50'} space-y-2`}>
-                                        <p className="text-[12px] font-black uppercase tracking-widest opacity-60">Most inconsistent comparisons:</p>
+                                        <p className="text-[12px] font-black uppercase tracking-widest opacity-60">{t('ahp.inconsistent_pairs_label')}:</p>
                                         {results.inconsistentPairs.map((item, idx) => (
                                             <div key={idx} className="flex items-center justify-between text-[12px] group">
                                                 <span className="font-bold">
-                                                    {metrics[item.pair[0]].label} vs {metrics[item.pair[1]].label}
+                                                    {t(metrics[item.pair[0]].label)} vs {t(metrics[item.pair[1]].label)}
                                                 </span>
                                                 <button
                                                     onClick={() => setCurrentStep(item.index)}
                                                     className="px-2 py-0.5 rounded bg-sky-800 text-white font-black uppercase tracking-tighter hover:bg-sky-700 transition-colors"
                                                 >
-                                                    Fix
+                                                    {t('common.fix')}
                                                 </button>
                                             </div>
                                         ))}
@@ -283,14 +274,14 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                 disabled={currentStep === 0}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[12px] font-bold uppercase tracking-widest transition-all ${currentStep === 0 ? 'opacity-30 cursor-not-allowed' : (isDarkMode ? 'hover:bg-neutral-800' : 'hover:bg-neutral-200')}`}
                             >
-                                <ChevronLeft className="w-4 h-4" /> Previous
+                                <ChevronLeft className="w-4 h-4" /> {t('common.previous')}
                             </button>
 
                             <button
                                 onClick={() => setCurrentStep(currentStep + 1)}
                                 className="flex items-center gap-2 px-6 py-2 rounded-xl text-[12px] font-bold uppercase tracking-widest bg-sky-900 hover:bg-sky-800 text-white shadow-lg shadow-sky-800/30 transition-all"
                             >
-                                {currentStep === pairs.length - 1 ? 'Calculate' : 'Next'} <ChevronRight className="w-4 h-4" />
+                                {currentStep === pairs.length - 1 ? t('common.calculate') : t('common.next')} <ChevronRight className="w-4 h-4" />
                             </button>
                         </>
                     ) : (
@@ -299,14 +290,14 @@ export const AHPModal: React.FC<AHPModalProps> = ({ metrics, isOpen, onClose, on
                                 onClick={() => { setCurrentStep(0); }}
                                 className={`px-4 py-2 rounded-xl text-[12px] font-bold uppercase tracking-widest transition-all ${isDarkMode ? 'hover:bg-neutral-800' : 'hover:bg-neutral-200'}`}
                             >
-                                {results && results.CR > 0.1 && forceConsistency ? 'Review Comparisons' : 'Retake Survey'}
+                                {results && results.CR > 0.1 && forceConsistency ? t('ahp.review_comparisons') : t('ahp.retake_survey')}
                             </button>
                             {(!forceConsistency || (results && results.CR <= 0.1)) && (
                                 <button
                                     onClick={handleApply}
                                     className="flex items-center gap-2 px-6 py-2 rounded-xl text-[12px] font-bold uppercase tracking-widest bg-sky-900 hover:bg-sky-800 text-white shadow-lg shadow-sky-800/30 transition-all"
                                 >
-                                    Apply Weights
+                                    {t('ahp.apply_weights')}
                                 </button>
                             )}
                         </>

@@ -5,6 +5,7 @@ import { MetricDef } from '../types';
 import { DetailCard } from './DetailCard';
 import { MiniBarChart } from './MiniBarChart';
 import { LEVEL_CONFIG } from '../constants';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarRightProps {
     isDarkMode: boolean;
@@ -28,6 +29,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
     selectedMode, dataState, allDomains, getColor, subLevelData, chartData,
     setSelectedFeature, computedGeoData, setZoomRequest
 }) => {
+    const { t } = useTranslation();
     return (
         <div className={`absolute top-4 right-4 w-[400px] max-h-[calc(100vh-2rem)] flex flex-col ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800' : 'bg-white/95 border-neutral-200'} border rounded-[32px] shadow-2xl z-[1001] backdrop-blur-xl transition-all overflow-hidden`}>
             <div className="flex-1 overflow-y-auto p-7 space-y-8 scrollbar-hide">
@@ -37,13 +39,13 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                     <section className="animate-in fade-in slide-in-from-right-4 duration-300">
                         <div className="flex items-center justify-between mb-5">
                             <h3 className="text-[12px] font-black opacity-30 uppercase tracking-[0.3em] flex items-center gap-2">
-                                <MapPin className="w-3.5 h-3.5 text-sky-800" /> Area details
+                                <MapPin className="w-3.5 h-3.5 text-sky-800" /> {t('sidebar.area_details')}
                             </h3>
                             <button 
                                 onClick={() => setSelectedFeature(null)}
                                 className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${isDarkMode ? 'hover:bg-white/5 text-neutral-500' : 'hover:bg-neutral-100 text-neutral-400'}`}
                             >
-                                Close
+                                {t('common.close')}
                             </button>
                         </div>
                         <div className={`${isDarkMode ? 'bg-neutral-800/40 border-neutral-700/50' : 'bg-neutral-50 border-neutral-100'} rounded-[32px] p-6 border shadow-sm`}>
@@ -53,20 +55,20 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         const parentLevel = (LEVEL_CONFIG as any)[viewLevel].parent;
                                         return (parentLevel && selectedFeature.group_id)
                                             ? (dataState.parentLookup[`${parentLevel}-${selectedFeature.group_id}`] || selectedFeature.group_id)
-                                            : 'LMA';
+                                            : t('common.lma');
                                     })()}
                                 </span>
                                 <h3 className="font-bold text-xl leading-tight mt-1.5 tracking-tight">{selectedFeature.name || selectedFeature.id}</h3>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 mb-6">
-                                {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, getColor, isDarkMode)}
+                                {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, getColor, isDarkMode, t)}
                             </div>
                             
                             {/* Modal Share Breakdown */}
                             {selectedFeature.share_car !== undefined && (
                                 <div className="mb-6 pt-6 border-t border-neutral-800/50">
-                                    <h4 className="text-[12px] font-black opacity-30 uppercase mb-4 tracking-widest">Mobility Profile (Modal Share)</h4>
+                                    <h4 className="text-[12px] font-black opacity-30 uppercase mb-4 tracking-widest">{t('sidebar.mobility_profile')}</h4>
                                     <div className="h-16 flex items-center">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <BarChart data={[{
@@ -86,7 +88,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                                     <div key={p.name} className="flex justify-between gap-4 text-[12px] items-center">
                                                                         <div className="flex items-center gap-1.5">
                                                                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
-                                                                            <span className="font-bold opacity-60 uppercase">{p.name}</span>
+                                                                            <span className="font-bold opacity-60 uppercase">{t(`modes.${p.name.toLowerCase()}`)}</span>
                                                                         </div>
                                                                         <span className="font-black text-sky-800">{p.value.toFixed(1)}%</span>
                                                                     </div>
@@ -106,16 +108,16 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         </ResponsiveContainer>
                                     </div>
                                     <div className="flex justify-between mt-2 px-1">
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[12px] font-black opacity-40 uppercase">Car</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-sky-800" /><span className="text-[12px] font-black opacity-40 uppercase">PT</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className="text-[12px] font-black opacity-40 uppercase">Walk</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-yellow-500" /><span className="text-[12px] font-black opacity-40 uppercase">Bike</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[12px] font-black opacity-40 uppercase">{t('modes.car')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-sky-800" /><span className="text-[12px] font-black opacity-40 uppercase">{t('modes.pt')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className="text-[12px] font-black opacity-40 uppercase">{t('modes.walk')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-yellow-500" /><span className="text-[12px] font-black opacity-40 uppercase">{t('modes.bike')}</span></div>
                                     </div>
                                 </div>
                             )}
                             {viewLevel === 'municipality' && subLevelData.length > 0 && (
                                 <div className="mt-8 pt-6 border-t border-neutral-800/50">
-                                    <h4 className="text-[12px] font-black opacity-30 uppercase mb-4 tracking-widest">Constituent Dynamics</h4>
+                                    <h4 className="text-[12px] font-black opacity-30 uppercase mb-4 tracking-widest">{t('sidebar.constituent_dynamics')}</h4>
                                     <div className="space-y-3 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
                                         {subLevelData.slice(0, 10).map((f: any) => {
                                             const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
@@ -138,11 +140,11 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                 {!selectedFeature && (
                     <section className="animate-in fade-in slide-in-from-right-4 duration-300">
                         <h3 className="text-[12px] font-black opacity-30 uppercase tracking-[0.3em] mb-5 flex items-center gap-2">
-                            <TrendingUp className="w-3.5 h-3.5 text-sky-800" /> Regional Contrast
+                            <TrendingUp className="w-3.5 h-3.5 text-sky-800" /> {t('sidebar.regional_contrast')}
                         </h3>
                         <div className="space-y-8">
                             <div>
-                                <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">Top performers</p>
+                                <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">{t('sidebar.top_performers')}</p>
                                 <div className={`h-44 rounded-[28px] p-5 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
                                     <MiniBarChart
                                         data={chartData.top10}
@@ -160,7 +162,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">Low performers</p>
+                                <p className="text-[12px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">{t('sidebar.low_performers')}</p>
                                 <div className={`h-44 rounded-[28px] p-5 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
                                     <MiniBarChart
                                         data={chartData.worst10}
@@ -188,7 +190,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 // Helper for cleaning up App.tsx imports in the component
 import { FLAT_METRICS } from '../constants';
 
-const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, getColor: any, isDarkMode: boolean) => {
+const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, getColor: any, isDarkMode: boolean, t: any) => {
     return FLAT_METRICS.filter(m =>
         m.showDetails &&
         (!m.showDetailsOnlyWhenSelected || m.id === selectedMetricId)
@@ -201,7 +203,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
         return (
             <DetailCard
                 key={m.id}
-                label={m.label}
+                label={t(m.label)}
                 value={m.format(val)}
                 hexColor={getColor(val, allDomains[m.id] || [0, 1], m)}
                 isDark={isDarkMode}

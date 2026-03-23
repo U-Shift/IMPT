@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Download } from 'lucide-react';
 import { DownloadCard } from './DownloadCard';
+import { useTranslation, Trans } from 'react-i18next';
 
 interface DownloadModalProps {
     showDownload: boolean;
@@ -10,6 +11,7 @@ interface DownloadModalProps {
 }
 
 export const DownloadModal: React.FC<DownloadModalProps> = ({ showDownload, setShowDownload, isDarkMode, dataState }) => {
+    const { t } = useTranslation();
     if (!showDownload) return null;
 
     return (
@@ -23,15 +25,15 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ showDownload, setS
                         <Download className="text-white w-9 h-9" />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black leading-none tracking-tighter">Download Data</h2>
-                        <p className="text-neutral-500 font-black text-[12px] uppercase tracking-[0.4em] mt-3">Get the raw data for further analysis</p>
+                        <h2 className="text-3xl font-black leading-none tracking-tighter">{t('download.title')}</h2>
+                        <p className="text-neutral-500 font-black text-[12px] uppercase tracking-[0.4em] mt-3">{t('download.subtitle')}</p>
                     </div>
                 </div>
 
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-auto">
                         <DownloadCard
-                            title="Freguesias"
+                            title={t('map.freguesia')}
                             id="DRMNFR (2024)"
                             group_id="DRMN (2024)"
                             region_id="NUTS 2"
@@ -40,7 +42,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ showDownload, setS
                             filename="impt_lisbon_freguesias"
                         />
                         <DownloadCard
-                            title="Municipality"
+                            title={t('map.municipality')}
                             id="DRMN (2024)"
                             region_id="NUTS 2"
                             isDark={isDarkMode}
@@ -48,7 +50,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ showDownload, setS
                             filename="impt_lisbon_municipalities"
                         />
                         <DownloadCard
-                            title="Grid (Hex)"
+                            title={t('map.grid')}
                             id="Sequential ID"
                             group_id="DRMNFR (2024)"
                             region_id="NUTS 2"
@@ -59,8 +61,12 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ showDownload, setS
                     </div>
 
                     <div className={`p-6 rounded-3xl ${isDarkMode ? 'bg-white/5 border-neutral-800' : 'bg-neutral-50 border-neutral-100'} border mt-6`}>
-                        <h4 className="text-[12px] font-black opacity-40 uppercase tracking-widest mb-3">About the data</h4>
-                        <p className="text-[13px] leading-relaxed opacity-60 font-medium">All datasets are provided in <span className="font-bold text-sky-800">GeoJSON</span> for spatial analysis and <span className="font-bold text-sky-900">CSV</span> for tabular processing. Coordinates use <span className="font-bold">WGS84 (EPSG:4326)</span>. <span className="font-bold">group_id</span> attribute should be used to relate the files.</p>
+                        <h4 className="text-[12px] font-black opacity-40 uppercase tracking-widest mb-3">{t('download.about_data')}</h4>
+                        <p className="text-[13px] leading-relaxed opacity-60 font-medium">
+                            <Trans i18nKey="download.description" values={{ format1: 'GeoJSON', format2: 'CSV', crs: 'WGS84 (EPSG:4326)', attribute: 'group_id' }}>
+                                All datasets are provided in <span className="font-bold text-sky-800">GeoJSON</span> for spatial analysis and <span className="font-bold text-sky-900">CSV</span> for tabular processing. Coordinates use <span className="font-bold">WGS84 (EPSG:4326)</span>. <span className="font-bold">group_id</span> attribute should be used to relate the files.
+                            </Trans>
+                        </p>
                     </div>
                 </div>
             </div>

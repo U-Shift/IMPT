@@ -16,66 +16,66 @@ export const getQuintileRange = (value: number): string => {
 }
 
 export const METRICS: Record<string, MetricDef[]> = {
-    'Mobility Poverty Index': [
+    'metrics.categories.mobility_poverty_index': [
         {
             id: 'IMPT_entropy_pca',
-            label: 'IMPT with entropy', category: 'Mobility Poverty Index',
-            description: 'Composite index using entropy, which gives more weight to variables that show the most contrast',
+            label: 'metrics.impt_entropy.label', category: 'metrics.categories.mobility_poverty_index',
+            description: 'metrics.impt_entropy.description',
             format: (v) => (100 - (v || 0)).toFixed(1),
             higherTheBetter: false, showDetails: true, showDetailsOnlyWhenSelected: true, default: true
         },
         {
             id: 'IMPT_score_pca_geom',
-            label: 'IMPT with geometric mean', category: 'Mobility Poverty Index',
-            description: 'Composite index using geometric mean, which penalizes low scores in any dimension, ensuring that a single low score significantly drags down the entire result',
+            label: 'metrics.impt_geom.label', category: 'metrics.categories.mobility_poverty_index',
+            description: 'metrics.impt_geom.description',
             format: (v) => (100 - (v || 0)).toFixed(1),
             higherTheBetter: false, showDetails: true, showDetailsOnlyWhenSelected: true
         },
         {
             id: 'IMPT_score_pca_avg',
-            label: 'IMPT with equal weights', category: 'Mobility Poverty Index',
-            description: 'Composite index considering equal weights for each dimension',
+            label: 'metrics.impt_equal.label', category: 'metrics.categories.mobility_poverty_index',
+            description: 'metrics.impt_equal.description',
             format: (v) => (100 - (v || 0)).toFixed(1),
             higherTheBetter: false, showDetails: true, showDetailsOnlyWhenSelected: true
         },
         {
             id: 'IMPT_dynamic',
-            label: 'IMPT dynamic (custom weights)', category: 'Mobility Poverty Index',
-            description: 'Computed on the fly based on user weightings of dimensions',
+            label: 'metrics.impt_dynamic.label', category: 'metrics.categories.mobility_poverty_index',
+            description: 'metrics.impt_dynamic.description',
             format: (v) => (100 - (v || 0)).toFixed(1),
             higherTheBetter: false, showDetails: true, showDetailsOnlyWhenSelected: true,
             isCalculated: true
         },
     ],
-    'Dimensions': [
+    'metrics.categories.dimensions': [
         {
             id: 'Accessibility_Index',
-            label: 'Accessibility', category: 'Dimensions', icon: '🏘️',
-            description: 'Aggregated accessibility metric, measuring access to key services and opportunities',
+            label: 'metrics.accessibility.label', category: 'metrics.categories.dimensions', icon: '🏘️',
+            description: 'metrics.accessibility.description',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25
         },
         {
             id: 'Mobility_Index',
-            label: 'Mobility', category: 'Dimensions', icon: '🚲',
-            description: 'Aggregated mobility metric, considering commuting and mobility infrastructure',
+            label: 'metrics.mobility.label', category: 'metrics.categories.dimensions', icon: '🚲',
+            description: 'metrics.mobility.description',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25
         },
         {
             id: 'Safety_Index',
-            label: 'Safety', category: 'Dimensions', icon: '🛡️',
-            description: 'Aggregated safety metric, considering accidents',
+            label: 'metrics.safety.label', category: 'metrics.categories.dimensions', icon: '🛡️',
+            description: 'metrics.safety.description',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25
         },
         {
             id: 'Affordability_Index',
-            label: 'Affordability', category: 'Dimensions', icon: '💰',
-            description: 'Aggregated affordability metric, considering income and housing costs',
+            label: 'metrics.affordability.label', category: 'metrics.categories.dimensions', icon: '💰',
+            description: 'metrics.affordability.description',
             format: (v) => getQuintileRange(v || 0),
             higherTheBetter: true, showDetails: true,
             isContributory: true, defaultWeight: 0.25
@@ -95,17 +95,17 @@ export const COLORS = {
 };
 
 export const REGIONS = {
-    'metropolis': { name: "Metro Area", center: [38.74, -9.10], zoom: 11 },
-    'PT1B': { name: "Grande Lisboa", center: [38.85, -9.15], zoom: 11 },
-    'PT1A': { name: "Península de Setúbal", center: [38.65, -8.90], zoom: 11 }
+    'metropolis': { name: "regions.metropolis", center: [38.74, -9.10], zoom: 11 },
+    'PT1B': { name: "regions.grand_lisbon", center: [38.85, -9.15], zoom: 11 },
+    'PT1A': { name: "regions.setubal_peninsula", center: [38.65, -8.90], zoom: 11 }
 } as const;
 
 export const MODES = [
-    { id: 'all', label: 'All', suffix: '', icon: '🌐' },
-    { id: 'bike', label: 'Bike', suffix: '_bike', icon: '🚲' },
-    { id: 'car', label: 'Car', suffix: '_car', icon: '🚗' },
-    { id: 'pt', label: 'PT', suffix: '_pt', icon: '🚍' },
-    { id: 'walk', label: 'Walk', suffix: '_walk', icon: '🚶' }
+    { id: 'all', label: 'modes.all', suffix: '', icon: '🌐' },
+    { id: 'bike', label: 'modes.bike', suffix: '_bike', icon: '🚲' },
+    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' },
+    { id: 'pt', label: 'modes.pt', suffix: '_pt', icon: '🚍' },
+    { id: 'walk', label: 'modes.walk', suffix: '_walk', icon: '🚶' }
 ] as const;
 
 export type ModeId = (typeof MODES)[number]['id'];

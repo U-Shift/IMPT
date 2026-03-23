@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, GeoJSON, Pane } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Loader2, AlertTriangle, Activity, Layers, Globe, Zap, RocketIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { ViewLevel, MetricDef } from './types';
 import { METRICS, FLAT_METRICS, COLORS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG } from './constants';
@@ -16,6 +17,7 @@ import { MapFilterDropdown } from './components/MapFilterDropdown';
 import { MobileOverlay } from './components/MobileOverlay';
 
 const Dashboard = () => {
+    const { t, i18n } = useTranslation();
     const [viewLevel, setViewLevel] = useState<ViewLevel>('freguesia');
     const [nutFilter, setNutFilter] = useState<RegionKey>(DEFAULT_REGION);
     const [selectedMetricId, setSelectedMetricId] = useState<string>(FLAT_METRICS.find(m => m.default)?.id || FLAT_METRICS[0].id);
@@ -281,7 +283,7 @@ const Dashboard = () => {
             <div style="font-family: sans-serif; padding: 4px;">
                 <div style="font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">${parentName}</div>
                 <div style="font-size: 12px; font-weight: 700; color: #111;">${props.name || 'N/A'}</div>
-                <div style="font-size: 11px; font-weight: 900; color: ${getColor(val || 0, currentDomain, selectedMetric)}; margin-top: 4px;">${selectedMetric.label}: ${formattedVal} ${selectedMetric.unit || ''}</div>
+                <div style="font-size: 11px; font-weight: 900; color: ${getColor(val || 0, currentDomain, selectedMetric)}; margin-top: 4px;">${t(selectedMetric.label)}: ${formattedVal} ${selectedMetric.unit || ''}</div>
             </div>
         `, { sticky: true, opacity: 0.95 });
 
@@ -339,7 +341,7 @@ const Dashboard = () => {
     if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-4`}>
             <Loader2 className="w-12 h-12 text-sky-800 animate-spin" />
-            <p className={`font-black uppercase tracking-[0.2em] text-[12px] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>Loading dashboard...</p>
+            <p className={`font-black uppercase tracking-[0.2em] text-[12px] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>{t('common.loading')}</p>
         </div>
     );
 
@@ -372,7 +374,7 @@ const Dashboard = () => {
                 {selectedMetric.isFake && (
                     <div className="absolute top-[88px] left-[416px] z-[1000] flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600/90 text-white shadow-xl backdrop-blur-md animate-pulse">
                         <AlertTriangle className="w-3.5 h-3.5" />
-                        <span className="text-[13px] font-black uppercase tracking-widest">Synthetic / Placeholder Data</span>
+                        <span className="text-[13px] font-black uppercase tracking-widest">{t('map.synthetic_data')}</span>
                     </div>
                 )}
 
@@ -380,13 +382,13 @@ const Dashboard = () => {
                     <div className="absolute top-8 left-[416px] z-[1002] flex items-start pointer-events-none">
                         <div className="flex gap-4 pointer-events-auto items-center">
                             <MapFilterDropdown
-                                label="View Level"
+                                label={t('map.view_level')}
                                 value={viewLevel}
                                 isDark={isDarkMode}
                                 icon={<Layers className="w-3.5 h-3.5" />}
                                 options={(['hex', 'freguesia', 'municipality'] as const)
                                     .filter(l => isMetricAvailable(selectedMetricId, l))
-                                    .map(l => ({ id: l, label: l === 'hex' ? 'Grid' : l }))}
+                                    .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
                                 onChange={(id) => {
                                     setViewLevel(id as ViewLevel);
                                     setZoomRequest(null);
@@ -395,11 +397,11 @@ const Dashboard = () => {
                             />
 
                             <MapFilterDropdown
-                                label="Region"
+                                label={t('map.region')}
                                 value={nutFilter}
                                 isDark={isDarkMode}
                                 icon={<Globe className="w-3.5 h-3.5" />}
-                                options={REGION_KEYS.map(n => ({ id: n, label: REGIONS[n].name }))}
+                                options={REGION_KEYS.map(n => ({ id: n, label: t(REGIONS[n].name) }))}
                                 onChange={(id) => {
                                     setNutFilter(id as RegionKey);
                                     setZoomRequest(null);
@@ -408,12 +410,12 @@ const Dashboard = () => {
                             />
 
                             <MapFilterDropdown
-                                label="Mode"
+                                label={t('map.mode')}
                                 value={selectedModeId}
                                 isDark={isDarkMode}
                                 icon={<RocketIcon className="w-3.5 h-3.5" />}
                                 options={MODES.filter(m => isModeAvailable(m.id, selectedMetricId, viewLevel))
-                                    .map(m => ({ id: m.id, label: m.label, icon: m.icon }))}
+                                    .map(m => ({ id: m.id, label: t(m.label), icon: m.icon }))}
                                 onChange={(id) => setSelectedModeId(id as ModeId)}
                             />
                         </div>
@@ -424,7 +426,7 @@ const Dashboard = () => {
                     <div className="absolute bottom-8 right-8 z-[1000] pointer-events-none w-[280px]">
                         <div className={`p-6 rounded-[32px] border pointer-events-auto shadow-2xl backdrop-blur-xl ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-100'}`}>
                             <h4 className="flex items-center gap-2.5 text-[12px] font-black text-sky-800 mb-5 uppercase tracking-[0.1em]">
-                                <Activity className="w-3.5 h-3.5" /> {nutFilter !== REGION_KEYS[0] ? 'Local Rescaling' : 'Global Metric Scale'}
+                                <Activity className="w-3.5 h-3.5" /> {nutFilter !== REGION_KEYS[0] ? t('map.local_rescaling') : t('map.global_scale')}
                             </h4>
                             <div className="space-y-5">
                                 <div className="flex flex-col gap-3">
@@ -438,8 +440,8 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                                 <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{selectedMetric.label} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
-                                    <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description || `Spatial distribution and variance of ${selectedMetric.label.toLowerCase()} across the ${viewLevel} network.`}</p>
+                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{t(selectedMetric.label)} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
+                                    <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description ? t(selectedMetric.description) : `Spatial distribution and variance of ${t(selectedMetric.label).toLowerCase()} across the ${t(`map.${viewLevel}`)} network.`}</p>
                                 </div>
                             </div>
                         </div>
@@ -453,7 +455,7 @@ const Dashboard = () => {
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
                         <TileLayer url={isDarkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"} attribution='&copy; CARTO' />
                         {computedGeoData?.features && (
-                            <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${selectedModeId}-${isDarkMode}-${selectedFeature?.id}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                            <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${selectedModeId}-${isDarkMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
                         <Pane name="limits-pane" style={{ zIndex: 450 }}>
                             {viewLevel !== 'municipality' && filteredLimits && (
