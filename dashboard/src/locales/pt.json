@@ -41,7 +41,13 @@
     "synthetic_data": "Dados Sintéticos / Espaço Reservado",
     "grid": "Grelha",
     "freguesia": "Freguesia",
-    "municipality": "Município"
+    "municipality": "Município",
+    "zoom_in": "Aproximar",
+    "zoom_out": "Afastar",
+    "layers": "Mapa",
+    "layer_carto": "Simplificado",
+    "layer_satellite": "Satélite",
+    "layer_osm": "OpenStreetMap"
   },
   "metrics": {
     "categories": {

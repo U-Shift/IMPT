@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 
 interface Option {
@@ -14,19 +15,23 @@ interface MapFilterDropdownProps {
     onChange: (id: string) => void;
     isDark: boolean;
     icon?: React.ReactNode;
+    direction?: 'up' | 'down';
 }
 
 export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
-    label, value, options, onChange, isDark, icon
+    label, value, options, onChange, isDark, icon, direction = 'down'
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
 
     const selectedOption = options.find(opt => opt.id === value) || options[0];
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                const menu = document.getElementById('portal-dropdown-menu');
+                if (menu && menu.contains(event.target as Node)) return;
                 setIsOpen(false);
             }
         };
@@ -34,10 +39,22 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const toggleDropdown = () => {
+        if (!isOpen && dropdownRef.current) {
+            const rect = dropdownRef.current.getBoundingClientRect();
+            setCoords({
+                top: direction === 'up' ? rect.top : rect.bottom,
+                left: rect.left,
+                width: rect.width
+            });
+        }
+        setIsOpen(!isOpen);
+    };
+
     return (
         <div className="relative pointer-events-auto" ref={dropdownRef}>
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={toggleDropdown}
                 className={`
                     flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-300
                     backdrop-blur-md shadow-xl hover:scale-[1.02] active:scale-95
@@ -57,11 +74,19 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 opacity-40 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {isOpen && (
+            {isOpen && createPortal(
                 <div 
+                    id="portal-dropdown-menu"
+                    style={{
+                        position: 'fixed',
+                        left: coords.left,
+                        top: direction === 'up' ? 'auto' : coords.top + 8,
+                        bottom: direction === 'up' ? window.innerHeight - coords.top + 8 : 'auto',
+                        minWidth: Math.max(200, coords.width),
+                        zIndex: 9999
+                    }}
                     className={`
-                        absolute top-full left-0 mt-2 w-max min-w-[200px] z-[2000] 
-                        rounded-2xl border overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200
+                        rounded-2xl border overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in fade-in slide-in-from-${direction === 'up' ? 'bottom' : 'top'}-2 duration-200
                         backdrop-blur-xl
                         ${isDark ? 'bg-neutral-900/95 border-neutral-800' : 'bg-white/95 border-neutral-100'}
                     `}
@@ -86,7 +111,8 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
                             </button>
                         ))}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

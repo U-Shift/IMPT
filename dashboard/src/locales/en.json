@@ -41,7 +41,13 @@
     "synthetic_data": "Synthetic / Placeholder Data",
     "grid": "Grid",
     "freguesia": "Freguesia",
-    "municipality": "Municipality"
+    "municipality": "Municipality",
+    "zoom_in": "Zoom In",
+    "zoom_out": "Zoom Out",
+    "layers": "Base map",
+    "layer_carto": "Simplified",
+    "layer_satellite": "Satellite",
+    "layer_osm": "OpenStreetMap"
   },
   "metrics": {
     "categories": {

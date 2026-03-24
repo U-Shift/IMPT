@@ -112,3 +112,29 @@ export type ModeId = (typeof MODES)[number]['id'];
 export type RegionKey = keyof typeof REGIONS;
 export const REGION_KEYS = Object.keys(REGIONS) as RegionKey[];
 export const DEFAULT_REGION: RegionKey = REGION_KEYS[0];
+
+export const MAP_LAYERS = [
+    {
+        id: 'carto',
+        label: 'map.layer_carto',
+        icon: '',
+        attribution: '&copy; CARTO',
+        getUrl: (isDark: boolean) => isDark
+            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+    },
+    {
+        id: 'satellite',
+        label: 'map.layer_satellite',
+        icon: '',
+        attribution: '&copy; ESRI',
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    },
+    {
+        id: 'osm',
+        label: 'map.layer_osm',
+        icon: '',
+        attribution: '&copy; OpenStreetMap',
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    }
+];

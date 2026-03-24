@@ -6,7 +6,7 @@ import { Loader2, AlertTriangle, Activity, Layers, Globe, Zap, RocketIcon } from
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel, MetricDef } from './types';
-import { METRICS, FLAT_METRICS, COLORS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG } from './constants';
+import { METRICS, FLAT_METRICS, COLORS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG, MAP_LAYERS } from './constants';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 import { AHPModal } from './components/AHPModal';
 import { SidebarLeft } from './components/SidebarLeft';
@@ -15,6 +15,7 @@ import { AboutModal } from './components/AboutModal';
 import { DownloadModal } from './components/DownloadModal';
 import { MapFilterDropdown } from './components/MapFilterDropdown';
 import { MobileOverlay } from './components/MobileOverlay';
+import { MapTools } from './components/MapTools';
 
 const Dashboard = () => {
     const { t, i18n } = useTranslation();
@@ -23,6 +24,7 @@ const Dashboard = () => {
     const [selectedMetricId, setSelectedMetricId] = useState<string>(FLAT_METRICS.find(m => m.default)?.id || FLAT_METRICS[0].id);
     const [selectedModeId, setSelectedModeId] = useState<ModeId>('all');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
+    const [mapStyle, setMapStyle] = useState<string>('carto');
     const [zoomRequest, setZoomRequest] = useState<{ id: string | number, timestamp: number } | null>(null);
     const contributoryMetrics = useMemo(() => FLAT_METRICS.filter(m => m.isContributory), []);
     const defaultWeights: Record<string, number> = useMemo(() => {
@@ -453,7 +455,12 @@ const Dashboard = () => {
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
                         <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
-                        <TileLayer url={isDarkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"} attribution='&copy; CARTO' />
+                        {(() => {
+                            const layer = MAP_LAYERS.find(l => l.id === mapStyle) || MAP_LAYERS[0];
+                            const url = 'getUrl' in layer ? layer.getUrl(isDarkMode) : layer.url;
+                            return <TileLayer url={url!} attribution={layer.attribution} />;
+                        })()}
+                        <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} />
                         {computedGeoData?.features && (
                             <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${selectedModeId}-${isDarkMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}

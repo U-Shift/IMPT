@@ -32,7 +32,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
         i18n.changeLanguage(i18n.language === 'en' ? 'pt' : 'en');
     };
     return (
-        <div className={`absolute top-4 left-4 w-[380px] max-h-[calc(100vh-2rem)] flex flex-col ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800 shadow-2xl' : 'bg-white/95 border-neutral-200 shadow-2xl'} border rounded-[32px] backdrop-blur-xl z-[1001] transition-all overflow-hidden`}>
+        <div className={`absolute top-4 left-4 w-[380px] max-h-[calc(100vh-120px)] flex flex-col ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800 shadow-2xl' : 'bg-white/95 border-neutral-200 shadow-2xl'} border rounded-[32px] backdrop-blur-xl z-[1001] transition-all overflow-hidden`}>
             <div className={`p-6 border-b ${isDarkMode ? 'border-neutral-800' : 'border-neutral-100'}`}>
                 <div className="flex items-center gap-4 mb-6">
                     <img src="images/logo/icon.png" alt="Logo" className="w-12 h-12 object-contain" />
