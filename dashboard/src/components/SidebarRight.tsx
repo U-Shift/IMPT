@@ -22,12 +22,13 @@ interface SidebarRightProps {
     setSelectedFeature: (feat: any) => void;
     computedGeoData: any;
     setZoomRequest: (req: any) => void;
+    setViewLevel: (l: any) => void;
 }
 
 export const SidebarRight: React.FC<SidebarRightProps> = ({
     isDarkMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
     selectedMode, dataState, allDomains, getColor, subLevelData, chartData,
-    setSelectedFeature, computedGeoData, setZoomRequest
+    setSelectedFeature, computedGeoData, setZoomRequest, setViewLevel
 }) => {
     const { t } = useTranslation();
     return (
@@ -123,8 +124,19 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                             const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
                                             const val = f[effectiveId] ?? f[selectedMetric.id];
                                             return (
-                                                <div key={f.id || f.name} className="flex justify-between items-center text-[12px] hover:bg-neutral-800/30 p-1.5 rounded-lg transition-colors cursor-default">
-                                                    <span className="opacity-50 truncate w-36">{f.name}</span>
+                                                <div
+                                                    key={f.id || f.name}
+                                                    onClick={() => {
+                                                        const childLevel = (Object.keys(LEVEL_CONFIG) as any).find((l: any) => (LEVEL_CONFIG as any)[l].parent === viewLevel);
+                                                        if (childLevel) {
+                                                            setViewLevel(childLevel);
+                                                            setSelectedFeature(f);
+                                                            setZoomRequest({ id: f.id, timestamp: Date.now() });
+                                                        }
+                                                    }}
+                                                    className="flex justify-between items-center text-[12px] hover:bg-neutral-800/30 p-1.5 rounded-lg transition-colors cursor-pointer"
+                                                >
+                                                    <span className="opacity-50 w-36">{f.name}</span>
                                                     <span className="font-bold text-sky-800">{selectedMetric.format(val)}</span>
                                                 </div>
                                             );

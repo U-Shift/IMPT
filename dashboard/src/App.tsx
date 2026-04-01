@@ -481,6 +481,7 @@ const Dashboard = () => {
                     setSelectedFeature={setSelectedFeature}
                     computedGeoData={computedGeoData}
                     setZoomRequest={setZoomRequest}
+                    setViewLevel={setViewLevel}
                 />
             )}
 
