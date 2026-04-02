@@ -173,15 +173,27 @@ const Dashboard = () => {
         const dynamicMetricConfig = FLAT_METRICS.find(m => m.isCalculated);
         if (dynamicMetricConfig) {
             const dynamicId = `${dynamicMetricConfig.id}${effectiveMode.suffix}`;
+            console.log("Computing dynamic IMPT for", dynamicId, dynamicMetricConfig, effectiveMode, weights);
 
-            features = features.map((f: any) => {
+            features = features.map((f: any, i: number) => {
                 let computedIndex = 0;
 
                 Object.entries(weights).forEach(([metricId, weight]) => {
                     const effectiveMetricId = `${metricId}${effectiveMode.suffix}`;
                     // Use a fallback to the base metric ID if the mode-specific suffix version is missing
-                    const val = f.properties[effectiveMetricId] ?? f.properties[metricId] ?? 0;
-                    computedIndex += val * weight;
+                    const val = f.properties[effectiveMetricId] ?? f.properties[metricId] ?? undefined;
+                    if (val !== undefined) {
+                        computedIndex += val * weight;
+                    }
+                    if (val !== undefined && i == 0) {
+                        if (f.properties[effectiveMetricId]) {
+                            console.log("> Considering metric", effectiveMetricId, "with weight", weight, "(fallback would be", metricId, ")");
+                        } else {
+                            console.warn("> Considering metric", metricId, "with weight", weight, "(using fallback)");
+                        }
+                    } else if (i == 0) {
+                        console.log("> No value for metric", metricId, val);
+                    }
                 });
 
                 // Invert index, a lowed ranking in aggregated dimensions, means more poverty, and therefore a higher IMPT

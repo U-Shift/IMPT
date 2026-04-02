@@ -34,7 +34,7 @@ export const METRICS: Record<string, MetricDef[]> = {
             description: 'metrics.impt_entropy.description',
             pallete: COLORS.GreenToRed,
             format: (v) => (v || 0).toFixed(1),
-            showDetails: true, showDetailsOnlyWhenSelected: true, default: true
+            showDetails: true, showDetailsOnlyWhenSelected: true
         },
         {
             id: 'IMPT_score_pca_geom',
@@ -42,7 +42,7 @@ export const METRICS: Record<string, MetricDef[]> = {
             description: 'metrics.impt_geom.description',
             format: (v) => (v || 0).toFixed(1),
             pallete: COLORS.GreenToRed,
-            showDetails: true, showDetailsOnlyWhenSelected: true
+            showDetails: true, showDetailsOnlyWhenSelected: true, default: true
         },
         {
             id: 'IMPT_score_pca_avg',
