@@ -29,8 +29,8 @@
     "mobility_profile": "Perfil de Mobilidade (Repartição Modal)",
     "constituent_dynamics": "Subdivisões",
     "regional_contrast": "Contrastes Regionais",
-    "top_performers": "Melhores desempenhos",
-    "low_performers": "Piores desempenhos"
+    "top_performers": "Valores mais elevados",
+    "low_performers": "Valores mais baixos"
   },
   "map": {
     "view_level": "Visualização",
@@ -52,7 +52,7 @@
   "metrics": {
     "categories": {
       "mobility_poverty_index": "Índice Pobreza nos Transportes",
-      "dimensions": "Dimensões"
+      "dimensions": "Dimensões Agregadas"
     },
     "impt_entropy": {
       "label": "IMPT com entropia",
@@ -101,7 +101,7 @@
     "pt": "TP",
     "pt_pass": "TP (com Navegante)",
     "pt_no_pass": "TP (sem Navegante)",
-    "walk": "Caminhada"
+    "walk": "Pedonal"
   },
   "about": {
     "title": "IMPT",

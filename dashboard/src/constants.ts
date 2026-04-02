@@ -99,6 +99,142 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             showDetails: true,
             isContributory: true, defaultWeight: 0.25
         }
+    ],
+    'metrics.categories.safety': [
+        // safety_total_acidentes, safety_indice_gravidade, safety_inner_total_acidentes, safety_inner_indice_gravidade
+        {
+            id: 'safety_total_acidentes',
+            label: 'metrics.safety_total_acidentes',
+            description: 'metrics.safety_total_acidentes.description',
+            format: (v) => Math.round(v || 0).toString(),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'safety_indice_gravidade',
+            label: 'metrics.safety_indice_gravidade',
+            description: 'metrics.safety_indice_gravidade.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'safety_inner_total_acidentes',
+            label: 'metrics.safety_inner_total_acidentes',
+            description: 'metrics.safety_inner_total_acidentes.description',
+            format: (v) => Math.round(v || 0).toString(),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'safety_inner_indice_gravidade',
+            label: 'metrics.safety_inner_indice_gravidade',
+            description: 'metrics.safety_inner_indice_gravidade.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        }
+    ],
+    'metrics.categories.affordability': [
+        {
+            id: 'affordability_total_money',
+            label: 'metrics.affordability_total_money.label',
+            description: 'metrics.affordability_total_money.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.GreenToRed
+        }
+    ],
+    // census
+    'metrics.categories.census_population': [
+        {
+            id: 'modal_census_share',
+            label: 'metrics.modal_census_share',
+            description: 'metrics.modal_census_share.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_income_income_hh',
+            label: 'metrics.census_income_income_hh',
+            description: 'metrics.census_income_income_hh.description',
+            format: (v) => Math.round(v || 0).toString(),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_income_gini_coef',
+            label: 'metrics.census_income_gini_coef',
+            description: 'metrics.census_income_gini_coef.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_income_housing_costs',
+            label: 'metrics.census_income_housing_costs',
+            description: 'metrics.census_income_housing_costs.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_population',
+            label: 'metrics.census_landuse_population',
+            description: 'metrics.census_landuse_population.description',
+            format: (v) => Math.round(v || 0).toString(),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_population_density',
+            label: 'metrics.census_landuse_population_density',
+            description: 'metrics.census_landuse_population_density.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_youth_ratio',
+            label: 'metrics.census_landuse_youth_ratio',
+            description: 'metrics.census_landuse_youth_ratio.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_elderly_ratio',
+            label: 'metrics.census_landuse_elderly_ratio',
+            description: 'metrics.census_landuse_elderly_ratio.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_women_percentage',
+            label: 'metrics.census_landuse_women_percentage',
+            description: 'metrics.census_landuse_women_percentage.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        }
+    ],
+    'metrics.categories.census_landuse': [
+        {
+            id: 'census_landuse_buildings',
+            label: 'metrics.census_landuse_buildings',
+            description: 'metrics.census_landuse_buildings.description',
+            format: (v) => Math.round(v || 0).toString(),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_buildings_pre1945_percentage',
+            label: 'metrics.census_landuse_buildings_pre1945_percentage',
+            description: 'metrics.census_landuse_buildings_pre1945_percentage.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_buildings_volume_m3',
+            label: 'metrics.census_landuse_buildings_volume_m3',
+            description: 'metrics.census_landuse_buildings_volume_m3.description',
+            format: (v) => Math.round(v || 0).toString(),
+            pallete: COLORS.RedToGreen
+        },
+        {
+            id: 'census_landuse_volume_density',
+            label: 'metrics.census_landuse_volume_density',
+            description: 'metrics.census_landuse_volume_density.description',
+            format: (v) => (v || 0).toFixed(1),
+            pallete: COLORS.RedToGreen
+        }
     ]
 };
 
@@ -128,12 +264,12 @@ export const MODES = [
     { id: 'all', label: 'modes.all', suffix: '', icon: '🌐' },
     { id: 'all_pass', label: 'modes.all_pass', suffix: '_pass', suffixFallback: '', icon: '🌐' },
     { id: 'all_no_pass', label: 'modes.all_no_pass', suffix: '_no_pass', suffixFallback: '', icon: '🌐' },
-    { id: 'bike', label: 'modes.bike', suffix: '_bike', icon: '🚲' },
-    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' },
     { id: 'pt', label: 'modes.pt', suffix: '_pt', icon: '🚍' },
     { id: 'pt_pass', label: 'modes.pt_pass', suffix: '_pt_pass', suffixFallback: '_pt', icon: '🚍' },
     { id: 'pt_no_pass', label: 'modes.pt_no_pass', suffix: '_pt_no_pass', suffixFallback: '_pt', icon: '🚍' },
-    { id: 'walk', label: 'modes.walk', suffix: '_walk', icon: '🚶' }
+    { id: 'walk', label: 'modes.walk', suffix: '_walk', icon: '🚶' },
+    { id: 'bike', label: 'modes.bike', suffix: '_bike', icon: '🚲' },
+    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' }
 ] as const;
 
 export type ModeId = (typeof MODES)[number]['id'];

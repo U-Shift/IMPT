@@ -29,8 +29,8 @@
     "mobility_profile": "Mobility Profile (Modal Share)",
     "constituent_dynamics": "Subareas",
     "regional_contrast": "Regional Contrasts",
-    "top_performers": "Top performers",
-    "low_performers": "Low performers"
+    "top_performers": "Highest values",
+    "low_performers": "Lowest values"
   },
   "map": {
     "view_level": "View Level",
@@ -52,7 +52,7 @@
   "metrics": {
     "categories": {
       "mobility_poverty_index": "Transportation Poverty Index",
-      "dimensions": "Dimensions"
+      "dimensions": "Aggregated Dimensions"
     },
     "impt_entropy": {
       "label": "IMPT with entropy",
