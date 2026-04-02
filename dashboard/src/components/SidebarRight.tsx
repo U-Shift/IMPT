@@ -208,10 +208,11 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
         (!m.showDetailsOnlyWhenSelected || m.id === selectedMetricId)
     ).map(m => {
         const effectiveId = `${m.id}${selectedMode.suffix}`;
-        if (!selectedFeature[effectiveId] && selectedFeature[effectiveId] !== 0) {
+        const fallbackId = selectedMode.suffixFallback !== undefined ? `${m.id}${selectedMode.suffixFallback}` : undefined;
+        const val = selectedFeature[effectiveId] ?? (fallbackId ? selectedFeature[fallbackId] : undefined);
+        if (val == undefined) {
             return null;
         }
-        const val = selectedFeature[effectiveId] ?? selectedFeature[m.id];
         return (
             <DetailCard
                 key={m.id}
