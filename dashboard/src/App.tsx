@@ -172,14 +172,15 @@ const Dashboard = () => {
         // Inject dynamic IMPT metric computed on-the-fly based on user weights
         const dynamicMetricConfig = FLAT_METRICS.find(m => m.isCalculated);
         if (dynamicMetricConfig) {
-            const dynamicId = `${dynamicMetricConfig.id}${selectedMode.suffix}`;
+            const dynamicId = `${dynamicMetricConfig.id}${effectiveMode.suffix}`;
 
             features = features.map((f: any) => {
                 let computedIndex = 0;
 
                 Object.entries(weights).forEach(([metricId, weight]) => {
-                    const effectiveMetricId = `${metricId}${selectedMode.suffix}`;
-                    const val = f.properties[effectiveMetricId] ?? 0;
+                    const effectiveMetricId = `${metricId}${effectiveMode.suffix}`;
+                    // Use a fallback to the base metric ID if the mode-specific suffix version is missing
+                    const val = f.properties[effectiveMetricId] ?? f.properties[metricId] ?? 0;
                     computedIndex += val * weight;
                 });
 
