@@ -45,14 +45,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             showDetails: true, showDetailsOnlyWhenSelected: true, default: true
         },
         {
-            id: 'IMPT_score_pca_avg',
-            label: 'metrics.impt_equal.label',
-            description: 'metrics.impt_equal.description',
-            format: (v) => (v || 0).toFixed(1),
-            pallete: COLORS.GreenToRed,
-            showDetails: true, showDetailsOnlyWhenSelected: true
-        },
-        {
             id: 'IMPT_dynamic',
             label: 'metrics.impt_dynamic.label',
             description: 'metrics.impt_dynamic.description',
