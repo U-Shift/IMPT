@@ -1,4 +1,4 @@
-import { MetricDef, ViewLevel } from './types';
+import { MetricDef, ViewLevel, ScaleMethod } from './types';
 
 export const LEVEL_CONFIG: Record<ViewLevel, { file: string, parent?: ViewLevel }> = {
     'municipality': { file: 'data/municipios_aggregated.geojson' },
@@ -34,6 +34,56 @@ export const COLORS = {
     }
 };
 
+/** Standard scale functions */
+
+export const continuousScale: ScaleMethod = (values) => {
+    if (!values?.length) return [0, 1];
+    return [values[0], values[values.length - 1]];
+};
+
+export const equalCountScale: ScaleMethod = (values, steps = 5) => {
+    if (!values?.length) return [0, 1];
+    const n = steps;
+    const quants = [];
+    for (let i = 0; i <= n; i++) {
+        const idx = Math.min(Math.floor((i / n) * (values.length - 1)), values.length - 1);
+        quants.push(values[idx]);
+    }
+    return quants;
+};
+
+export const equalIntervalScale: ScaleMethod = (values, steps = 5) => {
+    if (!values?.length) return [0, 1];
+    const min = values[0];
+    const max = values[values.length - 1];
+    const intervals = [];
+    for (let i = 0; i <= steps; i++) {
+        intervals.push(min + (max - min) * (i / steps));
+    }
+    return intervals;
+};
+
+export const logarithmicScale: ScaleMethod = (values, steps = 5) => {
+    if (!values?.length) return [0, 1];
+    const min = values[0];
+    const max = values[values.length - 1];
+    console.log("logarithmicScale", { values, min, max });
+    // Log scales require values > 0. Shift values to ensure they are > 0.
+    const offset = min <= 0 ? Math.abs(min) + 1 : 0;
+    const logMin = Math.log(min + offset);
+    const logMax = Math.log(max + offset);
+    const logScale = [];
+    for (let i = 0; i <= steps; i++) {
+        const val = Math.exp(logMin + (logMax - logMin) * (i / steps)) - offset;
+        logScale.push(val);
+    }
+    // Ensure first and last are exact min and max to counteract floating point drifts
+    logScale[0] = min;
+    logScale[steps] = max;
+
+    return logScale;
+};
+
 const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     'metrics.categories.mobility_poverty_index': [
         {
@@ -42,6 +92,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.impt_entropy.description',
             pallete: COLORS.GreenToRed,
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             showDetails: true, showDetailsOnlyWhenSelected: true
         },
         {
@@ -49,6 +100,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.impt_geom.label',
             description: 'metrics.impt_geom.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.GreenToRed,
             showDetails: true, showDetailsOnlyWhenSelected: true, default: true
         },
@@ -57,6 +109,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.impt_dynamic.label',
             description: 'metrics.impt_dynamic.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.GreenToRed,
             showDetails: true, showDetailsOnlyWhenSelected: true,
             isCalculated: true
@@ -68,6 +121,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.accessibility.label', icon: '🏘️',
             description: 'metrics.accessibility.description',
             format: (v, min, max) => getEqualIntervals(v || 0),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showDetails: true,
             isContributory: true, defaultWeight: 0.25
@@ -77,6 +131,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.mobility.label', icon: '🚲',
             description: 'metrics.mobility.description',
             format: (v, min, max) => getEqualIntervals(v || 0),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showDetails: true,
             isContributory: true, defaultWeight: 0.25
@@ -86,6 +141,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.safety.label', icon: '🛡️',
             description: 'metrics.safety.description',
             format: (v, min, max) => getEqualIntervals(v || 0),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showDetails: true,
             isContributory: true, defaultWeight: 0.25
@@ -95,39 +151,27 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.affordability.label', icon: '💰',
             description: 'metrics.affordability.description',
             format: (v, min, max) => getEqualIntervals(v || 0),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showDetails: true,
             isContributory: true, defaultWeight: 0.25
         }
     ],
     'metrics.categories.safety': [
-        // safety_total_acidentes, safety_indice_gravidade, safety_inner_total_acidentes, safety_inner_indice_gravidade
-        {
-            id: 'safety_total_acidentes',
-            label: 'metrics.safety_total_acidentes',
-            description: 'metrics.safety_total_acidentes.description',
-            format: (v, min, max) => Math.round(v || 0).toString(), quantiles: 100, ignoreValues: [0, null],
-            pallete: COLORS.WhiteToRed
-        },
-        {
-            id: 'safety_indice_gravidade',
-            label: 'metrics.safety_indice_gravidade',
-            description: 'metrics.safety_indice_gravidade.description',
-            format: (v, min, max) => (v || 0).toFixed(1),
-            pallete: COLORS.WhiteToRed
-        },
         {
             id: 'safety_inner_total_acidentes',
             label: 'metrics.safety_inner_total_acidentes',
             description: 'metrics.safety_inner_total_acidentes.description',
             format: (v, min, max) => Math.round(v || 0).toString(),
+            scaleMethod: logarithmicScale, steps: 10, ignoreValues: [0, null],
             pallete: COLORS.WhiteToRed
         },
         {
             id: 'safety_inner_indice_gravidade',
             label: 'metrics.safety_inner_indice_gravidade',
             description: 'metrics.safety_inner_indice_gravidade.description',
-            format: (v, min, max) => (v || 0).toFixed(1),
+            format: (v, min, max) => (v || 0).toFixed(2),
+            scaleMethod: continuousScale, ignoreValues: [null],
             pallete: COLORS.WhiteToRed
         }
     ],
@@ -137,6 +181,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.affordability_total_money.label',
             description: 'metrics.affordability_total_money.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.GreenToRed
         }
     ],
@@ -147,6 +192,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.modal_census_share',
             description: 'metrics.modal_census_share.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen
         },
         {
@@ -154,6 +200,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_income_income_hh',
             description: 'metrics.census_income_income_hh.description',
             format: (v, min, max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen
         },
         {
@@ -161,6 +208,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_income_gini_coef',
             description: 'metrics.census_income_gini_coef.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen
         },
         {
@@ -168,6 +216,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_income_housing_costs',
             description: 'metrics.census_income_housing_costs.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen
         }
     ],
@@ -177,6 +226,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_population.label',
             description: 'metrics.census_landuse_population.description',
             format: (v, min, max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -184,6 +234,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_population_density.label',
             description: 'metrics.census_landuse_population_density.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -191,6 +242,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_youth_ratio.label',
             description: 'metrics.census_landuse_youth_ratio.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -198,6 +250,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_elderly_ratio.label',
             description: 'metrics.census_landuse_elderly_ratio.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -205,6 +258,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_women_percentage.label',
             description: 'metrics.census_landuse_women_percentage.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -212,6 +266,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.mobility_infrastructure_road_length.label',
             description: 'metrics.mobility_infrastructure_road_length.description',
             format: (v, min, max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -219,6 +274,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.mobility_infrastructure_cycleway_length.label',
             description: 'metrics.mobility_infrastructure_cycleway_length.description',
             format: (v, min, max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -226,6 +282,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.label',
             description: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.description',
             format: (v, min, max) => (v || 0).toFixed(2),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -233,6 +290,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.mobility_infrastructure_pedpath_length.label',
             description: 'metrics.mobility_infrastructure_pedpath_length.description',
             format: (v, min, max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -240,6 +298,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.mobility_infrastructure_pedpath_to_road_ratio.label',
             description: 'metrics.mobility_infrastructure_pedpath_to_road_ratio.description',
             format: (v, min, max) => (v || 0).toFixed(2),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -247,6 +306,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_buildings.label',
             description: 'metrics.census_landuse_buildings.description',
             format: (v, min, max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -254,6 +314,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_buildings_pre1945_percentage.label',
             description: 'metrics.census_landuse_buildings_pre1945_percentage.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
         {
@@ -261,6 +322,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.census_landuse_volume_density.label',
             description: 'metrics.census_landuse_volume_density.description',
             format: (v, min, max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         }
     ]
@@ -330,3 +392,82 @@ export const MAP_LAYERS = [
         url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     }
 ];
+
+/**
+ * Generates a scale (domain or breaks) based on the metric's scaling method.
+ */
+export const getMetricDomain = (values: number[], metric: MetricDef): number[] => {
+    // Filter out ignored values, nulls, and NaNs
+    const sorted = [...values]
+        .filter(v => v !== undefined && v !== null && !isNaN(v) && !(metric.ignoreValues?.includes(v)))
+        .sort((a, b) => a - b);
+
+    if (sorted.length === 0) return [0, 1];
+
+    const method = metric.scaleMethod || continuousScale;
+
+    const scale = method(sorted, metric.steps);
+    console.log("Scale for ", metric.id, scale, values);
+    return scale;
+};
+
+/**
+ * Maps a value to a palette index based on the domain type (discrete vs continuous).
+ */
+const getPaletteIndex = (val: number, domain: number[], paletteLength: number): number => {
+    if (domain.length > 2) {
+        // Discrete scale breaks (quantiles/slices)
+        let sliceIdx = 0;
+        for (let i = 0; i < domain.length - 1; i++) {
+            if (val >= domain[i] && val <= domain[i + 1]) {
+                sliceIdx = i;
+                break;
+            }
+        }
+        const nSlices = domain.length - 1;
+        return Math.min(Math.floor((sliceIdx / nSlices) * paletteLength), paletteLength - 1);
+    } else {
+        // Continuous linear interpolation mapping
+        const [min, max] = domain;
+        const range = max - min;
+        if (range === 0) return Math.floor(paletteLength / 2);
+        const norm = Math.max(0, Math.min(1, (val - min) / range));
+        return Math.min(Math.floor(norm * paletteLength), paletteLength - 1);
+    }
+};
+
+/**
+ * Returns the color for a given value based on the metric palette and domain.
+ */
+export const getColor = (val: number, domain: number[], metric: MetricDef): string => {
+    if (val === null || val === undefined || metric.ignoreValues?.includes(val)) return 'rgba(0,0,0,0.05)';
+    const palette = metric.pallete;
+    const idx = getPaletteIndex(val, domain, palette.length);
+    return palette[idx];
+};
+
+/**
+ * Generates a CSS linear-gradient for the legend representation of a metric.
+ */
+export const getLegendGradient = (metric: MetricDef, domain: number[]): string => {
+    const palette = metric.pallete;
+    if (domain.length > 2) {
+        const nSlices = domain.length - 1;
+        const gradientParts = [];
+        for (let i = 0; i < nSlices; i++) {
+            const paletteIdx = Math.min(Math.floor((i / nSlices) * palette.length), palette.length - 1);
+            const color = palette[paletteIdx];
+            const start = (i / nSlices) * 100;
+            const end = ((i + 1) / nSlices) * 100;
+            gradientParts.push(`${color} ${start}% ${end}%`);
+        }
+        return `linear-gradient(to right, ${gradientParts.join(', ')})`;
+    }
+    // Continuous colormaps: pick 5 equidistant stops for CSS representation
+    const stops = [0, 0.25, 0.5, 0.75, 1];
+    const colors = stops.map(s => {
+        const idx = Math.min(Math.floor(s * palette.length), palette.length - 1);
+        return palette[idx];
+    });
+    return `linear-gradient(to right, ${colors.join(', ')})`;
+};

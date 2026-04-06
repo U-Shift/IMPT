@@ -1,5 +1,7 @@
 export type ViewLevel = 'hex' | 'freguesia' | 'municipality';
 
+export type ScaleMethod = (values: number[], steps?: number) => number[];
+
 export type MetricDef = {
     id: string;
     label: string;
@@ -10,7 +12,8 @@ export type MetricDef = {
     unit?: string;
     default?: boolean; // Show by default
     // Display
-    quantiles?: number; // Number of scale breaks for the domain (e.g. 5 for quintiles, 10 for deciles)
+    scaleMethod?: ScaleMethod;
+    steps?: number; // Number of scale breaks for discrete scales (e.g. 5 for quintiles, 10 for deciles)
     ignoreValues?: any[]; // Values to ignore when computing the scale
     format: (v: number, min: number, max: number) => string;
     // Area details sidebar (opens on the right, when user clicks on a feature)

@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCont
 import { MetricDef } from '../types';
 import { DetailCard } from './DetailCard';
 import { MiniBarChart } from './MiniBarChart';
-import { LEVEL_CONFIG } from '../constants';
+import { LEVEL_CONFIG, FLAT_METRICS, getColor } from '../constants';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarRightProps {
@@ -16,7 +16,6 @@ interface SidebarRightProps {
     selectedMode: any;
     dataState: any;
     allDomains: Record<string, number[]>;
-    getColor: (val: number, domain: number[], metric: MetricDef) => string;
     subLevelData: any[];
     chartData: { bestPerformers: any[], worstPerformers: any[] };
     setSelectedFeature: (feat: any) => void;
@@ -27,7 +26,7 @@ interface SidebarRightProps {
 
 export const SidebarRight: React.FC<SidebarRightProps> = ({
     isDarkMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
-    selectedMode, dataState, allDomains, getColor, subLevelData, chartData,
+    selectedMode, dataState, allDomains, subLevelData, chartData,
     setSelectedFeature, computedGeoData, setZoomRequest, setViewLevel
 }) => {
     const { t } = useTranslation();
@@ -63,7 +62,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 mb-6">
-                                {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, getColor, isDarkMode, t)}
+                                {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, isDarkMode, t)}
                             </div>
 
                             {/* Modal Share Breakdown */}
@@ -199,10 +198,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
     );
 };
 
-// Helper for cleaning up App.tsx imports in the component
-import { FLAT_METRICS } from '../constants';
 
-const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, getColor: any, isDarkMode: boolean, t: any) => {
+const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any) => {
     return FLAT_METRICS.filter(m =>
         m.showDetails &&
         (!m.showDetailsOnlyWhenSelected || m.id === selectedMetricId)
