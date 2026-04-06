@@ -1,0 +1,146 @@
+{
+  "common": {
+    "impt_0": "Índice",
+    "impt_1": "Pobreza",
+    "impt_2": "nos Transportes",
+    "loading": "A carregar o dashboard...",
+    "beta": "Versão Beta",
+    "lma": "Área Metropolitana de Lisboa",
+    "close": "Fechar",
+    "reset": "Repor",
+    "apply": "Aplicar",
+    "previous": "Anterior",
+    "next": "Seguinte",
+    "calculate": "Calcular",
+    "fix": "Corrigir"
+  },
+  "tooltips": {
+    "toggle_theme": "Alternar Tema",
+    "download_data": "Descarregar Dados",
+    "about": "Sobre"
+  },
+  "sidebar": {
+    "indicators": "Indicadores",
+    "dimension_weighting": "Ponderação de Dimensões",
+    "ahp_methodology": "Metodologia AHP",
+    "ahp_description": "Definir pesos manualmente pode ser subjetivo e inconsistente. O Processo Hierárquico Analítico (AHP) confronta-o com comparações entre pares para derivar os pesos matematicamente, medindo a consistência da sua decisão.",
+    "start_ahp": "Iniciar Inquérito AHP",
+    "area_details": "Detalhes da área",
+    "mobility_profile": "Perfil de Mobilidade (Repartição Modal)",
+    "constituent_dynamics": "Subdivisões",
+    "regional_contrast": "Contrastes Regionais",
+    "top_performers": "Valores mais elevados",
+    "low_performers": "Valores mais baixos"
+  },
+  "map": {
+    "view_level": "Visualização",
+    "region": "Região",
+    "mode": "Modo",
+    "local_rescaling": "Reescalonamento Local",
+    "global_scale": "Escala Global",
+    "synthetic_data": "Dados Sintéticos / Espaço Reservado",
+    "grid": "Grelha",
+    "freguesia": "Freguesia",
+    "municipality": "Município",
+    "zoom_in": "Aproximar",
+    "zoom_out": "Afastar",
+    "layers": "Mapa",
+    "layer_carto": "Simplificado",
+    "layer_satellite": "Satélite",
+    "layer_osm": "OpenStreetMap"
+  },
+  "metrics": {
+    "categories": {
+      "mobility_poverty_index": "Índice Pobreza nos Transportes",
+      "dimensions": "Dimensões Agregadas"
+    },
+    "impt_entropy": {
+      "label": "IMPT com entropia",
+      "description": "Índice composto utilizando entropia, que atribui mais peso às variáveis com maior contraste"
+    },
+    "impt_geom": {
+      "label": "IMPT com média geométrica",
+      "description": "Índice composto utilizando a média geométrica, que penaliza pontuações baixas em qualquer dimensão, garantindo que uma única pontuação baixa reduza significativamente o resultado final"
+    },
+    "impt_equal": {
+      "label": "IMPT com pesos iguais",
+      "description": "Índice composto considerando pesos iguais para cada dimensão"
+    },
+    "impt_dynamic": {
+      "label": "IMPT dinâmico (pesos personalizados)",
+      "description": "Calculado com base nas ponderações do utilizador para as várias dimensões"
+    },
+    "accessibility": {
+      "label": "Acessibilidade territorial",
+      "description": "Métrica de acessibilidade agregada, medindo o acesso a serviços e oportunidades chave"
+    },
+    "mobility": {
+      "label": "Mobilidade",
+      "description": "Métrica de mobilidade agregada, considerando as deslocações pendulares e infraestruturas de mobilidade"
+    },
+    "safety": {
+      "label": "Segurança",
+      "description": "Métrica de segurança agregada, considerando sinistros"
+    },
+    "affordability": {
+      "label": "Acessibilidade económica",
+      "description": "Métrica de acessibilidade económica agregada, considerando rendimentos e custos de habitação"
+    }
+  },
+  "regions": {
+    "metropolis": "Área Metropolitana",
+    "grand_lisbon": "Grande Lisboa",
+    "setubal_peninsula": "Península de Setúbal"
+  },
+  "modes": {
+    "all": "Todos",
+    "all_pass": "Todos (com Navegante)",
+    "all_no_pass": "Todos (sem Navegante)",
+    "bike": "Bicicleta",
+    "car": "Carro",
+    "pt": "TP",
+    "pt_pass": "TP (com Navegante)",
+    "pt_no_pass": "TP (sem Navegante)",
+    "walk": "Pedonal"
+  },
+  "about": {
+    "title": "IMPT",
+    "title_desc": "Índice de Monitorização da Pobreza de Transportes",
+    "p1": "A pobreza de transportes refere-se à incapacidade de um indivíduo ou agregado familiar de aceder a serviços essenciais, oportunidades e participação social devido a meios de transporte limitados, inadequados, dispendiosos, pouco fiáveis ou inexistentes (Mejía Dorantes e Murauskaite-Bull, 2022). No entanto, devido à falta de uma definição universal e à sua natureza multidimensional, a identificação e medição da pobreza de transportes pode ser um desafio.",
+    "p2": "Este projeto visa enfrentá-lo através do desenvolvimento de um índice multidimensional que permita a sua medição e monitorização ao longo do tempo, tanto a nível nacional como regional, com o objetivo de identificar áreas prioritárias de intervenção e apoiar uma transição de mobilidade justa.",
+    "source_code": "Código Fonte",
+    "lab": "U-Shift Lab",
+    "funded_by": "Financiado por",
+    "copyright": "U-Shift, CERIS, Instituto Superior Técnico, Universidade de Lisboa"
+  },
+  "ahp": {
+    "survey_title": "Inquérito de Dimensões",
+    "survey_subtitle": "Processo Hierárquico Analítico (AHP)",
+    "force_consistency": "Forçar Consistência",
+    "comparison_step": "Comparação {{current}} de {{total}}",
+    "question": "Qual a dimensão mais importante para si?",
+    "intensity": {
+      "equal": "Igualmente Importante",
+      "slight": "Ligeiramente Mais Importante",
+      "moderate": "Moderadamente Mais Importante",
+      "strong": "Bastante Mais Importante",
+      "extreme": "Extremamente Mais Importante"
+    },
+    "complete": "Inquérito Concluído",
+    "complete_desc": "Aqui estão os pesos calculados para as dimensões.",
+    "inconsistency_title": "Inconsistência Matemática Detetada",
+    "inconsistency_answers": "Inconsistência Respostas",
+    "inconsistency_desc_force": "O Forçar Consistência está ativado. Deve ajustar as suas preferências para atingir um Índice de Consistência inferior a 0.10 antes de aplicar os pesos.",
+    "inconsistency_desc": "As suas comparações aos pares são matematicamente inconsistentes. Os pesos continuarão a funcionar, mas poderá querer refazer o inquérito para melhor precisão.",
+    "inconsistent_pairs_label": "Comparações mais inconsistentes:",
+    "apply_weights": "Aplicar Pesos",
+    "retake_survey": "Refazer Inquérito",
+    "review_comparisons": "Rever Comparações"
+  },
+  "download": {
+    "title": "Descarregar Dados",
+    "subtitle": "Obtenha os dados em bruto para análises adicionais",
+    "about_data": "Sobre os dados",
+    "description": "Todos os conjuntos de dados são fornecidos em {{format1}} para análise espacial e {{format2}} para processamento tabular. As coordenadas utilizam {{crs}}. O atributo {{attribute}} deve ser utilizado para relacionar os ficheiros."
+  }
+}

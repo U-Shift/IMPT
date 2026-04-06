@@ -1,0 +1,146 @@
+{
+  "common": {
+    "impt_0": "Transportation",
+    "impt_1": "Poverty",
+    "impt_2": "Index",
+    "loading": "Loading dashboard...",
+    "beta": "Beta version",
+    "lma": "Lisbon Metro Area",
+    "close": "Close",
+    "reset": "Reset",
+    "apply": "Apply",
+    "previous": "Previous",
+    "next": "Next",
+    "calculate": "Calculate",
+    "fix": "Fix"
+  },
+  "tooltips": {
+    "toggle_theme": "Toggle Theme",
+    "download_data": "Download Data",
+    "about": "About"
+  },
+  "sidebar": {
+    "indicators": "Indicators",
+    "dimension_weighting": "Dimension Weighting",
+    "ahp_methodology": "AHP Methodology",
+    "ahp_description": "Defining weights manually can be subjective and inconsistent. The Analytic Hierarchy Process uses pairwise comparisons to mathematically derive optimal weights while measuring your decision consistency.",
+    "start_ahp": "Start AHP Survey",
+    "area_details": "Area details",
+    "mobility_profile": "Mobility Profile (Modal Share)",
+    "constituent_dynamics": "Subareas",
+    "regional_contrast": "Regional Contrasts",
+    "top_performers": "Highest values",
+    "low_performers": "Lowest values"
+  },
+  "map": {
+    "view_level": "View Level",
+    "region": "Region",
+    "mode": "Mode",
+    "local_rescaling": "Local Rescaling",
+    "global_scale": "Global Scale",
+    "synthetic_data": "Synthetic / Placeholder Data",
+    "grid": "Grid",
+    "freguesia": "Freguesia",
+    "municipality": "Municipality",
+    "zoom_in": "Zoom In",
+    "zoom_out": "Zoom Out",
+    "layers": "Base map",
+    "layer_carto": "Simplified",
+    "layer_satellite": "Satellite",
+    "layer_osm": "OpenStreetMap"
+  },
+  "metrics": {
+    "categories": {
+      "mobility_poverty_index": "Transportation Poverty Index",
+      "dimensions": "Aggregated Dimensions"
+    },
+    "impt_entropy": {
+      "label": "IMPT with entropy",
+      "description": "Composite index using entropy, which gives more weight to variables that show the most contrast"
+    },
+    "impt_geom": {
+      "label": "IMPT with geometric mean",
+      "description": "Composite index using geometric mean, which penalizes low scores in any dimension, ensuring that a single low score significantly drags down the entire result"
+    },
+    "impt_equal": {
+      "label": "IMPT with equal weights",
+      "description": "Composite index considering equal weights for each dimension"
+    },
+    "impt_dynamic": {
+      "label": "IMPT dynamic (custom weights)",
+      "description": "Computed on the fly based on user weightings of dimensions"
+    },
+    "accessibility": {
+      "label": "Accessibility",
+      "description": "Aggregated accessibility metric, measuring access to key services and opportunities"
+    },
+    "mobility": {
+      "label": "Mobility",
+      "description": "Aggregated mobility metric, considering commuting and mobility infrastructure"
+    },
+    "safety": {
+      "label": "Safety",
+      "description": "Aggregated safety metric, considering accidents"
+    },
+    "affordability": {
+      "label": "Affordability",
+      "description": "Aggregated affordability metric, considering income and housing costs"
+    }
+  },
+  "regions": {
+    "metropolis": "Metro Area",
+    "grand_lisbon": "Grande Lisboa",
+    "setubal_peninsula": "Península de Setúbal"
+  },
+  "modes": {
+    "all": "All",
+    "all_pass": "All (with Navegante)",
+    "all_no_pass": "All (without Navegante)",
+    "bike": "Bike",
+    "car": "Car",
+    "pt": "PT",
+    "pt_pass": "PT (with Navegante)",
+    "pt_no_pass": "PT (without Navegante)",
+    "walk": "Walk"
+  },
+  "about": {
+    "title": "IMPT",
+    "title_desc": "Index for Monitoring Transport Poverty",
+    "p1": "Transport poverty refers to an individual or household inability to access essential services, opportunities, and social participation due to limited, inadequate, unaffordable, unreliable or non-existent means of transport (Mejía Dorantes and Murauskaite-Bull, 2022). However, due to the lack of a universal definition and its multidimensional nature the identification and measurement of transport poverty can be challenging.",
+    "p2": "This project aims to tackle this challenge by developing a multidimensional index that enables its measurement and monitoring over time at both national and regional levels, with the aim of identifying priority areas for intervention and supporting a just mobility transition.",
+    "source_code": "Source Code",
+    "lab": " Lab U-Shift",
+    "funded_by": "Funded by",
+    "copyright": "U-Shift, CERIS, Instituto Superior Técnico, University of Lisbon"
+  },
+  "ahp": {
+    "survey_title": "Dimension Survey",
+    "survey_subtitle": "Analytic Hierarchy Process (AHP)",
+    "force_consistency": "Force Consistency",
+    "comparison_step": "Comparison {{current}} of {{total}}",
+    "question": "Which dimension is more important to you?",
+    "intensity": {
+      "equal": "Equally Important",
+      "slight": "Slightly More Important",
+      "moderate": "Moderately More Important",
+      "strong": "Strongly More Important",
+      "extreme": "Extremely More Important"
+    },
+    "complete": "Survey Complete",
+    "complete_desc": "Here are your calculated dimension weights.",
+    "inconsistency_title": "Mathematical Inconsistency Detected",
+    "inconsistency_answers": "Inconsistent Answers",
+    "inconsistency_desc_force": "Force Consistency is enabled. You must adjust your preferences to reach a Consistency Ratio below 0.10 before applying weights.",
+    "inconsistency_desc": "Your pairwise comparisons are mathematically inconsistent. The weights will still work, but you may want to retake the survey for better accuracy.",
+    "inconsistent_pairs_label": "Most inconsistent comparisons:",
+    "apply_weights": "Apply Weights",
+    "retake_survey": "Retake Survey",
+    "review_comparisons": "Review Comparisons"
+  },
+  "download": {
+    "title": "Download Data",
+    "subtitle": "Get the raw data for further analysis",
+    "about_data": "About the data",
+    "description": "All datasets are provided in {{format1}} for spatial analysis and {{format2}} for tabular processing. Coordinates use {{crs}}. {{attribute}} attribute should be used to relate the files."
+  }
+}

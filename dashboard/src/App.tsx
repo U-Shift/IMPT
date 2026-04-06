@@ -1,124 +1,87 @@
-
 import { useState, useMemo, useEffect } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, Pane } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie, Legend as RechartsLegend } from 'recharts';
-import { Info, MapPin, ChevronRight, X, Github, Activity, Loader2, MousePointer2, ChevronDown, Sun, Moon, ExternalLink, ListFilter, TrendingUp, AlertTriangle, Download } from 'lucide-react';
+import { Loader2, AlertTriangle, Activity, Layers, Globe, Zap, RocketIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-// --- Types & Constants ---
-
-type MetricDef = {
-    id: string;
-    label: string;
-    category: 'Mobility' | 'Accessibility' | 'Land Use' | 'Sociodemographic' | 'Standalone';
-    icon: string;
-    description?: string;
-    format: (v: number) => string;
-    isDivergent?: boolean;
-    domain?: [number, number];
-    invertColor?: boolean;
-    unit?: string;
-    viewLevel?: 'municipality' | 'all'; // Restrict visibility
-    isFake?: boolean; // Label as placeholder data
-};
-
-const METRICS: MetricDef[] = [
-    { id: 'mobility_poverty_index', label: 'Mobility Poverty Index', category: 'Standalone', icon: '📈', description: 'Composite index (0-100) based on accessibility, car share, and vehicle ownership.', format: (v) => (v || 0).toFixed(1), domain: [0, 80], unit: '' },
-
-    // Mobility
-    { id: 'share_pt', label: 'PT Modal Share', category: 'Mobility', icon: '🚌', format: (v) => `${((v || 0) * 100).toFixed(0)}%`, domain: [0, 0.6], unit: '%' },
-    { id: 'share_car', label: 'Car Modal Share', category: 'Mobility', icon: '🚗', format: (v) => `${((v || 0) * 100).toFixed(0)}%`, domain: [0, 0.8], invertColor: true, unit: '%' },
-    { id: 'share_walk', label: 'Walking Share', category: 'Mobility', icon: '🚶', format: (v) => `${((v || 0) * 100).toFixed(0)}%`, domain: [0, 0.5], unit: '%' },
-    { id: 'share_bike', label: 'Cycling Share', category: 'Mobility', icon: '🚲', format: (v) => `${((v || 0) * 100).toFixed(0)}%`, domain: [0, 0.1], unit: '%' },
-    { id: 'share_soft', label: 'Active Modal Share', category: 'Mobility', icon: '�', format: (v) => `${((v || 0) * 100).toFixed(0)}%`, domain: [0, 0.5], unit: '%' },
-    { id: 'total_motor_vehicles_per_hh', label: 'Motorized Vehicles /HH', category: 'Mobility', icon: '🛵', format: (v) => (v || 0).toFixed(2), domain: [0, 2], unit: 'veh/HH' },
-    { id: 'avg_bicycles', label: 'Bicycles /HH', category: 'Mobility', icon: '🚲', format: (v) => (v || 0).toFixed(2), domain: [0, 1.5], unit: 'bike/HH' },
-    { id: 'pct_hh_no_vehicle', label: '% Households no Vehicle', category: 'Mobility', icon: '🛑', format: (v) => `${(v || 0).toFixed(0)}%`, domain: [0, 50], invertColor: true, unit: '%' },
-    { id: 'n_transit_stops', label: 'Transit Stops', category: 'Mobility', icon: '🚏', format: (v) => (v || 0).toFixed(0), domain: [0, 50], unit: 'stops', isFake: true },
-    { id: 'peak_services', label: 'Peak Services', category: 'Mobility', icon: '⚡', format: (v) => (v || 0).toFixed(0), domain: [0, 300], unit: 'serv/h' },
-    { id: 'offpeak_services', label: 'Off-Peak Services', category: 'Mobility', icon: '⛅', format: (v) => (v || 0).toFixed(0), domain: [0, 100], unit: 'serv/h', isFake: true },
-    { id: 'night_services', label: 'Night Services', category: 'Mobility', icon: '🌙', format: (v) => (v || 0).toFixed(0), domain: [0, 50], unit: 'serv/h' },
-
-    // Accessibility
-    { id: 'accessibility_gap', label: 'Access Gap (PT vs Car)', category: 'Accessibility', icon: '⚖️', description: 'Difference in minutes between PT and Car travel times to healthcare.', format: (v) => `${(v || 0).toFixed(0)}m`, isDivergent: true, domain: [-20, 60], unit: 'min' },
-    { id: 'time_pt_peak', label: 'Time to Healthcare (PT)', category: 'Accessibility', icon: '⏱️', format: (v) => `${(v || 0).toFixed(0)}m`, domain: [10, 60], invertColor: true, unit: 'min' },
-    { id: 'time_pt_off', label: 'Time to Healthcare (Off-Peak)', category: 'Accessibility', icon: '🌥️', format: (v) => `${(v || 0).toFixed(0)}m`, domain: [10, 60], invertColor: true, unit: 'min', isFake: true },
-    { id: 'time_pt_night', label: 'Time to Healthcare (Night)', category: 'Accessibility', icon: '🌑', format: (v) => `${(v || 0).toFixed(0)}m`, domain: [10, 80], invertColor: true, unit: 'min', isFake: true },
-    { id: 'time_car', label: 'Time to Healthcare (Car)', category: 'Accessibility', icon: '🏎️', format: (v) => `${(v || 0).toFixed(0)}m`, domain: [5, 30], invertColor: true, unit: 'min' },
-
-    // Land Use
-    { id: 'infra_pedestrian', label: 'Pedestrian Infra Ratio', category: 'Land Use', icon: '👟', format: (v) => `${(v || 0).toFixed(0)}%`, domain: [0, 100], unit: '%' },
-    { id: 'infra_cycling', label: 'Cycling Infra Ratio', category: 'Land Use', icon: '🚴', format: (v) => `${(v || 0).toFixed(0)}%`, domain: [0, 100], unit: '%' },
-    { id: 'pct_pre_1945', label: 'Houses Pre-1945', category: 'Land Use', icon: '🏚️', format: (v) => `${((v || 0) * 100).toFixed(1)}%`, domain: [0, 0.5], unit: '%' },
-    { id: 'poi_amenity', label: 'Civic Amenities', category: 'Land Use', icon: '🏢', format: (v) => (v || 0).toFixed(0), domain: [0, 100], unit: 'cnt' },
-    { id: 'poi_healthcare', label: 'Health Facilities', category: 'Land Use', icon: '🏥', format: (v) => (v || 0).toFixed(0), domain: [0, 20], unit: 'cnt' },
-    { id: 'poi_leisure', label: 'Leisure Spots', category: 'Land Use', icon: '⛲', format: (v) => (v || 0).toFixed(0), domain: [0, 50], unit: 'cnt' },
-    { id: 'poi_shop', label: 'Local Shops', category: 'Land Use', icon: '🛍️', format: (v) => (v || 0).toFixed(0), domain: [0, 150], unit: 'cnt' },
-    { id: 'poi_tourism', label: 'Tourism POIs', category: 'Land Use', icon: '📸', format: (v) => (v || 0).toFixed(0), domain: [0, 30], unit: 'cnt' },
-
-    // Sociodemographic
-    { id: 'income', label: 'Avg Income /Person', category: 'Sociodemographic', icon: '💰', format: (v) => `€${(v || 0).toLocaleString()}`, domain: [5000, 25000], unit: '€/y' },
-    { id: 'gini', label: 'Gini Coefficient', category: 'Sociodemographic', icon: '⚖️', format: (v) => `${(v || 0).toFixed(1)}%`, domain: [30, 50], unit: '' },
-
-    { id: 'pop_total', label: 'Total Population', category: 'Sociodemographic', icon: '👥', format: (v) => (v || 0).toLocaleString(), domain: [0, 50000], unit: 'inh' },
-    { id: 'pop_density', label: 'Population Density', category: 'Sociodemographic', icon: '🏙️', format: (v) => `${(v || 0).toFixed(0)} /km²`, domain: [0, 15000], unit: 'inh/km²' },
-    { id: 'pct_youth', label: 'Youth Ratio (<15)', category: 'Sociodemographic', icon: '👶', format: (v) => `${((v || 0) * 100).toFixed(1)}%`, domain: [0, 0.25], unit: '%' },
-    { id: 'pct_elderly', label: 'Elderly Ratio (>65)', category: 'Sociodemographic', icon: '👵', format: (v) => `${((v || 0) * 100).toFixed(1)}%`, domain: [0, 0.4], unit: '%' },
-    { id: 'pct_women', label: '% Women', category: 'Sociodemographic', icon: '👩', format: (v) => `${((v || 0) * 100).toFixed(1)}%`, domain: [0.4, 0.6], unit: '%' },
-];
-
-
-const COLORS = {
-    Sequential: ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'],
-    Danger: ['#fff5f0', '#fee0d2', '#fcbba1', '#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#a50f15', '#67000d'],
-    Divergent: {
-        negative: ['#006837', '#31a354', '#78c679', '#c2e699', '#f7fcb9'],
-        positive: ['#ffffb2', '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026']
-    }
-};
-
-const ZOOM_EXTENTS = {
-    'all': { center: [38.74, -9.14], zoom: 11 },
-    'Grande Lisboa': { center: [38.85, -9.15], zoom: 11 },
-    'Península de Setúbal': { center: [38.55, -9.05], zoom: 11 }
-};
-
-const ZoomHandler = ({ extent }: { extent: 'all' | 'Grande Lisboa' | 'Península de Setúbal' }) => {
-    const map = useMap();
-    useEffect(() => {
-        const config = ZOOM_EXTENTS[extent];
-        map.setView(config.center as L.LatLngExpression, config.zoom);
-    }, [extent, map]);
-    return null;
-};
+import { ViewLevel, MetricDef } from './types';
+import { METRICS, FLAT_METRICS, COLORS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG, MAP_LAYERS } from './constants';
+import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
+import { AHPModal } from './components/AHPModal';
+import { SidebarLeft } from './components/SidebarLeft';
+import { SidebarRight } from './components/SidebarRight';
+import { AboutModal } from './components/AboutModal';
+import { DownloadModal } from './components/DownloadModal';
+import { MapFilterDropdown } from './components/MapFilterDropdown';
+import { MobileOverlay } from './components/MobileOverlay';
+import { MapTools } from './components/MapTools';
 
 const Dashboard = () => {
-    const [viewLevel, setViewLevel] = useState<'hex' | 'freguesia' | 'municipality'>('freguesia');
-    const [nutFilter, setNutFilter] = useState<'all' | 'Grande Lisboa' | 'Península de Setúbal'>('all');
-    const [selectedMetricId, setSelectedMetricId] = useState<string>('mobility_poverty_index');
+    const { t, i18n } = useTranslation();
+    const [viewLevel, setViewLevel] = useState<ViewLevel>('freguesia');
+    const [nutFilter, setNutFilter] = useState<RegionKey>(DEFAULT_REGION);
+    const [selectedMetricId, setSelectedMetricId] = useState<string>(FLAT_METRICS.find(m => m.default)?.id || FLAT_METRICS[0].id);
+    const [selectedModeId, setSelectedModeId] = useState<ModeId>('all');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
+    const [mapStyle, setMapStyle] = useState<string>('carto');
+    const [zoomRequest, setZoomRequest] = useState<{ id: string | number, timestamp: number } | null>(null);
+    const contributoryMetrics = useMemo(() => FLAT_METRICS.filter(m => m.isContributory), []);
+    const defaultWeights: Record<string, number> = useMemo(() => {
+        const initial: Record<string, number> = {};
+        contributoryMetrics.forEach(m => {
+            initial[m.id] = m.defaultWeight || 1;
+        });
+        return initial;
+    }, [contributoryMetrics]);
+    const [weights, setWeights] = useState<Record<string, number>>(defaultWeights);
     const [showAbout, setShowAbout] = useState(false);
     const [showDownload, setShowDownload] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(true);
-    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
-        'Mobility': true, 'Accessibility': true, 'Land Use': true, 'Sociodemographic': true
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isAHPModalOpen, setIsAHPModalOpen] = useState(false);
+    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
+        const keys = Object.keys(METRICS);
+        return keys.slice(1).reduce((acc, key) => ({ ...acc, [key]: true }), {});
     });
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const [dataState, setDataState] = useState<{
-        freguesias: any; municipios: any; hex: any; limits: any; loading: boolean; error: string | null;
-    }>({ freguesias: null, municipios: null, hex: null, limits: null, loading: true, error: null });
+        geo: Record<string, any>; limits: any; loading: boolean; error: string | null;
+        parentLookup: Record<string, string>;
+    }>({ geo: {}, limits: null, loading: true, error: null, parentLookup: {} });
 
     useEffect(() => {
         const load = async () => {
             try {
-                const [f, m, h, l] = await Promise.all([
-                    fetch('data/freguesias_data.json').then(r => r.json()),
-                    fetch('data/municipios_data.json').then(r => r.json()),
-                    fetch('data/hex_data.json').then(r => r.json()),
+                const levels = Object.keys(LEVEL_CONFIG) as ViewLevel[];
+                const results = await Promise.all([
+                    ...levels.map(l => fetch(LEVEL_CONFIG[l].file).then(r => r.json())),
                     fetch('data/municipios_limits.json').then(r => r.json())
                 ]);
-                setDataState({ freguesias: f, municipios: m, hex: h, limits: l, loading: false, error: null });
+
+                const geo: Record<string, any> = {};
+                levels.forEach((l, i) => { geo[l] = results[i]; });
+
+                // Create parent lookups for each level that serves as a parent
+                const parentLookup: Record<string, string> = {};
+                levels.forEach(l => {
+                    const parentLevel = LEVEL_CONFIG[l].parent;
+                    if (parentLevel && geo[parentLevel]) {
+                        geo[parentLevel].features.forEach((f: any) => {
+                            // Store in a way that we can identify which parent level it belongs to if needed
+                            // For now, a flat map of ID -> Name works if IDs are unique across parents
+                            parentLookup[`${parentLevel}-${f.properties.id}`] = f.properties.name || f.properties.id;
+                        });
+                    }
+                });
+
+                setDataState({ geo, limits: results[levels.length], loading: false, error: null, parentLookup });
             } catch (err) {
                 console.error(err);
                 setDataState(s => ({ ...s, loading: false, error: "System encountered a data loading error." }));
@@ -127,545 +90,455 @@ const Dashboard = () => {
         load();
     }, []);
 
-    const selectedMetric = useMemo(() => METRICS.find(m => m.id === selectedMetricId) || METRICS[0], [selectedMetricId]);
+    const selectedMetric = useMemo(() => FLAT_METRICS.find(m => m.id === selectedMetricId) || FLAT_METRICS[0], [selectedMetricId]);
+    const selectedMode = useMemo(() => MODES.find(m => m.id === selectedModeId) || MODES[0], [selectedModeId]);
 
-    const activeGeoData = useMemo(() => {
-        if (!dataState.freguesias) return null;
-        let raw = viewLevel === 'hex' ? dataState.hex : (viewLevel === 'municipality' ? dataState.municipios : dataState.freguesias);
+    // Helper to check if a specific mode is available for a metric at a certain view level
+    const isModeAvailable = (modeId: string, metricId: string, level: string) => {
+        const metric = FLAT_METRICS.find(m => m.id === metricId);
+        let checkMetricId = metricId;
+
+        // For calculated metrics, evaluate availability based on the default reference metric
+        if (metric?.isCalculated) {
+            const defaultMetric = FLAT_METRICS.find(m => m.default);
+            if (defaultMetric) checkMetricId = defaultMetric.id;
+        }
+
+        const mode = MODES.find(m => m.id === modeId);
+        if (!mode || !dataState.geo[level as ViewLevel]) return false;
+        const feature = dataState.geo[level as ViewLevel]?.features[0];
+        if (!feature) return false;
+        const effectiveId = `${checkMetricId}${mode.suffix}`;
+        return !!(feature.properties && feature.properties[effectiveId] !== undefined);
+    };
+
+    // Helper to check if a metric is available at a certain view level with the current mode
+    const isMetricAvailable = (metricId: string, level: string, modeSuffix: string = selectedMode.suffix) => {
+        const metric = FLAT_METRICS.find(m => m.id === metricId);
+        let checkMetricId = metricId;
+
+        // For calculated metrics, evaluate availability based on the default reference metric
+        if (metric?.isCalculated) {
+            const defaultMetric = FLAT_METRICS.find(m => m.default);
+            if (defaultMetric) checkMetricId = defaultMetric.id;
+        }
+
+        if (!dataState.geo[level as ViewLevel]) return false;
+        const feature = dataState.geo[level as ViewLevel]?.features[0];
+        if (!feature) return false;
+        const effectiveId = `${checkMetricId}${modeSuffix}`;
+        return feature.properties && (feature.properties[effectiveId] !== undefined || feature.properties[checkMetricId] !== undefined);
+    };
+
+    // Derive effective level and mode to ensure consistent rendering even before useEffect synchronizes state
+    const effectiveLevel = useMemo(() => {
+        if (isMetricAvailable(selectedMetricId, viewLevel)) return viewLevel;
+        return (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l)) || viewLevel;
+    }, [selectedMetricId, viewLevel, dataState.geo]);
+
+    const effectiveMode = useMemo(() => {
+        if (isModeAvailable(selectedModeId, selectedMetricId, effectiveLevel)) return selectedMode;
+        // Fallback to first available mode for this metric
+        const firstAvailable = MODES.find(m => isModeAvailable(m.id, selectedMetricId, effectiveLevel));
+        return firstAvailable || MODES[0];
+    }, [selectedModeId, selectedMetricId, effectiveLevel, dataState.geo, selectedMode]);
+
+    // Auto-switch view level OR reset mode if not available for selected metric
+    useEffect(() => {
+        if (!isModeAvailable(selectedModeId, selectedMetricId, viewLevel)) {
+            const firstAvailable = MODES.find(m => isModeAvailable(m.id, selectedMetricId, viewLevel));
+            if (firstAvailable) {
+                setSelectedModeId(firstAvailable.id as ModeId);
+            }
+        }
+
+        if (!isMetricAvailable(selectedMetricId, viewLevel)) {
+            const availableLevel = (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l));
+            if (availableLevel) {
+                setViewLevel(availableLevel);
+            }
+        }
+    }, [selectedMetricId, selectedModeId, viewLevel, dataState.geo]);
+
+    const computedGeoData = useMemo(() => {
+        let raw = dataState.geo[effectiveLevel];
         if (!raw || !raw.features) return { type: "FeatureCollection", features: [] };
 
         let features = raw.features;
-        if (nutFilter !== 'all') {
-            features = features.filter((f: any) => f.properties?.nuts2 === nutFilter);
+        if (nutFilter !== REGION_KEYS[0]) {
+            features = features.filter((f: any) => f.properties?.region_id === nutFilter || f.properties?.nuts2 === REGIONS[nutFilter].name);
         }
+
+        // Inject dynamic IMPT metric computed on-the-fly based on user weights
+        const dynamicMetricConfig = FLAT_METRICS.find(m => m.isCalculated);
+        if (dynamicMetricConfig) {
+            // Edge cases (should be validated)
+            // (Walk || Bike) => No affordability considered
+            // All && (Pass || NoPass) => Fallback on accessibility, mobility and safety
+            // PT && (Pass || NoPass) => Fallback on accessibility, mobility AND no safety
+
+            const dynamicId = `${dynamicMetricConfig.id}${effectiveMode.suffix}`;
+            const fallbackId = effectiveMode.suffixFallback ? `${dynamicMetricConfig.id}${effectiveMode.suffixFallback}` : undefined;
+            console.log("Computing dynamic IMPT for", dynamicId, "(" + fallbackId + ")", dynamicMetricConfig, effectiveMode, weights);
+
+            features = features.map((f: any, i: number) => {
+                let computedIndex = 0;
+
+                Object.entries(weights).forEach(([metricId, weight]) => {
+                    const effectiveMetricId = `${metricId}${effectiveMode.suffix}`;
+                    const fallbackMetricId = effectiveMode.suffixFallback !== undefined ? `${metricId}${effectiveMode.suffixFallback}` : undefined;
+                    // Use a fallback to the base metric ID if the mode-specific suffix version is missing
+                    const val = f.properties[effectiveMetricId] ?? f.properties[fallbackMetricId] ?? undefined;
+                    if (val !== undefined) {
+                        computedIndex += val * weight;
+                    }
+                    if (val !== undefined && i == 0) {
+                        if (f.properties[effectiveMetricId]) {
+                            console.log("> Considering metric", effectiveMetricId, "with weight", weight);
+                        } else if (f.properties[fallbackMetricId]) {
+                            console.warn("> Considering metric", fallbackMetricId, "with weight", weight, "(using fallback)");
+                        } else {
+                            console.error("Debug error")
+                        }
+                    } else if (i == 0) {
+                        console.log("> No value for metric", metricId, val);
+                    }
+                });
+
+                // Invert index, a lowed ranking in aggregated dimensions, means more poverty, and therefore a higher IMPT
+                computedIndex = 100 - computedIndex;
+
+                return {
+                    ...f,
+                    properties: {
+                        ...f.properties,
+                        [dynamicId]: computedIndex
+                    }
+                };
+            });
+        }
+
         return { ...raw, features };
-    }, [viewLevel, nutFilter, dataState]);
+    }, [effectiveLevel, nutFilter, dataState, weights, effectiveMode.suffix]);
+    const filteredLimits = useMemo(() => {
+        if (!dataState.limits) return null;
+        if (nutFilter === REGION_KEYS[0]) return dataState.limits;
+
+        return {
+            ...dataState.limits,
+            features: dataState.limits.features.filter((f: any) => f.properties?.region_id === nutFilter)
+        };
+    }, [dataState.limits, nutFilter]);
 
     const currentDomain = useMemo(() => {
-        const defaultDomain: [number, number] = selectedMetric.domain || [0, 1];
-        if (!activeGeoData?.features?.length) return defaultDomain;
-        const values = activeGeoData.features.map((f: any) => f.properties?.[selectedMetric.id]).filter((v: any) => v !== undefined && !isNaN(v));
+        const defaultDomain: [number, number] = [0, 1];
+        if (!computedGeoData?.features?.length) return defaultDomain;
+        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
+        const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId]).filter((v: any) => v !== undefined && !isNaN(v));
         if (values.length === 0) return defaultDomain;
         return [Math.min(...values), Math.max(...values)] as [number, number];
-    }, [activeGeoData, selectedMetric]);
+    }, [computedGeoData, selectedMetric, effectiveMode]);
 
-    const getScaleColor = (value: number, metric: MetricDef, domain: [number, number]) => {
-        if (metric.isDivergent) {
-            if (value === 0) return '#ffffff';
-            if (value < 0) {
-                const normalized = Math.min(1, Math.abs(value) / (Math.abs(domain[0]) || 20));
-                return COLORS.Divergent.negative[Math.floor(normalized * (COLORS.Divergent.negative.length - 1))];
-            } else {
-                const normalized = Math.min(1, value / (domain[1] || 60));
-                return COLORS.Divergent.positive[Math.floor(normalized * (COLORS.Divergent.positive.length - 1))];
-            }
-        }
+    // Precompute domains for all metrics shown in details to support dynamic coloring
+    const allDomains = useMemo(() => {
+        const result: Record<string, [number, number]> = {};
+        if (!computedGeoData?.features?.length) return result;
+        FLAT_METRICS.filter(m => m.showDetails).forEach(m => {
+            const effectiveId = `${m.id}${effectiveMode.suffix}`;
+            const values = computedGeoData.features.map((f: any) => f.properties?.[effectiveId]).filter((v: any) => v !== undefined && !isNaN(v));
+            result[m.id] = values.length > 0 ? [Math.min(...values), Math.max(...values)] : [0, 1];
+        });
+        return result;
+    }, [computedGeoData, effectiveMode]);
+
+    const getColor = (val: number, domain: [number, number], metric: MetricDef) => {
+        if (val === null || val === undefined) return '#333';
         const [min, max] = domain;
-        const normalized = max === min ? 0.5 : Math.min(1, Math.max(0, (value - min) / (max - min)));
-        const scale = (metric.invertColor || metric.id.includes('poverty') || metric.id.includes('gap')) ? COLORS.Danger : COLORS.Sequential;
-        return scale[Math.floor(normalized * (scale.length - 1))];
+        const range = max - min;
+
+        if (range === 0) return metric.pallete[Math.floor(metric.pallete.length / 2)];
+
+        const norm = Math.max(0, Math.min(1, (val - min) / range));
+        const activeArray = metric.pallete;
+        const idx = Math.min(Math.floor(norm * activeArray.length), activeArray.length - 1);
+        return activeArray[idx];
+    };
+
+    const getLegendGradient = () => {
+        const activeArray = selectedMetric.pallete;
+        // For sequential colormaps like Viridis, we pick 5 equidistant stops to ensure a faithful gradient representation in CSS
+        const stops = [0, Math.floor(activeArray.length * 0.25), Math.floor(activeArray.length * 0.5), Math.floor(activeArray.length * 0.75), activeArray.length - 1];
+        let colors = stops.map(i => activeArray[Math.min(i, activeArray.length - 1)]);
+        return `linear-gradient(to right, ${colors.join(', ')})`;
     };
 
     const getStyle = (feature: any) => {
-        const isSelected = selectedFeature && (
-            (viewLevel === 'hex' && feature.properties.hex_id === selectedFeature.hex_id) ||
-            (viewLevel === 'freguesia' && feature.properties.dtmnfr === selectedFeature.dtmnfr) ||
-            (viewLevel === 'municipality' && feature.properties.municipio === selectedFeature.municipio)
-        );
+        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
+        const val = feature.properties[effectiveId];
+        const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
-            fillColor: getScaleColor(feature.properties[selectedMetric.id] || 0, selectedMetric, currentDomain),
-            weight: isSelected ? 3 : (viewLevel === 'hex' ? 0.3 : 0.6),
+            fillColor: getColor(val || 0, currentDomain, selectedMetric),
+            weight: isSelected ? 3 : (effectiveLevel === 'hex' ? 0.3 : 0.6),
             opacity: 1,
-            color: isSelected ? '#a5b4fc' : 'white',
-            fillOpacity: isSelected ? 0.9 : 0.75,
-            dashArray: (viewLevel === 'freguesia' && !isSelected) ? '3' : ''
+            color: isSelected ? '#a6a6a6' : 'white',
+            fillOpacity: isSelected ? 3 : 0.75,
+            dashArray: (effectiveLevel === 'freguesia' && !isSelected) ? '3' : '',
         };
     };
 
     const onEachFeature = (feature: any, layer: any) => {
         const props = feature.properties;
-        const val = props[selectedMetric.id];
+        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
+        const val = props[effectiveId] ?? props[selectedMetric.id];
         const formattedVal = selectedMetric.format(val || 0);
+
+        const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
+        const parentName = (parentLevel && props.group_id)
+            ? (dataState.parentLookup[`${parentLevel}-${props.group_id}`] || props.group_id)
+            : '';
 
         layer.bindTooltip(`
             <div style="font-family: sans-serif; padding: 4px;">
-                <div style="font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">${props.municipio || 'LMA'}</div>
-                <div style="font-size: 12px; font-weight: 700; color: #111;">${props.freguesia || props.municipio || 'N/A'}</div>
-                <div style="font-size: 11px; font-weight: 900; color: #6366f1; margin-top: 4px;">${selectedMetric.label}: ${formattedVal} ${selectedMetric.unit || ''}</div>
+                <div style="font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">${parentName}</div>
+                <div style="font-size: 12px; font-weight: 700; color: #111;">${props.name || 'N/A'}</div>
+                <div style="font-size: 11px; font-weight: 900; color: ${getColor(val || 0, currentDomain, selectedMetric)}; margin-top: 4px;">${t(selectedMetric.label)}: ${formattedVal} ${selectedMetric.unit || ''}</div>
             </div>
         `, { sticky: true, opacity: 0.95 });
 
         layer.on({
-            click: () => {
+            click: (e: L.LeafletMouseEvent) => {
+                L.DomEvent.stopPropagation(e);
                 setSelectedFeature(props);
             }
         });
     };
 
     const toggleSection = (cat: string) => {
-        setCollapsedSections(prev => {
-            const newState = { 'Mobility': true, 'Accessibility': true, 'Land Use': true, 'Sociodemographic': true };
-            if (prev[cat]) newState[cat as keyof typeof newState] = false;
-            return newState as any;
-        });
+        setCollapsedSections(prev => ({
+            ...prev,
+            [cat]: !prev[cat]
+        }));
     };
 
-    const municipalityFreguesias = useMemo(() => {
-        if (viewLevel !== 'municipality' || !selectedFeature || !dataState.freguesias) return [];
-        return dataState.freguesias.features
-            .filter((f: any) => f.properties?.municipio === selectedFeature.municipio)
+    const subLevelData = useMemo(() => {
+        if (!selectedFeature) return [];
+        const childLevel = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).find(l => LEVEL_CONFIG[l].parent === effectiveLevel);
+        if (!childLevel || !dataState.geo[childLevel]) return [];
+        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
+        return dataState.geo[childLevel].features
+            .filter((f: any) => String(f.properties.group_id) === String(selectedFeature.id))
             .map((f: any) => f.properties)
-            .sort((a: any, b: any) => (b[selectedMetric.id] || 0) - (a[selectedMetric.id] || 0));
-    }, [viewLevel, selectedFeature, selectedMetric, dataState]);
+            .filter((p: any) => p[effectiveId] !== undefined || p[selectedMetric.id] !== undefined)
+            .sort((a: any, b: any) => (b[effectiveId] ?? b[selectedMetric.id]) - (a[effectiveId] ?? a[selectedMetric.id]));
+    }, [effectiveLevel, selectedFeature, selectedMetric, effectiveMode, dataState]);
 
     const chartData = useMemo(() => {
-        if (!activeGeoData?.features) return { top10: [], worst10: [] };
-        const feats = activeGeoData.features.map((f: any) => ({
-            name: f.properties?.freguesia || f.properties?.municipio || f.properties?.id || 'Unknown',
-            municipio: f.properties?.municipio || '',
-            value: (f.properties?.[selectedMetric.id] || 0)
-        }));
+        if (!computedGeoData?.features) return { bestPerformers: [], worstPerformers: [] };
+        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
+        const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
+        const feats = computedGeoData.features.map((f: any) => {
+            const val = f.properties?.[effectiveId] ?? f.properties?.[selectedMetric.id] ?? 0;
+            const groupName = (parentLevel && f.properties?.group_id)
+                ? (dataState.parentLookup[`${parentLevel}-${f.properties.group_id}`] || f.properties.group_id)
+                : 'LMA';
+            return {
+                id: f.properties?.id,
+                name: String(f.properties?.name || f.properties?.id || 'Unknown'),
+                group: groupName,
+                value: val,
+                color: getColor(val, currentDomain, selectedMetric)
+            };
+        });
         const sorted = [...feats].sort((a, b) => b.value - a.value);
-        return { top10: sorted.slice(0, 10), worst10: [...sorted].reverse().slice(0, 10).reverse() };
-    }, [activeGeoData, selectedMetric]);
+        return { bestPerformers: sorted.slice(0, 5), worstPerformers: [...sorted].reverse().slice(0, 5).reverse() };
+    }, [computedGeoData, selectedMetric, effectiveMode, currentDomain, getColor, effectiveLevel, dataState.parentLookup]);
+
+    const resetWeights = () => {
+        setWeights(defaultWeights);
+    };
 
     if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-4`}>
-            <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
-            <p className={`font-black uppercase tracking-[0.2em] text-[10px] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>Assembling Spatial Intelligence...</p>
+            <Loader2 className="w-12 h-12 text-sky-800 animate-spin" />
+            <p className={`font-black uppercase tracking-[0.2em] text-[12px] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>{t('common.loading')}</p>
         </div>
     );
 
     return (
-        <div className={`flex h-screen ${isDarkMode ? 'bg-neutral-950 text-neutral-100' : 'bg-neutral-50 text-neutral-900'} font-sans overflow-hidden transition-colors duration-300`}>
+        <div className={`relative h-screen w-screen ${isDarkMode ? 'bg-neutral-950 text-neutral-100' : 'bg-neutral-50 text-neutral-900'} font-sans overflow-hidden transition-colors duration-300`}>
 
-            {/* Sidebar Left: Control Panel */}
-            <div className={`w-[340px] flex flex-col ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'} border-r shadow-xl z-30 transition-all`}>
-                <div className={`p-7 border-b ${isDarkMode ? 'border-neutral-800' : 'border-neutral-100'}`}>
-                    <div className="flex items-center gap-4 mb-6">
-                        <img src="images/logo/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
-                        <div className="flex flex-col">
-                            <h1 className="text-sm font-black tracking-tighter uppercase leading-none">Mobility <span className="text-indigo-500">Poverty</span></h1>
-                            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mt-1">Lisbon Metropolis</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex gap-1">
-                            <button onClick={() => setIsDarkMode(!isDarkMode)} title="Toggle Theme" className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
-                                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                            </button>
-                            <button onClick={() => setShowDownload(true)} title="Download Data" className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
-                                <Download className="w-5 h-5" />
-                            </button>
-                            <button onClick={() => setShowAbout(true)} title="About" className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
-                                <Info className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <div className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-neutral-800 text-neutral-500' : 'bg-neutral-100 text-neutral-400'}`}>v3.7.0</div>
-                    </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide">
-                    <section>
-                        <h3 className="text-[10px] font-black opacity-30 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
-                            <ListFilter className="w-3 h-3 text-indigo-500" /> Indicator Space
-                        </h3>
-                        <div className="space-y-4">
-                            <button
-                                onClick={() => setSelectedMetricId('mobility_poverty_index')}
-                                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-[11px] font-black transition-all ${selectedMetricId === 'mobility_poverty_index'
-                                    ? 'bg-indigo-600 text-white shadow-xl scale-[1.02]'
-                                    : (isDarkMode ? 'bg-neutral-800/50 hover:bg-neutral-800 text-neutral-300' : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600')}`}
-                            >
-                                <span className="flex items-center gap-3">📈 <span>Mobility Poverty Index</span></span>
-                                <ChevronRight className={`w-4 h-4 ${selectedMetricId === 'mobility_poverty_index' ? 'opacity-100' : 'opacity-0'}`} />
-                            </button>
-
-                            {(['Mobility', 'Accessibility', 'Land Use', 'Sociodemographic'] as const).map(cat => (
-                                <div key={cat} className={`border rounded-2xl overflow-hidden transition-all ${isDarkMode ? 'border-neutral-800 bg-neutral-800/10' : 'border-neutral-100 bg-neutral-50/30'} ${!collapsedSections[cat] ? 'ring-1 ring-indigo-500/20' : ''}`}>
-                                    <button onClick={() => toggleSection(cat)}
-                                        className={`w-full flex items-center justify-between px-4 py-3.5 text-[10px] font-black uppercase tracking-widest transition-colors ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-600'}`}
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            <div className={`w-1.5 h-1.5 rounded-full ${selectedMetric.category === cat ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]' : 'bg-neutral-700'}`} />{cat}
-                                        </span>
-                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${collapsedSections[cat] ? '' : 'rotate-180'}`} />
-                                    </button>
-                                    {!collapsedSections[cat] && (
-                                        <div className={`p-2 space-y-1.5 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-100'}`}>
-                                            {METRICS.filter(m => m.category === cat).map(m => {
-                                                const isVisible = !m.viewLevel || (m.viewLevel === 'municipality' && viewLevel === 'municipality');
-                                                if (!isVisible) return null;
-                                                return (
-                                                    <button key={m.id} onClick={() => setSelectedMetricId(m.id)}
-                                                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[10px] font-bold transition-all ${selectedMetricId === m.id
-                                                            ? 'bg-indigo-600 text-white shadow-lg'
-                                                            : (isDarkMode ? 'hover:bg-neutral-800 text-neutral-500' : 'hover:bg-neutral-100 text-neutral-500')}`}
-                                                    >
-                                                        <span className="flex items-center gap-3">
-                                                            <span>{m.icon}</span>
-                                                            <span className="truncate">{m.label}</span>
-                                                            {m.isFake && <AlertTriangle className="w-2.5 h-2.5 text-amber-500 ml-auto opacity-60" />}
-                                                        </span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                </div>
-            </div>
+            {!isMobile && (
+                <SidebarLeft
+                    isDarkMode={isDarkMode}
+                    setIsDarkMode={setIsDarkMode}
+                    setShowDownload={setShowDownload}
+                    setShowAbout={setShowAbout}
+                    selectedMetric={selectedMetric}
+                    selectedMetricId={selectedMetricId}
+                    setSelectedMetricId={setSelectedMetricId}
+                    viewLevel={effectiveLevel}
+                    collapsedSections={collapsedSections}
+                    toggleSection={toggleSection}
+                    weights={weights}
+                    setWeights={setWeights}
+                    resetWeights={resetWeights}
+                    setIsAHPModalOpen={setIsAHPModalOpen}
+                />
+            )}
 
             {/* Map Canvas: Main View */}
-            <div className="flex-1 relative bg-neutral-950 flex flex-col">
+            <div className="absolute inset-0 bg-neutral-950 z-0">
                 <style>{`.leaflet-container { outline: none !important; } .leaflet-path { cursor: pointer; outline: none !important; }`}</style>
 
                 {selectedMetric.isFake && (
-                    <div className="absolute top-[88px] left-8 z-[1000] flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600/90 text-white shadow-xl backdrop-blur-md animate-pulse">
+                    <div className="absolute top-[88px] left-[416px] z-[1000] flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-600/90 text-white shadow-xl backdrop-blur-md animate-pulse">
                         <AlertTriangle className="w-3.5 h-3.5" />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Synthetic / Placeholder Data</span>
+                        <span className="text-[13px] font-black uppercase tracking-widest">{t('map.synthetic_data')}</span>
                     </div>
                 )}
 
-                <div className="absolute top-8 left-8 right-8 z-[1000] flex justify-between items-start pointer-events-none">
-                    <div className="flex gap-4 pointer-events-auto items-center">
-                        <div className={`${isDarkMode ? 'bg-neutral-900/90 border-neutral-800 shadow-2xl' : 'bg-white/90 border-neutral-200 shadow-xl'} backdrop-blur-md px-1.5 py-1.5 rounded-2xl border flex items-center`}>
-                            {(['hex', 'freguesia', 'municipality'] as const).map(l => (
-                                <button key={l} onClick={() => setViewLevel(l)}
-                                    className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewLevel === l ? 'bg-indigo-600 text-white shadow-xl' : `${isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-800'}`}`}
-                                >{l === 'hex' ? 'Grid' : l}</button>
-                            ))}
-                        </div>
-                        <div className={`${isDarkMode ? 'bg-neutral-900/90 border-neutral-800 shadow-2xl' : 'bg-white/90 border-neutral-200 shadow-xl'} backdrop-blur-md px-1.5 py-1.5 rounded-2xl border flex items-center`}>
-                            {(['all', 'Grande Lisboa', 'Península de Setúbal'] as const).map(n => (
-                                <button key={n} onClick={() => setNutFilter(n)}
-                                    className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${nutFilter === n ? 'bg-indigo-600 text-white shadow-xl' : `${isDarkMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-800'}`}`}
-                                >{n === 'all' ? 'Metropolis' : n}</button>
-                            ))}
+                {!isMobile && (
+                    <div className="absolute top-8 left-[416px] z-[1002] flex items-start pointer-events-none">
+                        <div className="flex gap-4 pointer-events-auto items-center">
+                            <MapFilterDropdown
+                                label={t('map.view_level')}
+                                value={viewLevel}
+                                isDark={isDarkMode}
+                                icon={<Layers className="w-3.5 h-3.5" />}
+                                options={(['hex', 'freguesia', 'municipality'] as const)
+                                    .filter(l => isMetricAvailable(selectedMetricId, l, effectiveMode.suffix))
+                                    .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
+                                onChange={(id) => {
+                                    setViewLevel(id as ViewLevel);
+                                    setZoomRequest(null);
+                                    setSelectedFeature(null);
+                                }}
+                            />
+
+                            <MapFilterDropdown
+                                label={t('map.region')}
+                                value={nutFilter}
+                                isDark={isDarkMode}
+                                icon={<Globe className="w-3.5 h-3.5" />}
+                                options={REGION_KEYS.map(n => ({ id: n, label: t(REGIONS[n].name) }))}
+                                onChange={(id) => {
+                                    setNutFilter(id as RegionKey);
+                                    setZoomRequest(null);
+                                    setSelectedFeature(null);
+                                }}
+                            />
+
+                            <MapFilterDropdown
+                                label={t('map.mode')}
+                                value={effectiveMode.id}
+                                isDark={isDarkMode}
+                                icon={<RocketIcon className="w-3.5 h-3.5" />}
+                                options={MODES.filter(m => isModeAvailable(m.id, selectedMetricId, effectiveLevel))
+                                    .map(m => ({ id: m.id, label: t(m.label), icon: m.icon }))}
+                                onChange={(id) => setSelectedModeId(id as ModeId)}
+                            />
                         </div>
                     </div>
-                </div>
+                )}
 
-                <div className="absolute bottom-8 left-8 z-[1000] pointer-events-none w-[280px]">
-                    <div className={`p-6 rounded-[32px] border pointer-events-auto shadow-2xl backdrop-blur-xl ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-100'}`}>
-                        <h4 className="flex items-center gap-2.5 text-[10px] font-black text-indigo-500 mb-5 uppercase tracking-[0.1em]">
-                            <Activity className="w-3.5 h-3.5" /> {nutFilter !== 'all' ? 'Local Rescaling' : 'Global Metric Scale'}
-                        </h4>
-                        <div className="space-y-5">
-                            <div className="flex flex-col gap-3">
-                                <div className={`h-2.5 rounded-full w-full bg-gradient-to-r ${selectedMetric.isDivergent ? 'from-[#006837] via-white to-[#bd0026]' : (selectedMetric.invertColor || selectedMetric.id.includes('poverty') ? 'from-[#fff5f0] to-[#67000d]' : 'from-[#f7fbff] to-[#08306b]')}`} />
-                                <div className="flex justify-between text-[9px] font-black opacity-40 uppercase tracking-tighter">
-                                    <span>{selectedMetric.format(currentDomain[0])}</span>
-                                    <span>{selectedMetric.format(currentDomain[1])}</span>
+                {!isMobile && (
+                    <div className="absolute bottom-8 right-8 z-[1000] pointer-events-none w-[280px]">
+                        <div className={`p-6 rounded-[32px] border pointer-events-auto shadow-2xl backdrop-blur-xl ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-100'}`}>
+                            <h4 className="flex items-center gap-2.5 text-[12px] font-black text-sky-800 mb-5 uppercase tracking-[0.1em]">
+                                <Activity className="w-3.5 h-3.5" /> {nutFilter !== REGION_KEYS[0] ? t('map.local_rescaling') : t('map.global_scale')}
+                            </h4>
+                            <div className="space-y-5">
+                                <div className="flex flex-col gap-3">
+                                    <div
+                                        className="h-2.5 rounded-full w-full shadow-inner"
+                                        style={{ background: getLegendGradient() }}
+                                    />
+                                    <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
+                                        <span>{selectedMetric.format(currentDomain[0])}</span>
+                                        <span>{selectedMetric.format(currentDomain[1])}</span>
+                                    </div>
+                                </div>
+                                <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
+                                    <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{t(selectedMetric.label)} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
+                                    <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description ? t(selectedMetric.description) : `Spatial distribution and variance of ${t(selectedMetric.label).toLowerCase()} across the ${t(`map.${effectiveLevel}`)} network.`}</p>
                                 </div>
                             </div>
-                            <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                                <p className="text-[11px] font-black leading-tight mb-2 uppercase tracking-tight">{selectedMetric.label} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
-                                <p className="text-[9px] opacity-40 leading-relaxed font-bold uppercase tracking-tight">{selectedMetric.description || `Spatial distribution and variance of ${selectedMetric.label.toLowerCase()} across the ${viewLevel} network.`}</p>
-                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
-                <div className="flex-1">
+                <div className="absolute inset-0">
                     <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
-                        <ZoomHandler extent={nutFilter} />
-                        <TileLayer url={isDarkMode ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"} attribution='&copy; CARTO' />
-                        {activeGeoData?.features && (
-                            <GeoJSON key={`${viewLevel}-${nutFilter}-${selectedMetricId}-${isDarkMode}-${selectedFeature?.dtmnfr || selectedFeature?.municipio}`} data={activeGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                        <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
+                        <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
+                        <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
+                        {(() => {
+                            const layer = MAP_LAYERS.find(l => l.id === mapStyle) || MAP_LAYERS[0];
+                            const url = 'getUrl' in layer ? layer.getUrl(isDarkMode) : layer.url;
+                            return <TileLayer url={url!} attribution={layer.attribution} />;
+                        })()}
+                        <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} />
+                        {computedGeoData?.features && (
+                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveMode.id}-${isDarkMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
-                        {viewLevel !== 'municipality' && dataState.limits && (
-                            <GeoJSON data={dataState.limits as any} style={{ fillOpacity: 0, weight: 4, color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }} interactive={false} />
-                        )}
+                        <Pane name="limits-pane" style={{ zIndex: 450 }}>
+                            {effectiveLevel !== 'municipality' && filteredLimits && (
+                                <GeoJSON key={`limits-${nutFilter}-${isDarkMode}`} data={filteredLimits as any} style={{ fillOpacity: 0, weight: 4, color: isDarkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }} interactive={false} />
+                            )}
+                        </Pane>
                     </MapContainer>
                 </div>
             </div>
 
-            {/* Sidebar Right: Analytics */}
-            <div className={`w-[420px] flex flex-col ${isDarkMode ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'} border-l shadow-2xl z-30 overflow-hidden`}>
-                <div className="flex-1 overflow-y-auto p-8 space-y-10 scrollbar-hide">
-
-                    {/* Selection Detail */}
-                    <section>
-                        <h3 className="text-[10px] font-black opacity-30 uppercase tracking-[0.3em] mb-5 flex items-center gap-2">
-                            <MapPin className="w-3.5 h-3.5 text-indigo-500" /> Regional Intelligence
-                        </h3>
-                        {selectedFeature ? (
-                            <div className={`${isDarkMode ? 'bg-neutral-800/40 border-neutral-700/50' : 'bg-neutral-50 border-neutral-100'} rounded-[32px] p-7 border shadow-sm`}>
-                                <div className="mb-6">
-                                    <span className={`text-[9px] font-black ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'} uppercase tracking-[0.2em]`}>{selectedFeature.municipio}</span>
-                                    <h3 className="font-bold text-xl leading-tight mt-1.5 tracking-tight">{selectedFeature.freguesia || selectedFeature.municipio}</h3>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4 mb-6">
-                                    <DetailCard label="Poverty Index" value={(selectedFeature.mobility_poverty_index || 0).toFixed(1)} color="text-red-400" isDark={isDarkMode} />
-                                    <DetailCard label="Density" value={`${(selectedFeature.pop_density || 0).toFixed(0)}/k²`} isDark={isDarkMode} />
-                                    <DetailCard label="Avg Income" value={selectedFeature.income ? `€${selectedFeature.income.toLocaleString()}` : 'Mun Level'} isDark={isDarkMode} />
-                                    <DetailCard label="Gini" value={selectedFeature.gini ? `${selectedFeature.gini.toFixed(1)}%` : 'Mun Level'} isDark={isDarkMode} />
-                                </div>
-
-                                {/* Modal Share Breakdown */}
-                                <div className="mb-6 pt-6 border-t border-neutral-800/50">
-                                    <h4 className="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Mobility Profile (Modal Share)</h4>
-                                    <div className="h-16 flex items-center">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={[{
-                                                name: 'Share',
-                                                car: (selectedFeature.share_car || 0) * 100,
-                                                pt: (selectedFeature.share_pt || 0) * 100,
-                                                walk: (selectedFeature.share_walk || 0) * 100,
-                                                bike: (selectedFeature.share_bike || 0) * 100
-                                            }]} layout="vertical">
-                                                <XAxis type="number" hide domain={[0, 100]} />
-                                                <YAxis dataKey="name" type="category" hide />
-                                                <RechartsTooltip cursor={false} content={({ payload }) => {
-                                                    if (payload && payload.length) {
-                                                        return (
-                                                            <div className={`${isDarkMode ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-neutral-100'} p-3 rounded-xl border shadow-xl flex flex-col gap-1`}>
-                                                                {payload.map((p: any) => (
-                                                                    <div key={p.name} className="flex justify-between gap-4 text-[10px] items-center">
-                                                                        <div className="flex items-center gap-1.5">
-                                                                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
-                                                                            <span className="font-bold opacity-60 uppercase">{p.name}</span>
-                                                                        </div>
-                                                                        <span className="font-black text-indigo-500">{p.value.toFixed(1)}%</span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        );
-                                                    }
-                                                    return null;
-                                                }} />
-                                                <Bar dataKey="car" stackId="a" fill="#ef4444" radius={[4, 0, 0, 4]}>
-                                                    <LabelList dataKey="car" position="insideLeft" formatter={(v: number) => v > 15 ? `${v.toFixed(0)}%` : ''} style={{ fontSize: '9px', fill: 'white', fontWeight: 'bold' }} />
-                                                </Bar>
-                                                <Bar dataKey="pt" stackId="a" fill="#6366f1" />
-                                                <Bar dataKey="walk" stackId="a" fill="#10b981" />
-                                                <Bar dataKey="bike" stackId="a" fill="#eab308" radius={[0, 4, 4, 0]} />
-                                            </BarChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                    <div className="flex justify-between mt-2 px-1">
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[8px] font-black opacity-40 uppercase">Car</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500" /><span className="text-[8px] font-black opacity-40 uppercase">PT</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className="text-[8px] font-black opacity-40 uppercase">Walk</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-yellow-500" /><span className="text-[8px] font-black opacity-40 uppercase">Bike</span></div>
-                                    </div>
-                                </div>
-
-
-                                {viewLevel === 'municipality' && municipalityFreguesias.length > 0 && (
-                                    <div className="mt-8 pt-6 border-t border-neutral-800/50">
-                                        <h4 className="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Constituent Dynamics</h4>
-                                        <div className="space-y-3 max-h-40 overflow-y-auto pr-2 scrollbar-thin">
-                                            {municipalityFreguesias.slice(0, 10).map(f => (
-                                                <div key={f.dtmnfr || f.freguesia} className="flex justify-between items-center text-[10px] hover:bg-neutral-800/30 p-1.5 rounded-lg transition-colors cursor-default">
-                                                    <span className="opacity-50 truncate w-36">{f.freguesia}</span>
-                                                    <span className="font-bold text-indigo-400">{selectedMetric.format(f[selectedMetric.id] || 0)}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className={`p-14 border border-dashed rounded-[32px] flex flex-col items-center justify-center text-center ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
-                                <MousePointer2 className="w-10 h-10 opacity-5 mb-4" />
-                                <p className="text-[10px] font-bold uppercase opacity-20 leading-loose tracking-widest">Target a regional unit<br />for deep analytics</p>
-                            </div>
-                        )}
-                    </section>
-
-                    {/* Comparative Analytics */}
-                    <section>
-                        <h3 className="text-[10px] font-black opacity-30 uppercase tracking-[0.3em] mb-5 flex items-center gap-2">
-                            <TrendingUp className="w-3.5 h-3.5 text-indigo-500" /> Metropolitan Contrast
-                        </h3>
-                        <div className="space-y-8">
-                            <div>
-                                <p className="text-[10px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">Critical Concentration</p>
-                                <div className={`h-44 rounded-2xl p-4 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
-                                    <MiniBarChart data={chartData.top10} metric={selectedMetric} isDark={isDarkMode} type="highest" />
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold opacity-50 mb-3 px-1 uppercase tracking-tighter">Positive Concentration</p>
-                                <div className={`h-44 rounded-2xl p-4 border shadow-inner ${isDarkMode ? 'bg-neutral-800/20 border-neutral-800' : 'bg-neutral-50 border-neutral-100'}`}>
-                                    <MiniBarChart data={chartData.worst10} metric={selectedMetric} isDark={isDarkMode} type="lowest" />
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            {/* About Overlay */}
-            {showAbout && (
-                <div className="fixed inset-0 z-[5000] flex items-center justify-center bg-black/85 backdrop-blur-xl p-8" onClick={() => setShowAbout(false)}>
-                    <div className={`${isDarkMode ? 'bg-neutral-900 border-neutral-800 shadow-[0_0_50px_rgba(0,0,0,1)]' : 'bg-white border-neutral-200 shadow-2xl'} border rounded-[48px] max-w-2xl w-full p-14 relative transition-all animate-in zoom-in-95 duration-300`} onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setShowAbout(false)} className="absolute top-10 right-10 p-3 hover:bg-neutral-200 rounded-full transition-colors flex items-center justify-center"><X className="w-6 h-6 opacity-40 text-neutral-500" /></button>
-                        <div className="flex items-center gap-6 mb-12">
-                            <div className="w-16 h-16 bg-indigo-600 rounded-[20px] flex items-center justify-center shadow-2xl shadow-indigo-500/20"><Activity className="text-white w-9 h-9" /></div>
-                            <div>
-                                <h2 className="text-3xl font-black leading-none tracking-tighter">Pannapp</h2>
-                                <p className="text-indigo-500 font-black text-[10px] uppercase tracking-[0.4em] mt-3">Governance Strategic Intelligence</p>
-                            </div>
-                        </div>
-                        <div className="space-y-8 text-sm font-bold uppercase tracking-widest leading-relaxed opacity-60">
-                            <p className={`p-6 rounded-2xl ${isDarkMode ? 'bg-white/5' : 'bg-neutral-50'} italic border-l-4 border-indigo-600 font-medium`}>"Decentralized Spatial Intelligence for Sustainable & Equitable Urban Governance Transitions."</p>
-                            <div className="grid grid-cols-2 gap-4 pt-4">
-                                <a href="https://github.com/U-Shift/IMPT-data" target="_blank" className="flex items-center gap-4 p-5 rounded-2xl border border-neutral-800 hover:bg-indigo-600 hover:text-white transition-all hover:border-indigo-600 hover:scale-[1.02] active:scale-95">
-                                    <Github className="w-5 h-5" /> <span>Source Code</span>
-                                </a>
-                                <a href="https://ushift.tecnico.ulisboa.pt/" target="_blank" className="flex items-center gap-4 p-5 rounded-2xl border border-neutral-800 hover:bg-indigo-600 hover:text-white transition-all hover:border-indigo-600 hover:scale-[1.02] active:scale-95">
-                                    <ExternalLink className="w-5 h-5" /> <span>U-Shift Lab</span>
-                                </a>
-                            </div>
-                            <div className="pt-6 flex justify-between items-center opacity-40">
-                                <p className="text-[10px]">Project Framework: <strong>IMPT Project</strong></p>
-                                <p className="text-[10px]">IST - University of Lisbon</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {!isMobile && (
+                <SidebarRight
+                    isDarkMode={isDarkMode}
+                    selectedFeature={selectedFeature}
+                    viewLevel={effectiveLevel}
+                    selectedMetric={selectedMetric}
+                    selectedMetricId={selectedMetricId}
+                    selectedMode={effectiveMode}
+                    dataState={dataState}
+                    allDomains={allDomains}
+                    getColor={getColor}
+                    subLevelData={subLevelData}
+                    chartData={chartData}
+                    setSelectedFeature={setSelectedFeature}
+                    computedGeoData={computedGeoData}
+                    setZoomRequest={setZoomRequest}
+                    setViewLevel={setViewLevel}
+                />
             )}
 
-            {/* Download Overlay */}
-            {showDownload && (
-                <div className="fixed inset-0 z-[5000] flex items-center justify-center bg-black/85 backdrop-blur-xl p-8" onClick={() => setShowDownload(false)}>
-                    <div className={`${isDarkMode ? 'bg-neutral-900 border-neutral-800 shadow-[0_0_50px_rgba(0,0,0,1)]' : 'bg-white border-neutral-200 shadow-2xl'} border rounded-[48px] max-w-2xl w-full p-14 relative transition-all animate-in zoom-in-95 duration-300`} onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setShowDownload(false)} className="absolute top-10 right-10 p-3 hover:bg-neutral-200 rounded-full transition-colors flex items-center justify-center"><X className="w-6 h-6 opacity-40 text-neutral-500" /></button>
-                        <div className="flex items-center gap-6 mb-12">
-                            <div className="w-16 h-16 bg-emerald-600 rounded-[20px] flex items-center justify-center shadow-2xl shadow-emerald-500/20"><Download className="text-white w-9 h-9" /></div>
-                            <div>
-                                <h2 className="text-3xl font-black leading-none tracking-tighter">Data Center</h2>
-                                <p className="text-emerald-500 font-black text-[10px] uppercase tracking-[0.4em] mt-3">Metropolitan Insights Repository</p>
-                            </div>
-                        </div>
+            <AboutModal
+                showAbout={showAbout}
+                setShowAbout={setShowAbout}
+                isDarkMode={isDarkMode}
+            />
 
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <DownloadCard
-                                    title="Freguesias"
-                                    id="freg_2024"
-                                    isDark={isDarkMode}
-                                    data={dataState.freguesias}
-                                    filename="impt_lisbon_freguesias"
-                                />
-                                <DownloadCard
-                                    title="Municipality"
-                                    id="mun_2024"
-                                    isDark={isDarkMode}
-                                    data={dataState.municipios}
-                                    filename="impt_lisbon_municipalities"
-                                />
-                                <DownloadCard
-                                    title="Grid (Hex)"
-                                    id="grid_h3_r8"
-                                    isDark={isDarkMode}
-                                    data={dataState.hex}
-                                    filename="impt_lisbon_grid"
-                                />
-                            </div>
+            <DownloadModal
+                showDownload={showDownload}
+                setShowDownload={setShowDownload}
+                isDarkMode={isDarkMode}
+                dataState={dataState}
+            />
 
-                            <div className={`p-6 rounded-3xl ${isDarkMode ? 'bg-white/5 border-neutral-800' : 'bg-neutral-50 border-neutral-100'} border mt-6`}>
-                                <h4 className="text-[10px] font-black opacity-40 uppercase tracking-widest mb-3">About the data</h4>
-                                <p className="text-[11px] leading-relaxed opacity-60 font-medium">All datasets are provided in <span className="font-bold text-indigo-500">GeoJSON</span> for spatial analysis and <span className="font-bold text-emerald-500">CSV</span> for tabular processing. Coordinates use <span className="font-bold">WGS84 (EPSG:4326)</span>. The unique identifier (Dicom/HexID) should be used to relate the files.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <AHPModal
+                isOpen={isAHPModalOpen}
+                onClose={() => setIsAHPModalOpen(false)}
+                metrics={contributoryMetrics}
+                isDarkMode={isDarkMode}
+                onApplyWeights={(newWeights: Record<string, number>) => {
+                    setWeights(newWeights);
+                    setIsAHPModalOpen(false);
+                }}
+            />
+
+            {isMobile && !showAbout && (
+                <MobileOverlay onShowAbout={() => setShowAbout(true)} />
             )}
-        </div>
+        </div >
     );
 };
-
-const DownloadCard = ({ title, id, isDark, data, filename }: { title: string, id: string, isDark: boolean, data: any, filename: string }) => {
-    const downloadCSV = () => {
-        if (!data || !data.features) return;
-        const properties = data.features.map((f: any) => f.properties);
-        if (properties.length === 0) return;
-
-        const keys = Object.keys(properties[0]);
-        const csvContent = [
-            keys.join(','),
-            ...properties.map((row: any) => keys.map(k => {
-                const val = row[k];
-                return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : val;
-            }).join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `${filename}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const downloadGeoJSON = () => {
-        if (!data) return;
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `${filename}.json`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    return (
-        <div className={`${isDark ? 'bg-neutral-800/40 border-neutral-700/50' : 'bg-white border-neutral-200 shadow-sm'} p-6 rounded-[32px] border flex flex-col items-center gap-4`}>
-            <div className="text-center">
-                <h3 className="text-sm font-black tracking-tight">{title}</h3>
-                <p className="text-[9px] font-bold opacity-30 mt-1 uppercase tracking-tighter">ID: {id}</p>
-            </div>
-            <div className="flex flex-col gap-2 w-full">
-                <button onClick={downloadGeoJSON} className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all">GeoJSON</button>
-                <button onClick={downloadCSV} className="w-full py-2.5 rounded-xl border border-emerald-600/30 text-emerald-500 hover:bg-emerald-600 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all">CSV</button>
-            </div>
-        </div>
-    );
-};
-
-const DetailCard = ({ label, value, color = "", isDark = true }: { label: string, value: string, color?: string, isDark?: boolean }) => (
-    <div className={`${isDark ? 'bg-neutral-800/60 border-neutral-700/30' : 'bg-neutral-50 border-neutral-100 shadow-sm'} p-4 rounded-2xl border transition-all hover:border-indigo-500/30`}>
-        <span className="block text-[9px] font-black opacity-30 uppercase mb-1.5 tracking-widest">{label}</span>
-        <span className={`text-sm font-black tracking-tighter ${color || (isDark ? 'text-white' : 'text-neutral-900')}`}>{value || '—'}</span>
-    </div>
-);
-
-const MiniBarChart = ({ data, metric, isDark, type }: { data: any[], metric: MetricDef, isDark: boolean, type: 'highest' | 'lowest' }) => (
-    <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical" margin={{ left: -35, right: 35, top: 0, bottom: 0 }}>
-            <XAxis type="number" hide />
-            <YAxis dataKey="name" type="category" hide />
-            <RechartsTooltip cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }} content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                    const d = payload[0].payload;
-                    return (
-                        <div className={`${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200 shadow-2xl'} border p-4 rounded-2xl backdrop-blur-2xl`}>
-                            <p className="text-[9px] font-black opacity-40 uppercase mb-1.5 tracking-widest">{d.municipio || 'LISBON AREA'}</p>
-                            <p className={`text-[11px] font-black ${isDark ? 'text-white' : 'text-neutral-900'} leading-tight mb-2 tracking-tight`}>{d.name}</p>
-                            <p className={`text-sm font-black ${type === 'highest' ? 'text-red-400' : 'text-emerald-400'}`}>{metric.format(d.value)}</p>
-                        </div>
-                    );
-                }
-                return null;
-            }} />
-            <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={10}>
-                {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={type === 'highest' ? '#ef4444' : '#10b981'} opacity={1 - index * 0.06} />
-                ))}
-                <LabelList dataKey="name" position="right" style={{ fontSize: '7px', fill: '#666', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.05em' }} formatter={(v: string) => v.length > 18 ? v.substring(0, 16) + '..' : v} offset={10} />
-            </Bar>
-        </BarChart>
-    </ResponsiveContainer>
-);
 
 export default Dashboard;
