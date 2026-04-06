@@ -56,7 +56,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                         const parentLevel = (LEVEL_CONFIG as any)[viewLevel].parent;
                                         return (parentLevel && selectedFeature.group_id)
                                             ? (dataState.parentLookup[`${parentLevel}-${selectedFeature.group_id}`] || selectedFeature.group_id)
-                                            : t('common.lma');
+                                            : '';
                                     })()}
                                 </span>
                                 <h3 className="font-bold text-xl leading-tight mt-1.5 tracking-tight">{selectedFeature.name || selectedFeature.id}</h3>

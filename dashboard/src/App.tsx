@@ -295,7 +295,7 @@ const Dashboard = () => {
         const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
         const parentName = (parentLevel && props.group_id)
             ? (dataState.parentLookup[`${parentLevel}-${props.group_id}`] || props.group_id)
-            : 'LMA';
+            : '';
 
         layer.bindTooltip(`
             <div style="font-family: sans-serif; padding: 4px;">
