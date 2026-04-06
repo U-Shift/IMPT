@@ -14,6 +14,11 @@ Transport poverty refers to an individual or household inability to access essen
 
 This project aims to tackle this challenge by developing a multidimensional index that enables its measurement and monitoring over time at both national and regional levels, with the aim of identifying priority areas for intervention and supporting a just mobility transition.
 
+
+## Data 
+
+Data preparation is available at https://github.com/U-Shift/IMPT-data repository.
+
 ## Acknowledgement
 
 IMPT project is developed and maintained by
