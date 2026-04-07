@@ -223,16 +223,21 @@ const Dashboard = () => {
                 let computedIndex = 0;
 
                 Object.entries(weights).forEach(([metricId, weight]) => {
-                    const metricDef = FLAT_METRICS.find(m => m.id === metricId);
-                    if (!metricDef) return;
-                    const val = getMetricValue(f.properties, metricDef, effectiveMode, selectedVariations);
+                    const effectiveMetricId = `${metricId}${effectiveMode.suffix}`;
+                    const fallbackMetricId = modeAny.suffixFallback !== undefined ? `${metricId}${modeAny.suffixFallback}` : undefined;
+                    // Use a fallback to the base metric ID if the mode-specific suffix version is missing
+                    const val = (f.properties[effectiveMetricId] ?? (fallbackMetricId ? f.properties[fallbackMetricId] : undefined));
                     if (val !== undefined) {
                         computedIndex += val * weight;
                     }
                     if (val !== undefined && i == 0) {
-                        console.log("> Considering metric", metricId, "with value", val, "and weight", weight);
+                        if (f.properties[effectiveMetricId] !== undefined) {
+                            console.log("> Considering metric", effectiveMetricId, "with weight", weight);
+                        } else {
+                            console.warn("> Considering metric fallback ", fallbackMetricId, "with weight", weight);
+                        }
                     } else if (i == 0) {
-                        console.log("> No value for metric", metricId);
+                        console.log("> No value for metric", metricId, val);
                     }
                 });
 
