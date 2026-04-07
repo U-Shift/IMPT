@@ -255,9 +255,18 @@
       "description": "Cost difference between travel cost for PT and Car. Positive values indicate PT is more expensive than Car",
       "sources": ["iptoll", "accounting"]
     },
+    "access_gap_money_relative_gap_cost": {
+      "label": "Affordability Gap (Relative Cost)",
+      "description": "Relative cost difference between travel cost for PT and Car. Positive values indicate PT is x times more expensive than Car",
+      "sources": ["iptoll", "accounting"]
+    },
     "access_gap_time_accessibility_gap": {
       "label": "Accessibility Gap (Time)",
       "description": "Time difference between travel time for Car and PT. Positive values indicate Car is faster than PT"
+    },
+    "access_gap_time_relative_gap_time": {
+      "label": "Accessibility Gap (Relative Time)",
+      "description": "Relative time difference between travel time for Car and PT. Positive values indicate Car is x times faster than PT"
     },
     "veh_ownership_total_motor_vehicles_per_hh": {
       "label": "Motorized vehicles per household",
