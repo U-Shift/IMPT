@@ -68,10 +68,6 @@
     "categories": {
       "mobility_poverty_index": "Transportation Poverty Index",
       "dimensions": "Aggregated Dimensions",
-      "mobility": "Mobility",
-      "accessibility": "Accessibility",
-      "safety": "Safety",
-      "affordability": "Affordability",
       "census_population": "Census Population",
       "census_landuse": "Census & Land Use",
       "mobility": "Mobility",
