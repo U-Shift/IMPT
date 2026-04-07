@@ -96,7 +96,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.GreenToRed,
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
+            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
         },
         {
             id: 'IMPT_score_pca_geom',
@@ -105,8 +105,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
             pallete: COLORS.GreenToRed,
-            default: true,
-            sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
+            default: true
+            //sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
         },
         {
             id: 'IMPT_dynamic',
@@ -362,7 +362,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: "€",
             scaleMethod: continuousScale, ignoreValues: [null],
             pallete: COLORS.Viridis.reverse(),
-            sources: ['ine']
+            sources: ['census']
         },
         {
             id: 'veh_ownership_total_motor_vehicles_per_hh',
