@@ -228,6 +228,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
                 <DetailCard
                     label={t(m.label)}
                     value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1)}
+                    unit={m.unit}
                     hexColor={getColor(val, allDomains[m.id] || [0, 1], m)}
                     isDark={isDarkMode}
                     isFullWidth={isSelected}
