@@ -162,10 +162,6 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
 
                                         return (
                                             <div key={m.id} className="space-y-1">
-                                                <Tooltip
-                                                    content={`${t(m.description as string)}${m.sources && m.sources.length > 0 ? `\n\n${t('common.source')}: ${m.sources.map(s => t(`sources.${s}`)).join(', ')}` : ''}`}
-                                                    isDarkMode={true}
-                                                >
                                                     <button onClick={() => {
                                                         setSelectedMetricId(m.id);
 
@@ -200,7 +196,6 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                             <span className="truncate">{t(m.label)}</span>
                                                         </span>
                                                     </button>
-                                                </Tooltip>
 
                                                 {isSelected && m.id_variations && (
                                                     <div className={`mt-2 mb-3 p-3 rounded-2xl space-y-3 ${isDarkMode ? 'bg-neutral-950/50' : 'bg-white/50 border border-neutral-100'}`}>
