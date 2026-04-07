@@ -4,6 +4,7 @@
     "impt_1": "Poverty",
     "impt_2": "Index",
     "loading": "Loading dashboard...",
+    "loading_note": "It takes a little longer the first time",
     "beta": "Beta version",
     "lma": "Lisbon Metro Area",
     "close": "Close",
@@ -192,7 +193,7 @@
     },
     "census_income_income_hh": {
       "label": "Household income",
-      "description": "Average monthly net income per household",
+      "description": "Average yearly net income per household",
       "sources": ["ine"]
     },
     "census_income_gini_coef": {

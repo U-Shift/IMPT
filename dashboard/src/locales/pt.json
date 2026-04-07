@@ -4,6 +4,7 @@
     "impt_1": "Pobreza",
     "impt_2": "nos Transportes",
     "loading": "A carregar o dashboard...",
+    "loading_note": "Da primeira vez demora um pouco mais",
     "beta": "Versão Beta",
     "lma": "Área Metropolitana de Lisboa",
     "close": "Fechar",
@@ -189,7 +190,7 @@
     },
     "census_income_income_hh": {
       "label": "Rendimento das famílias",
-      "description": "Rendimento líquido médio mensal por agregado familiar",
+      "description": "Rendimento líquido médio anual por agregado familiar",
       "sources": ["ine"]
     },
     "census_income_gini_coef": {
