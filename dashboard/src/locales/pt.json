@@ -74,7 +74,8 @@
       "accessibility": "Acessibilidade",
       "safety": "Segurança",
       "affordability": "Acessibilidade Económica",
-      "census_population": "População Censos"
+      "census_population": "População Censos",
+      "top_contributors": "Principais Contribuidores"
     },
     "impt_entropy": {
       "label": "IMPT com entropia",

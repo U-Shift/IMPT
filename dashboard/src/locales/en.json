@@ -74,7 +74,8 @@
       "mobility": "Mobility",
       "accessibility": "Accessibility",
       "safety": "Safety",
-      "affordability": "Affordability"
+      "affordability": "Affordability",
+      "top_contributors": "Top Contributors"
     },
     "impt_entropy": {
       "label": "IMPT with entropy",

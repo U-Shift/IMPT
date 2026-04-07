@@ -26,6 +26,39 @@ interface SidebarLeftProps {
     viewLevel: string;
 }
 
+const AuxiliaryDataRenderer: React.FC<{
+    url: string;
+    metricId: string;
+    t: (key: string) => string;
+    render: (data: any, metricId: string, t: (key: string) => string) => React.ReactNode;
+}> = ({ url, metricId, t, render }) => {
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+
+    React.useEffect(() => {
+        setLoading(true);
+        fetch(url)
+            .then(res => res.json())
+            .then(json => {
+                setData(json);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error("Error fetching auxiliary data:", err);
+                setLoading(false);
+            });
+    }, [url]);
+
+    if (loading) return (
+        <div className="mt-2 p-3 animate-pulse bg-neutral-100 dark:bg-neutral-800 rounded-xl h-20 flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-sky-800 border-t-transparent rounded-full animate-spin" />
+        </div>
+    );
+    if (!data) return null;
+
+    return <>{render(data, metricId, t)}</>;
+};
+
 export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     isDarkMode, setIsDarkMode, setShowDownload, setShowAbout,
     selectedMetric, selectedMetricId, setSelectedMetricId,
@@ -295,6 +328,17 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                 </div>
                                                             );;
                                                         })}
+                                                    </div>
+                                                )}
+
+                                                {isSelected && m.auxiliaryDataUrl && m.renderAuxiliaryData && (
+                                                    <div className="mt-1 px-1">
+                                                        <AuxiliaryDataRenderer
+                                                            url={m.auxiliaryDataUrl}
+                                                            metricId={m.id}
+                                                            t={t}
+                                                            render={m.renderAuxiliaryData as any}
+                                                        />
                                                     </div>
                                                 )}
                                             </div>

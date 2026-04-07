@@ -1,3 +1,4 @@
+import React from 'react';
 import { ModeId } from './constants';
 
 export type ViewLevel = 'hex' | 'freguesia' | 'municipality';
@@ -43,4 +44,7 @@ export type MetricDef = {
     isCalculated?: boolean; // Identifies this metric as a dynamically computed index
     isContributory?: boolean; // Identifies that this metric can be used to compute a dynamic index
     defaultWeight?: number; // Default weight to start with (e.g. 0.25)
+    // External data
+    auxiliaryDataUrl?: string; // URL to fetch additional data when selected
+    renderAuxiliaryData?: (data: any, metricId: string, t: (key: string) => string, limit?: number) => React.ReactNode;
 };

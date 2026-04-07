@@ -1,3 +1,4 @@
+import React from 'react';
 import { MetricDef, ViewLevel, ScaleMethod } from './types';
 
 export const LEVEL_CONFIG: Record<ViewLevel, { file: string, parent?: ViewLevel }> = {
@@ -127,7 +128,25 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showAlwaysOnDetails: true,
-            isContributory: true, defaultWeight: 0.25
+            isContributory: true, defaultWeight: 0.25,
+            auxiliaryDataUrl: 'https://ushift.tecnico.ulisboa.pt/content/impt/champions.json',
+            renderAuxiliaryData: (data: any, metricId: string, t: (key: string) => string, limit = 3) => {
+                const list = data[metricId] || [];
+                if (!list.length) return null;
+                return (
+                    <div className="mt-2 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
+                        <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
+                        <ul className="text-[11px] space-y-1">
+                            {list.slice(0, limit).map((item: string) => (
+                                <li key={item} className="opacity-80 flex items-start gap-2">
+                                    <span className="text-sky-800">•</span>
+                                    <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            }
         },
         {
             id: 'Accessibility_Index',
@@ -137,7 +156,25 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showAlwaysOnDetails: true,
-            isContributory: true, defaultWeight: 0.25
+            isContributory: true, defaultWeight: 0.25,
+            auxiliaryDataUrl: 'https://ushift.tecnico.ulisboa.pt/content/impt/champions.json',
+            renderAuxiliaryData: (data: any, metricId: string, t: (key: string) => string, limit = 3) => {
+                const list = data[metricId] || [];
+                if (!list.length) return null;
+                return (
+                    <div className="mt-2 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
+                        <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
+                        <ul className="text-[11px] space-y-1">
+                            {list.slice(0, limit).map((item: string) => (
+                                <li key={item} className="opacity-80 flex items-start gap-2">
+                                    <span className="text-sky-800">•</span>
+                                    <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            }
         },
         {
             id: 'Safety_Index',
@@ -147,7 +184,25 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showAlwaysOnDetails: true,
-            isContributory: true, defaultWeight: 0.25
+            isContributory: true, defaultWeight: 0.25,
+            auxiliaryDataUrl: 'https://ushift.tecnico.ulisboa.pt/content/impt/champions.json',
+            renderAuxiliaryData: (data: any, metricId: string, t: (key: string) => string, limit = 3) => {
+                const list = data[metricId] || [];
+                if (!list.length) return null;
+                return (
+                    <div className="mt-2 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
+                        <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
+                        <ul className="text-[11px] space-y-1">
+                            {list.slice(0, limit).map((item: string) => (
+                                <li key={item} className="opacity-80 flex items-start gap-2">
+                                    <span className="text-sky-800">•</span>
+                                    <span className="truncate">{t(`metrics.${item}.label`) !== `metrics.${item}.label` ? t(`metrics.${item}.label`) : (t(`variations.${item}`) !== `variations.${item}` ? t(`variations.${item}`) : item.replace(/_/g, ' '))}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            }
         },
         {
             id: 'Affordability_Index',
