@@ -223,6 +223,27 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     ],
     'metrics.categories.accessibility': [
         {
+            id: 'access{poi_type}{n_transfers}{n_time}{population}',
+            id_variations: {
+                poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
+                n_time: ['_5min', '_10min', '_15min', '_30min', '_45min', '_60min', '_75min', '_90min'],
+                population: {
+                    options: ['_residents', '_elder', '_kids', '_active', '_young'],
+                    viewLevels: ['freguesia', 'municipality']
+                },
+                n_transfers: {
+                    options: ['_1t', '_2t'],
+                    modes: ['pt']
+                }
+
+            },
+            label: 'metrics.access.label',
+            description: 'metrics.access.description',
+            format: (v, _min, _max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.Viridis.reverse()
+        },
+        {
             id: 'access_gap_time_accessibility_gap',
             label: 'metrics.access_gap_time_accessibility_gap.label',
             description: 'metrics.access_gap_time_accessibility_gap.description',
