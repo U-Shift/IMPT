@@ -274,7 +274,7 @@ const Dashboard = () => {
             .filter((v: any) => !isMetricValueIgnored(v, selectedMetric));
 
         return getMetricDomain(values, selectedMetric);
-    }, [computedGeoData, selectedMetric, effectiveMode, selectedVariations]);
+    }, [computedGeoData, selectedMetric, effectiveMode, selectedVariations, effectiveLevel]);
 
     // Precompute domains for all metrics shown in details to support dynamic coloring
     const allDomains = useMemo(() => {
@@ -288,7 +288,7 @@ const Dashboard = () => {
             result[m.id] = getMetricDomain(values, m);
         });
         return result;
-    }, [computedGeoData, effectiveMode, selectedVariations]);
+    }, [computedGeoData, effectiveMode, selectedVariations, selectedMetricId, effectiveLevel]);
 
 
     const getStyle = (feature: any) => {
@@ -372,7 +372,7 @@ const Dashboard = () => {
                 const valB = getMetricValue(b, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
                 return (valB || 0) - (valA || 0);
             });
-    }, [effectiveLevel, selectedFeature, selectedMetric, effectiveMode, dataState]);
+    }, [effectiveLevel, selectedFeature, selectedMetric, effectiveMode, dataState, selectedVariations]);
 
     const chartData = useMemo(() => {
         if (!computedGeoData?.features) return { bestPerformers: [], worstPerformers: [] };
@@ -397,7 +397,7 @@ const Dashboard = () => {
             });
         const sorted = [...feats].sort((a, b) => b.value - a.value);
         return { bestPerformers: sorted.slice(0, 5), worstPerformers: [...sorted].reverse().slice(0, 5).reverse() };
-    }, [computedGeoData, selectedMetric, effectiveMode, currentDomain, getColor, effectiveLevel, dataState.parentLookup]);
+    }, [computedGeoData, selectedMetric, effectiveMode, currentDomain, getColor, effectiveLevel, dataState.parentLookup, selectedVariations]);
 
     const resetWeights = () => {
         setWeights(defaultWeights);
