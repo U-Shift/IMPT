@@ -281,6 +281,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.affordability_total_money.description',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [0, null],
             scaleMethod: continuousScale, unit: '€',
+            scaleMin: 0,
             pallete: COLORS.Viridis.reverse()
         },
         {

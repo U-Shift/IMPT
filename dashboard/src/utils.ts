@@ -38,6 +38,10 @@ export const getMetricDomain = (values: number[], metric: MetricDef): number[] =
     }
 
     console.log("Scale for ", metric.id, scale, values);
+    
+    if (metric.scaleMin !== undefined) scale[0] = metric.scaleMin;
+    if (metric.scaleMax !== undefined) scale[scale.length - 1] = metric.scaleMax;
+
     return scale;
 };
 /**
