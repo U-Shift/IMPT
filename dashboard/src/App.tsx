@@ -510,6 +510,11 @@ const Dashboard = () => {
                                 <div className={`pt-4 border-t ${isDarkMode ? 'border-neutral-800' : 'border-neutral-200'}`}>
                                     <p className="text-[13px] font-black leading-tight mb-2 uppercase tracking-tight">{t(selectedMetric.label)} {selectedMetric.unit ? `(${selectedMetric.unit})` : ''}</p>
                                     <p className="text-[13px] opacity-40 leading-relaxed font-bold tracking-tight">{selectedMetric.description ? t(selectedMetric.description) : `Spatial distribution and variance of ${t(selectedMetric.label).toLowerCase()} across the ${t(`map.${effectiveLevel}`)} network.`}</p>
+                                    {selectedMetric.sources && selectedMetric.sources.length > 0 && (
+                                        <p className="text-[10px] opacity-40 mt-2 tracking-tight leading-snug">
+                                            {t('common.source')}: {selectedMetric.sources.map(s => t(`sources.${s}`)).join(', ')}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
