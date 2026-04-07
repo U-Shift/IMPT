@@ -100,3 +100,28 @@ export const getLegendGradient = (metric: MetricDef, domain: number[]): string =
     });
     return `linear-gradient(to right, ${colors.join(', ')})`;
 };
+
+/**
+ * Resolves the value of a metric from a feature's properties, considering 
+ * mode suffixes, fallbacks, and optional alternative IDs.
+ */
+export const getMetricValue = (properties: any, metric: MetricDef, mode: { suffix?: string, suffixFallback?: string }): any => {
+    if (!properties) return undefined;
+
+    const idsToTry = [
+        metric.id + (mode.suffix || ''),
+        mode.suffixFallback !== undefined ? metric.id + mode.suffixFallback : undefined,
+        metric.id,
+        metric.id_optional ? metric.id_optional + (mode.suffix || '') : undefined,
+        (metric.id_optional && mode.suffixFallback !== undefined) ? metric.id_optional + mode.suffixFallback : undefined,
+        metric.id_optional
+    ].filter(Boolean) as string[];
+    console.log("ids to try", idsToTry);
+
+    for (const id of idsToTry) {
+        if (properties[id] !== undefined) return properties[id];
+    }
+    console.error("No value found for metric", metric.id, "in properties", properties);
+    return undefined;
+};
+

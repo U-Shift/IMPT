@@ -5,7 +5,7 @@ import { MetricDef } from '../types';
 import { DetailCard } from './DetailCard';
 import { MiniBarChart } from './MiniBarChart';
 import { LEVEL_CONFIG, FLAT_METRICS } from '../constants';
-import { getColor, isMetricValueIgnored } from '../utils';
+import { getColor, isMetricValueIgnored, getMetricValue } from '../utils';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarRightProps {
@@ -121,10 +121,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     <h4 className="text-[12px] font-black opacity-30 uppercase mb-4 tracking-widest">{t('sidebar.constituent_dynamics')}</h4>
                                     <div className="space-y-3 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
                                         {subLevelData.slice(0, 10).map((f: any) => {
-                                            const modeAny = selectedMode as any;
-                                            const effectiveId = `${selectedMetric.id}${selectedMode.suffix}`;
-                                            const fallbackId = modeAny.suffixFallback !== undefined ? `${selectedMetric.id}${modeAny.suffixFallback}` : undefined;
-                                            const val = (f[effectiveId] ?? (fallbackId ? f[fallbackId] : undefined)) ?? f[selectedMetric.id];
+                                            const val = getMetricValue(f, selectedMetric, selectedMode);
                                             const isIgnored = isMetricValueIgnored(val, selectedMetric);
                                             return (
                                                 <div
@@ -213,9 +210,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
         m.showDetails &&
         (!m.showDetailsOnlyWhenSelected || m.id === selectedMetricId)
     ).map(m => {
-        const effectiveId = `${m.id}${selectedMode.suffix}`;
-        const fallbackId = selectedMode.suffixFallback !== undefined ? `${m.id}${selectedMode.suffixFallback}` : undefined;
-        const val = (selectedFeature[effectiveId] ?? (fallbackId ? selectedFeature[fallbackId] : undefined)) ?? selectedFeature[m.id];
+        const val = getMetricValue(selectedFeature, m, selectedMode);
         if (isMetricValueIgnored(val, m)) {
             return null;
         }

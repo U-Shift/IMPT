@@ -1,13 +1,13 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Pane } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, AlertTriangle, Activity, Layers, Globe, Zap, RocketIcon } from 'lucide-react';
+import { Loader2, Activity, Layers, Globe, RocketIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
-import { METRICS, FLAT_METRICS, COLORS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG, MAP_LAYERS } from './constants';
-import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored } from './utils';
+import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG, MAP_LAYERS } from './constants';
+import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
 import { AHPModal } from './components/AHPModal';
 import { SidebarLeft } from './components/SidebarLeft';
@@ -95,54 +95,52 @@ const Dashboard = () => {
     const selectedMode = useMemo(() => MODES.find(m => m.id === selectedModeId) || MODES[0], [selectedModeId]);
 
     // Helper to check if a specific mode is available for a metric at a certain view level
-    const isModeAvailable = (modeId: string, metricId: string, level: string) => {
+    const isModeAvailable = useCallback((modeId: string, metricId: string, level: string) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
-        let checkMetricId = metricId;
+        let checkMetric = metric;
 
-        // For calculated metrics, evaluate availability based on the default reference metric
         if (metric?.isCalculated) {
-            const defaultMetric = FLAT_METRICS.find(m => m.default);
-            if (defaultMetric) checkMetricId = defaultMetric.id;
+            checkMetric = FLAT_METRICS.find(m => m.default) || metric;
         }
 
         const mode = MODES.find(m => m.id === modeId);
-        if (!mode || !dataState.geo[level as ViewLevel]) return false;
-        const feature = dataState.geo[level as ViewLevel]?.features[0];
-        if (!feature) return false;
-        const effectiveId = `${checkMetricId}${mode.suffix}`;
-        return !!(feature.properties && feature.properties[effectiveId] !== undefined);
-    };
+        if (!mode || !dataState.geo[level as ViewLevel] || !checkMetric) return false;
+        const features = dataState.geo[level as ViewLevel]?.features;
+        if (!features || !features.length) return false;
+
+        // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
+        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, mode) !== undefined);
+    }, [dataState.geo]);
 
     // Helper to check if a metric is available at a certain view level with the current mode
-    const isMetricAvailable = (metricId: string, level: string, modeSuffix: string = selectedMode.suffix) => {
+    const isMetricAvailable = useCallback((metricId: string, level: string, modeSuffix: string = selectedMode.suffix) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
-        let checkMetricId = metricId;
+        let checkMetric = metric;
 
-        // For calculated metrics, evaluate availability based on the default reference metric
         if (metric?.isCalculated) {
-            const defaultMetric = FLAT_METRICS.find(m => m.default);
-            if (defaultMetric) checkMetricId = defaultMetric.id;
+            checkMetric = FLAT_METRICS.find(m => m.default) || metric;
         }
 
-        if (!dataState.geo[level as ViewLevel]) return false;
-        const feature = dataState.geo[level as ViewLevel]?.features[0];
-        if (!feature) return false;
-        const effectiveId = `${checkMetricId}${modeSuffix}`;
-        return feature.properties && (feature.properties[effectiveId] !== undefined || feature.properties[checkMetricId] !== undefined);
-    };
+        if (!dataState.geo[level as ViewLevel] || !checkMetric) return false;
+        const features = dataState.geo[level as ViewLevel]?.features;
+        if (!features || !features.length) return false;
+
+        // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
+        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, { suffix: modeSuffix }) !== undefined);
+    }, [dataState.geo, selectedMode.suffix]);
 
     // Derive effective level and mode to ensure consistent rendering even before useEffect synchronizes state
     const effectiveLevel = useMemo(() => {
-        if (isMetricAvailable(selectedMetricId, viewLevel)) return viewLevel;
-        return (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l)) || viewLevel;
-    }, [selectedMetricId, viewLevel, dataState.geo]);
+        if (isMetricAvailable(selectedMetricId, viewLevel, selectedMode.suffix)) return viewLevel;
+        return (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l, selectedMode.suffix)) || viewLevel;
+    }, [selectedMetricId, viewLevel, dataState.geo, selectedMode, isMetricAvailable]);
 
     const effectiveMode = useMemo(() => {
         if (isModeAvailable(selectedModeId, selectedMetricId, effectiveLevel)) return selectedMode;
         // Fallback to first available mode for this metric
         const firstAvailable = MODES.find(m => isModeAvailable(m.id, selectedMetricId, effectiveLevel));
         return firstAvailable || MODES[0];
-    }, [selectedModeId, selectedMetricId, effectiveLevel, dataState.geo, selectedMode]);
+    }, [selectedModeId, selectedMetricId, effectiveLevel, dataState.geo, selectedMode, selectedMetric, isModeAvailable]);
 
     // Auto-switch view level OR reset mode if not available for selected metric
     useEffect(() => {
@@ -187,21 +185,16 @@ const Dashboard = () => {
                 let computedIndex = 0;
 
                 Object.entries(weights).forEach(([metricId, weight]) => {
-                    const effectiveMetricId = `${metricId}${effectiveMode.suffix}`;
-                    const fallbackMetricId = modeAny.suffixFallback !== undefined ? `${metricId}${modeAny.suffixFallback}` : undefined;
-                    // Use a fallback to the base metric ID if the mode-specific suffix version is missing
-                    const val = (f.properties[effectiveMetricId] ?? (fallbackMetricId ? f.properties[fallbackMetricId] : undefined)) ?? f.properties[metricId];
+                    const metricDef = FLAT_METRICS.find(m => m.id === metricId);
+                    if (!metricDef) return;
+                    const val = getMetricValue(f.properties, metricDef, effectiveMode);
                     if (val !== undefined) {
                         computedIndex += val * weight;
                     }
                     if (val !== undefined && i == 0) {
-                        if (f.properties[effectiveMetricId] !== undefined) {
-                            console.log("> Considering metric", effectiveMetricId, "with weight", weight);
-                        } else {
-                            console.warn("> Considering metric fallback for", metricId, "with weight", weight);
-                        }
+                        console.log("> Considering metric", metricId, "with value", val, "and weight", weight);
                     } else if (i == 0) {
-                        console.log("> No value for metric", metricId, val);
+                        console.log("> No value for metric", metricId);
                     }
                 });
 
@@ -232,9 +225,8 @@ const Dashboard = () => {
 
     const currentDomain = useMemo(() => {
         if (!computedGeoData?.features?.length) return [0, 1];
-        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
         const values = computedGeoData.features
-            .map((f: any) => f.properties?.[effectiveId])
+            .map((f: any) => getMetricValue(f.properties, selectedMetric, effectiveMode))
             .filter((v: any) => !isMetricValueIgnored(v, selectedMetric));
 
         return getMetricDomain(values, selectedMetric);
@@ -245,9 +237,8 @@ const Dashboard = () => {
         const result: Record<string, number[]> = {};
         if (!computedGeoData?.features?.length) return result;
         FLAT_METRICS.filter(m => m.showDetails).forEach(m => {
-            const effectiveId = `${m.id}${effectiveMode.suffix}`;
             const values = computedGeoData.features
-                .map((f: any) => f.properties?.[effectiveId])
+                .map((f: any) => getMetricValue(f.properties, m, effectiveMode))
                 .filter((v: any) => !isMetricValueIgnored(v, m));
 
             result[m.id] = getMetricDomain(values, m);
@@ -257,8 +248,7 @@ const Dashboard = () => {
 
 
     const getStyle = (feature: any) => {
-        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
-        const val = feature.properties[effectiveId];
+        const val = getMetricValue(feature.properties, selectedMetric, effectiveMode);
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
             fillColor: getColor(val, currentDomain, selectedMetric),
@@ -272,10 +262,7 @@ const Dashboard = () => {
 
     const onEachFeature = (feature: any, layer: any) => {
         const props = feature.properties;
-        const modeAny = effectiveMode as any;
-        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
-        const fallbackMetricId = modeAny.suffixFallback !== undefined ? `${selectedMetric.id}${modeAny.suffixFallback}` : undefined;
-        const val = (props[effectiveId] ?? (fallbackMetricId ? props[fallbackMetricId] : undefined)) ?? props[selectedMetric.id];
+        const val = getMetricValue(props, selectedMetric, effectiveMode);
         const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1]);
 
         const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
@@ -329,36 +316,30 @@ const Dashboard = () => {
         if (!selectedFeature) return [];
         const childLevel = (Object.keys(LEVEL_CONFIG) as ViewLevel[]).find(l => LEVEL_CONFIG[l].parent === effectiveLevel);
         if (!childLevel || !dataState.geo[childLevel]) return [];
-        const modeAny = effectiveMode as any;
-        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
-        const fallbackId = modeAny.suffixFallback !== undefined ? `${selectedMetric.id}${modeAny.suffixFallback}` : undefined;
         return dataState.geo[childLevel].features
             .filter((f: any) => String(f.properties.group_id) === String(selectedFeature.id))
             .map((f: any) => f.properties)
             .filter((p: any) => {
-                const val = (p[effectiveId] ?? (fallbackId ? p[fallbackId] : undefined)) ?? p[selectedMetric.id];
+                const val = getMetricValue(p, selectedMetric, effectiveMode);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .sort((a: any, b: any) => {
-                const valA = (a[effectiveId] ?? (fallbackId ? a[fallbackId] : undefined)) ?? a[selectedMetric.id];
-                const valB = (b[effectiveId] ?? (fallbackId ? b[fallbackId] : undefined)) ?? b[selectedMetric.id];
+                const valA = getMetricValue(a, selectedMetric, effectiveMode);
+                const valB = getMetricValue(b, selectedMetric, effectiveMode);
                 return (valB || 0) - (valA || 0);
             });
     }, [effectiveLevel, selectedFeature, selectedMetric, effectiveMode, dataState]);
 
     const chartData = useMemo(() => {
         if (!computedGeoData?.features) return { bestPerformers: [], worstPerformers: [] };
-        const modeAny = effectiveMode as any;
-        const effectiveId = `${selectedMetric.id}${effectiveMode.suffix}`;
-        const fallbackId = modeAny.suffixFallback !== undefined ? `${selectedMetric.id}${modeAny.suffixFallback}` : undefined;
         const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
         const feats = computedGeoData.features
             .filter((f: any) => {
-                const val = (f.properties?.[effectiveId] ?? (fallbackId ? f.properties?.[fallbackId] : undefined)) ?? f.properties?.[selectedMetric.id];
+                const val = getMetricValue(f.properties, selectedMetric, effectiveMode);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .map((f: any) => {
-                const val = (f.properties?.[effectiveId] ?? (fallbackId ? f.properties?.[fallbackId] : undefined)) ?? (f.properties?.[selectedMetric.id] ?? 0);
+                const val = getMetricValue(f.properties, selectedMetric, effectiveMode) ?? 0;
                 const groupName = (parentLevel && f.properties?.group_id)
                     ? (dataState.parentLookup[`${parentLevel}-${f.properties.group_id}`] || f.properties.group_id)
                     : 'LMA';

@@ -4,6 +4,7 @@ export type ScaleMethod = (values: number[], steps?: number) => number[];
 
 export type MetricDef = {
     id: string;
+    id_optional?: string; // Optional alternative ID (e.g. for different aggregation levels)
     label: string;
     category: string;
     icon?: string;
