@@ -21,6 +21,8 @@ interface SidebarLeftProps {
     selectedVariations: Record<string, string>;
     setSelectedVariations: (val: any) => void;
     discoveredVariations: Record<string, string>[];
+    selectedMode: { id: string };
+    viewLevel: string;
 }
 
 export const SidebarLeft: React.FC<SidebarLeftProps> = ({
@@ -29,7 +31,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     collapsedSections, toggleSection,
     weights, setWeights, resetWeights, setIsAHPModalOpen,
     selectedVariations, setSelectedVariations,
-    discoveredVariations
+    discoveredVariations, selectedMode, viewLevel
 }) => {
     const { t, i18n } = useTranslation();
     const toggleLanguage = () => {
@@ -125,7 +127,9 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                         if (validVariations && validVariations.length > 0) {
                                                             setSelectedVariations((prev: any) => {
                                                                 const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
-                                                                    acc[g] = prev[g] || (m.id_variations![g][0]);
+                                                                    const gDef = m.id_variations![g];
+                                                                    const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                    acc[g] = prev[g] || opts[0];
                                                                     return acc;
                                                                 }, {} as Record<string, string>);
 
@@ -154,12 +158,21 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
 
                                                     {isSelected && m.id_variations && (
                                                         <div className={`mt-2 mb-3 p-3 rounded-2xl space-y-3 ${isDarkMode ? 'bg-neutral-950/50' : 'bg-white/50 border border-neutral-100'}`}>
-                                                            {Object.entries(m.id_variations).map(([group, options], index, arr) => {
+                                                            {Object.entries(m.id_variations).map(([group, optionsDef], index, arr) => {
+                                                                if (!Array.isArray(optionsDef)) {
+                                                                    if (optionsDef.modes && !optionsDef.modes.includes(selectedMode.id as any)) return null;
+                                                                    if (optionsDef.viewLevels && !optionsDef.viewLevels.includes(viewLevel as any)) return null;
+                                                                }
+                                                                const options = Array.isArray(optionsDef) ? optionsDef : optionsDef.options;
                                                                 let visibleOptions = options;
                                                                 if (validVariations && validVariations.length > 0) {
                                                                     const priorGroups = arr.slice(0, index).map(a => a[0]);
                                                                     const validSubset = validVariations.filter((comb: any) => {
-                                                                        return priorGroups.every(g => comb[g] === (selectedVariations[g] || m.id_variations![g][0]));
+                                                                        return priorGroups.every(g => {
+                                                                            const gDef = m.id_variations![g];
+                                                                            const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                            return comb[g] === (selectedVariations[g] || opts[0]);
+                                                                        });
                                                                     });
                                                                     visibleOptions = options.filter(opt => {
                                                                         return validSubset.some((comb: any) => comb[group] === opt);
@@ -183,7 +196,9 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
 
                                                                                                 if (validVariations && validVariations.length > 0) {
                                                                                                     const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
-                                                                                                        acc[g] = next[g] || (m.id_variations![g][0]);
+                                                                                                        const gDef = m.id_variations![g];
+                                                                                                        const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                                                        acc[g] = next[g] || opts[0];
                                                                                                         return acc;
                                                                                                     }, {} as Record<string, string>);
 

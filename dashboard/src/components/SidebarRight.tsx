@@ -65,7 +65,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 mb-6">
-                                {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, isDarkMode, t, selectedVariations)}
+                                {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, isDarkMode, t, selectedVariations, viewLevel)}
                             </div>
 
                             {/* Modal Share Breakdown */}
@@ -123,7 +123,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                     <h4 className="text-[12px] font-black opacity-30 uppercase mb-4 tracking-widest">{t('sidebar.constituent_dynamics')}</h4>
                                     <div className="space-y-3 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
                                         {subLevelData.slice(0, 10).map((f: any) => {
-                                            const val = getMetricValue(f, selectedMetric, selectedMode, selectedVariations);
+                                            const val = getMetricValue(f, selectedMetric, selectedMode, viewLevel, selectedVariations);
                                             const isIgnored = isMetricValueIgnored(val, selectedMetric);
                                             return (
                                                 <div
@@ -207,7 +207,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 };
 
 
-const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any, selectedVariations: Record<string, string>) => {
+const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any, selectedVariations: Record<string, string>, viewLevel: string) => {
     const filtered = FLAT_METRICS.filter(m =>
         m.showAlwaysOnDetails || m.id === selectedMetricId
     );
@@ -220,7 +220,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
         if (b.id === selectedMetricId) return 1;
         return 0;
     }).map(m => {
-        const val = getMetricValue(selectedFeature, m, selectedMode, selectedVariations);
+        const val = getMetricValue(selectedFeature, m, selectedMode, viewLevel, selectedVariations);
         if (isMetricValueIgnored(val, m)) {
             return null;
         }

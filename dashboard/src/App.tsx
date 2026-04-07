@@ -31,7 +31,8 @@ const Dashboard = () => {
         FLAT_METRICS.forEach(m => {
             if (m.id_variations) {
                 Object.entries(m.id_variations).forEach(([group, options]) => {
-                    if (!initial[group]) initial[group] = options[0];
+                    const opts = Array.isArray(options) ? options : options.options;
+                    if (!initial[group]) initial[group] = opts[0];
                 });
             }
         });
@@ -142,11 +143,11 @@ const Dashboard = () => {
         if (!features || !features.length) return false;
 
         // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
-        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, mode, selectedVariations) !== undefined);
+        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, mode, level, selectedVariations) !== undefined);
     }, [dataState.geo, selectedVariations]);
 
     // Helper to check if a metric is available at a certain view level with the current mode
-    const isMetricAvailable = useCallback((metricId: string, level: string, modeSuffix: string = selectedMode.suffix) => {
+    const isMetricAvailable = useCallback((metricId: string, level: string, mode = selectedMode) => {
         const metric = FLAT_METRICS.find(m => m.id === metricId);
         let checkMetric = metric;
 
@@ -159,13 +160,13 @@ const Dashboard = () => {
         if (!features || !features.length) return false;
 
         // Check if any feature has the metric (hex grids can have many empty cells, so we check using .some)
-        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, { suffix: modeSuffix }, selectedVariations) !== undefined);
+        return features.some((f: any) => getMetricValue(f.properties, checkMetric!, mode, level, selectedVariations) !== undefined);
     }, [dataState.geo, selectedMode.suffix, selectedVariations]);
 
     // Derive effective level and mode to ensure consistent rendering even before useEffect synchronizes state
     const effectiveLevel = useMemo(() => {
-        if (isMetricAvailable(selectedMetricId, viewLevel, selectedMode.suffix)) return viewLevel;
-        return (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l, selectedMode.suffix)) || viewLevel;
+        if (isMetricAvailable(selectedMetricId, viewLevel, selectedMode)) return viewLevel;
+        return (['hex', 'freguesia', 'municipality'] as const).find(l => isMetricAvailable(selectedMetricId, l, selectedMode)) || viewLevel;
     }, [selectedMetricId, viewLevel, dataState.geo, selectedMode, isMetricAvailable]);
 
     const effectiveMode = useMemo(() => {
@@ -269,7 +270,7 @@ const Dashboard = () => {
     const currentDomain = useMemo(() => {
         if (!computedGeoData?.features?.length) return [0, 1];
         const values = computedGeoData.features
-            .map((f: any) => getMetricValue(f.properties, selectedMetric, effectiveMode, selectedVariations))
+            .map((f: any) => getMetricValue(f.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations))
             .filter((v: any) => !isMetricValueIgnored(v, selectedMetric));
 
         return getMetricDomain(values, selectedMetric);
@@ -281,7 +282,7 @@ const Dashboard = () => {
         if (!computedGeoData?.features?.length) return result;
         FLAT_METRICS.filter(m => m.showAlwaysOnDetails || m.id === selectedMetricId).forEach(m => {
             const values = computedGeoData.features
-                .map((f: any) => getMetricValue(f.properties, m, effectiveMode, selectedVariations))
+                .map((f: any) => getMetricValue(f.properties, m, effectiveMode, effectiveLevel, selectedVariations))
                 .filter((v: any) => !isMetricValueIgnored(v, m));
 
             result[m.id] = getMetricDomain(values, m);
@@ -291,7 +292,7 @@ const Dashboard = () => {
 
 
     const getStyle = (feature: any) => {
-        const val = getMetricValue(feature.properties, selectedMetric, effectiveMode, selectedVariations);
+        const val = getMetricValue(feature.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
             fillColor: getColor(val, currentDomain, selectedMetric),
@@ -305,7 +306,7 @@ const Dashboard = () => {
 
     const onEachFeature = (feature: any, layer: any) => {
         const props = feature.properties;
-        const val = getMetricValue(props, selectedMetric, effectiveMode, selectedVariations);
+        const val = getMetricValue(props, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
         const formattedVal = selectedMetric.format(val, currentDomain[0], currentDomain[currentDomain.length - 1]);
 
         const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
@@ -363,12 +364,12 @@ const Dashboard = () => {
             .filter((f: any) => String(f.properties.group_id) === String(selectedFeature.id))
             .map((f: any) => f.properties)
             .filter((p: any) => {
-                const val = getMetricValue(p, selectedMetric, effectiveMode, selectedVariations);
+                const val = getMetricValue(p, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .sort((a: any, b: any) => {
-                const valA = getMetricValue(a, selectedMetric, effectiveMode, selectedVariations);
-                const valB = getMetricValue(b, selectedMetric, effectiveMode, selectedVariations);
+                const valA = getMetricValue(a, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
+                const valB = getMetricValue(b, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
                 return (valB || 0) - (valA || 0);
             });
     }, [effectiveLevel, selectedFeature, selectedMetric, effectiveMode, dataState]);
@@ -378,11 +379,11 @@ const Dashboard = () => {
         const parentLevel = LEVEL_CONFIG[effectiveLevel].parent;
         const feats = computedGeoData.features
             .filter((f: any) => {
-                const val = getMetricValue(f.properties, selectedMetric, effectiveMode, selectedVariations);
+                const val = getMetricValue(f.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
                 return !isMetricValueIgnored(val, selectedMetric);
             })
             .map((f: any) => {
-                const val = getMetricValue(f.properties, selectedMetric, effectiveMode, selectedVariations) ?? 0;
+                const val = getMetricValue(f.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations) ?? 0;
                 const groupName = (parentLevel && f.properties?.group_id)
                     ? (dataState.parentLookup[`${parentLevel}-${f.properties.group_id}`] || f.properties.group_id)
                     : 'LMA';
@@ -433,6 +434,8 @@ const Dashboard = () => {
                     selectedVariations={selectedVariations}
                     setSelectedVariations={setSelectedVariations}
                     discoveredVariations={discoveredVariations}
+                    selectedMode={effectiveMode}
+                    viewLevel={effectiveLevel}
                 />
             )}
 
@@ -449,7 +452,7 @@ const Dashboard = () => {
                                 isDark={isDarkMode}
                                 icon={<Layers className="w-3.5 h-3.5" />}
                                 options={(['hex', 'freguesia', 'municipality'] as const)
-                                    .filter(l => isMetricAvailable(selectedMetricId, l, effectiveMode.suffix))
+                                    .filter(l => isMetricAvailable(selectedMetricId, l, effectiveMode))
                                     .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
                                 onChange={(id) => {
                                     setViewLevel(id as ViewLevel);

@@ -184,11 +184,14 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.GreenToRed
         },
         {
-            id: 'mobility_cost_{poi_type}_{n_opportunities}_{population}',
+            id: 'mobility_cost{poi_type}{n_opportunities}{population}',
             id_variations: {
-                poi_type: ['health', 'health_primary', 'health_hospital', 'groceries', 'greenspaces', 'recreation', 'schools', 'schools_primary', 'schools_high', 'transit', 'transit_bus', 'transit_mass'],
-                n_opportunities: ['n1', 'n2', 'n3'],
-                population: ['residents', 'elder', 'kids', 'active', 'young']
+                poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
+                n_opportunities: ['_n1', '_n2', '_n3'],
+                population: {
+                    options: ['_residents', '_elder', '_kids', '_active', '_young'],
+                    viewLevels: ['freguesia', 'municipality']
+                }
             },
             label: 'metrics.mobility_cost.label',
             description: 'metrics.mobility_cost.description',

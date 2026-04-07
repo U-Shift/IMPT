@@ -107,17 +107,24 @@ export const getLegendGradient = (metric: MetricDef, domain: number[]): string =
  * Resolves the value of a metric from a feature's properties, considering 
  * mode suffixes, fallbacks, and optional alternative IDs.
  */
-export const getMetricValue = (properties: any, metric: MetricDef, mode: { suffix?: string, excludedVariations?: readonly string[] | string[] }, variations?: Record<string, string>): any => {
+export const getMetricValue = (properties: any, metric: MetricDef, mode: { id?: string, suffix?: string }, viewLevel?: string, variations?: Record<string, string>): any => {
     if (!properties) return undefined;
 
     const resolveId = (id: string) => {
         let resolved = id;
         if (variations) {
             Object.entries(variations).forEach(([group, value]) => {
-                if (mode.excludedVariations?.includes(group)) {
-                    resolved = resolved.replace(`{${group}}`, '');
-                } else {
+                const groupDef = metric.id_variations?.[group];
+                let shouldApply = true;
+                if (groupDef && !Array.isArray(groupDef)) {
+                    if (groupDef.modes && mode.id && !groupDef.modes.includes(mode.id as any)) shouldApply = false;
+                    if (groupDef.viewLevels && viewLevel && !groupDef.viewLevels.includes(viewLevel as any)) shouldApply = false;
+                }
+                
+                if (shouldApply) {
                     resolved = resolved.replace(`{${group}}`, value);
+                } else {
+                    resolved = resolved.replace(`{${group}}`, '');
                 }
             });
         }
@@ -154,7 +161,9 @@ export const discoverMetricVariations = (metric: MetricDef, features: any[]): Re
         let regexSource = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         groups.forEach(group => {
             // Constrain match to ONLY the predefined options to avoid capturing mode suffixes
-            const options = metric.id_variations![group]
+            const groupDef = metric.id_variations![group];
+            const optionsGroup = Array.isArray(groupDef) ? groupDef : groupDef.options;
+            const options = optionsGroup
                 .slice()
                 .sort((a: string, b: string) => b.length - a.length)
                 .map((o: string) => o.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
