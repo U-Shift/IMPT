@@ -149,12 +149,12 @@
     },
     "mobility_infrastructure_pedpath_length": {
       "label": "Extensão rede pedonal",
-      "description": "Comprimento total dos caminhos pedonais",
+      "description": "Comprimento total da rede pedonal",
       "sources": ["osm"]
     },
     "mobility_infrastructure_pedpath_to_road_ratio": {
       "label": "Rácio rede pedonal",
-      "description": "Rácio dos caminhos pedonais face à rede rodoviária",
+      "description": "Rácio da rede pedonal face à rede rodoviária",
       "sources": ["osm"]
     },
     "census_landuse_buildings_pre1945_percentage": {
@@ -252,9 +252,18 @@
       "description": "Diferença de custo entre TP e Automóvel. Valores positivos indicam que o TP é mais caro que o Automóvel",
       "sources": ["iptoll", "accounting"]
     },
+     "access_gap_money_relative_gap_cost": {
+      "label": "Diferença de Custo de Viagem (Relativo)",
+      "description": "Diferença relativa de custo entre TP e Automóvel. Valores positivos indicam que o TP é X vezes mais caro que o Automóvel",
+      "sources": ["iptoll", "accounting"]
+    },
     "access_gap_time_accessibility_gap": {
       "label": "Diferença de Tempo de Viagem",
       "description": "Diferença de tempo entre TP e Automóvel. Valores positivos indicam que o TP é mais demorado que o Automóvel"
+    },
+    "access_gap_time_relative_gap_time": {
+      "label": "Diferença de Tempo de Viagem (Relativo)",
+      "description": "Diferença relativa de tempo entre TP e Automóvel. Valores positivos indicam que o TP é X vezes mais demorado que o Automóvel"
     },
     "veh_ownership_total_motor_vehicles_per_hh": {
       "label": "Veículos motorizados por agregado",

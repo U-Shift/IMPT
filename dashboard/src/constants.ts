@@ -221,7 +221,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.access_gap_time_accessibility_gap.description',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [0, null], unit: 'min',
             scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.RedToGreen
+            pallete: COLORS.GreenToRed
+        },
+        {
+            id: 'access_gap_time_relative_gap_time',
+            label: 'metrics.access_gap_time_relative_gap_time.label',
+            description: 'metrics.access_gap_time_relative_gap_time.description',
+            format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [null],
+            scaleMethod: continuousScale, scaleMinEqualsMax: false,
+            pallete: COLORS.GreenToRed
         }
     ],
     'metrics.categories.safety': [
@@ -258,7 +266,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.access_gap_money_cost_gap.description',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [0, null], unit: '€',
             scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.RedToGreen
+            pallete: COLORS.GreenToRed
+        },
+        {
+            id: 'access_gap_money_relative_gap_cost',
+            label: 'metrics.access_gap_money_relative_gap_cost.label',
+            description: 'metrics.access_gap_money_relative_gap_cost.description',
+            format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [null],
+            scaleMethod: continuousScale, scaleMinEqualsMax: false,
+            pallete: COLORS.GreenToRed
         },
         // census_income_income_hh, census_income_gini_coef, census_income_housing_costs, veh_ownership_total_motor_vehicles_per_hh, veh_ownership_pct_hh_no_vehicle
         {
@@ -363,7 +379,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'mobility_infrastructure_cycleway_to_road_ratio',
             label: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.label',
             description: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.description',
-            format: (v, _min, _max) => (v || 0).toFixed(2),
+            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
@@ -379,7 +395,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'mobility_infrastructure_pedpath_to_road_ratio',
             label: 'metrics.mobility_infrastructure_pedpath_to_road_ratio.label',
             description: 'metrics.mobility_infrastructure_pedpath_to_road_ratio.description',
-            format: (v, _min, _max) => (v || 0).toFixed(2),
+            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue
         },
