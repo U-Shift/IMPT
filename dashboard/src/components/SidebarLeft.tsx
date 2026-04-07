@@ -178,56 +178,109 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                         return validSubset.some((comb: any) => comb[group] === opt);
                                                                     });
                                                                 }
+                                                                 if (visibleOptions.length === 0) return null;
 
-                                                                if (visibleOptions.length === 0) return null;
+                                                                const isSlider = !Array.isArray(optionsDef) && optionsDef.formSlider;
+                                                                const selectedOpt = selectedVariations[group] || options[0];
 
                                                                 return (
                                                                     <div key={group} className="space-y-1.5">
-                                                                        <label className={`text-[10px] font-black uppercase tracking-widest opacity-40 px-1 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>{t(`variations.${group}`)}</label>
-                                                                        <div className="flex flex-wrap gap-1">
-                                                                            {visibleOptions.map(opt => {
-                                                                                const isOptSelected = selectedVariations[group] === opt || (!selectedVariations[group] && options[0] === opt);
-                                                                                return (
-                                                                                    <button
-                                                                                        key={opt}
-                                                                                        onClick={() => {
-                                                                                            setSelectedVariations((prev: any) => {
-                                                                                                const next = { ...prev, [group]: opt };
+                                                                        <div className="flex justify-between items-center px-1">
+                                                                            <label className={`text-[10px] font-black uppercase tracking-widest opacity-40 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                                                                                {t(`variations.${group}`)}
+                                                                            </label>
+                                                                            {isSlider && (
+                                                                                <span className="text-[11px] font-black text-sky-800">
+                                                                                    {t(`variations.${selectedOpt}`)}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
 
-                                                                                                if (validVariations && validVariations.length > 0) {
-                                                                                                    const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
-                                                                                                        const gDef = m.id_variations![g];
-                                                                                                        const opts = Array.isArray(gDef) ? gDef : gDef.options;
-                                                                                                        acc[g] = next[g] || opts[0];
-                                                                                                        return acc;
-                                                                                                    }, {} as Record<string, string>);
+                                                                        {isSlider ? (
+                                                                            <div className="px-1 py-2">
+                                                                                <input
+                                                                                    type="range"
+                                                                                    min="0"
+                                                                                    max={visibleOptions.length - 1}
+                                                                                    step="1"
+                                                                                    value={visibleOptions.indexOf(selectedOpt)}
+                                                                                    onChange={(e) => {
+                                                                                        const index = parseInt(e.target.value);
+                                                                                        const opt = visibleOptions[index];
+                                                                                        setSelectedVariations((prev: any) => {
+                                                                                            const next = { ...prev, [group]: opt };
 
-                                                                                                    const isValid = validVariations.some((validComb: any) => {
-                                                                                                        return Object.entries(currentComb).every(([k, v]) => validComb[k] === v);
-                                                                                                    });
+                                                                                            if (validVariations && validVariations.length > 0) {
+                                                                                                const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
+                                                                                                    const gDef = m.id_variations![g];
+                                                                                                    const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                                                    acc[g] = next[g] || opts[0];
+                                                                                                    return acc;
+                                                                                                }, {} as Record<string, string>);
 
-                                                                                                    if (!isValid) {
-                                                                                                        // Find the FIRST valid combination that includes the newly selected option
-                                                                                                        const fallbackComb = validVariations.find((validComb: any) => validComb[group] === opt);
-                                                                                                        if (fallbackComb) {
-                                                                                                            return { ...prev, ...fallbackComb };
-                                                                                                        }
+                                                                                                const isValid = validVariations.some((validComb: any) => {
+                                                                                                    return Object.entries(currentComb).every(([k, v]) => validComb[k] === v);
+                                                                                                });
+
+                                                                                                if (!isValid) {
+                                                                                                    const fallbackComb = validVariations.find((validComb: any) => validComb[group] === opt);
+                                                                                                    if (fallbackComb) {
+                                                                                                        return { ...prev, ...fallbackComb };
                                                                                                     }
                                                                                                 }
-                                                                                                return next;
-                                                                                            });
-                                                                                        }}
-                                                                                        className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${isOptSelected
-                                                                                            ? 'bg-sky-800 text-white shadow-sm'
-                                                                                            : (isDarkMode ? 'bg-neutral-800 text-neutral-500 hover:text-neutral-300' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200')}`}
-                                                                                    >
-                                                                                        {t(`variations.${opt}`)}
-                                                                                    </button>
-                                                                                );
-                                                                            })}
-                                                                        </div>
+                                                                                            }
+                                                                                            return next;
+                                                                                        });
+                                                                                    }}
+                                                                                    className="w-full h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-sky-800"
+                                                                                />
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="flex flex-wrap gap-1">
+                                                                                {visibleOptions.map(opt => {
+                                                                                    const isOptSelected = selectedVariations[group] === opt || (!selectedVariations[group] && options[0] === opt);
+                                                                                    return (
+                                                                                        <button
+                                                                                            key={opt}
+                                                                                            onClick={() => {
+                                                                                                setSelectedVariations((prev: any) => {
+                                                                                                    const next = { ...prev, [group]: opt };
+
+                                                                                                    if (validVariations && validVariations.length > 0) {
+                                                                                                        const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
+                                                                                                            const gDef = m.id_variations![g];
+                                                                                                            const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                                                            acc[g] = next[g] || opts[0];
+                                                                                                            return acc;
+                                                                                                        }, {} as Record<string, string>);
+
+                                                                                                        const isValid = validVariations.some((validComb: any) => {
+                                                                                                            return Object.entries(currentComb).every(([k, v]) => validComb[k] === v);
+                                                                                                        });
+
+                                                                                                        if (!isValid) {
+                                                                                                            // Find the FIRST valid combination that includes the newly selected option
+                                                                                                            const fallbackComb = validVariations.find((validComb: any) => validComb[group] === opt);
+                                                                                                            if (fallbackComb) {
+                                                                                                                return { ...prev, ...fallbackComb };
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                    return next;
+                                                                                                });
+                                                                                            }}
+                                                                                            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${isOptSelected
+                                                                                                ? 'bg-sky-800 text-white shadow-sm'
+                                                                                                : (isDarkMode ? 'bg-neutral-800 text-neutral-500 hover:text-neutral-300' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200')}`}
+                                                                                        >
+                                                                                            {t(`variations.${opt}`)}
+                                                                                        </button>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                );
+                                                                );;
                                                             })}
                                                         </div>
                                                     )}

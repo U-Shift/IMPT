@@ -441,8 +441,8 @@
     "_young": "Young Population",
     "_1t": "Max 1",
     "_2t": "Max 2",
-    "_n1": "Nearest (1)",
-    "_n2": "Two Nearest (2)",
-    "_n3": "Three Nearest (3)"
+    "_n1": "1",
+    "_n2": "2",
+    "_n3": "3"
   }
 }

@@ -6,6 +6,7 @@ export type VariationGroup = string[] | {
     options: string[];
     modes?: ModeId[]; // If defined, the options are only available for the specified modes
     viewLevels?: ViewLevel[]; // If defined, the options are only available for the specified view levels
+    formSlider?: boolean; // If true, the options are presented as a slider
 };
 
 export type ScaleMethod = (values: number[], steps?: number) => number[];

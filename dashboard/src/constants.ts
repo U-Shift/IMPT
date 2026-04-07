@@ -187,7 +187,10 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'mobility_cost{poi_type}{n_transfers}{n_opportunities}{population}',
             id_variations: {
                 poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
-                n_opportunities: ['_n1', '_n2', '_n3'],
+                n_opportunities: {
+                    options: ['_n1', '_n2', '_n3'],
+                    formSlider: true
+                },
                 population: {
                     options: ['_residents', '_elder', '_kids', '_active', '_young'],
                     viewLevels: ['freguesia', 'municipality']
@@ -226,7 +229,10 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'access{poi_type}{n_transfers}{n_time}{population}',
             id_variations: {
                 poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
-                n_time: ['_5min', '_10min', '_15min', '_30min', '_45min', '_60min', '_75min', '_90min'],
+                n_time: {
+                    options: ['_5min', '_10min', '_15min', '_30min', '_45min', '_60min', '_75min', '_90min'],
+                    formSlider: true
+                },
                 population: {
                     options: ['_residents', '_elder', '_kids', '_active', '_young'],
                     viewLevels: ['freguesia', 'municipality']
