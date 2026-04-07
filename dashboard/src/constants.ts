@@ -171,7 +171,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'modal_imob_share',
             label: 'metrics.modal_imob_share.label',
             description: 'metrics.modal_imob_share.description',
-            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
+            format: (v, _min, _max) => (v || 0).toFixed(1), unit: '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen
         },
