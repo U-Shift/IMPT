@@ -185,7 +185,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
         },
         {
             id: 'mobility_cost_{poi_type}_{n_opportunities}_{population}',
-            id_optional: 'mobility_cost_{poi_type}_{n_opportunities}',
             id_variations: {
                 poi_type: ['health', 'health_primary', 'health_hospital', 'groceries', 'greenspaces', 'recreation', 'schools', 'schools_primary', 'schools_high', 'transit', 'transit_bus', 'transit_mass'],
                 n_opportunities: ['n1', 'n2', 'n3'],

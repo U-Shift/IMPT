@@ -38,7 +38,7 @@ export const getMetricDomain = (values: number[], metric: MetricDef): number[] =
     }
 
     console.log("Scale for ", metric.id, scale, values);
-    
+
     if (metric.scaleMin !== undefined) scale[0] = metric.scaleMin;
     if (metric.scaleMax !== undefined) scale[scale.length - 1] = metric.scaleMax;
 
@@ -109,14 +109,18 @@ export const getLegendGradient = (metric: MetricDef, domain: number[]): string =
  * Resolves the value of a metric from a feature's properties, considering 
  * mode suffixes, fallbacks, and optional alternative IDs.
  */
-export const getMetricValue = (properties: any, metric: MetricDef, mode: { suffix?: string, suffixFallback?: string }, variations?: Record<string, string>): any => {
+export const getMetricValue = (properties: any, metric: MetricDef, mode: { suffix?: string, suffixFallback?: string, excludedVariations?: readonly string[] | string[] }, variations?: Record<string, string>): any => {
     if (!properties) return undefined;
 
     const resolveId = (id: string) => {
         let resolved = id;
         if (variations) {
             Object.entries(variations).forEach(([group, value]) => {
-                resolved = resolved.replace(`{${group}}`, value);
+                if (mode.excludedVariations?.includes(group)) {
+                    resolved = resolved.replace(`{${group}}`, '');
+                } else {
+                    resolved = resolved.replace(`{${group}}`, value);
+                }
             });
         }
         return resolved;
