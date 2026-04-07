@@ -110,162 +110,91 @@
     },
     "census_landuse_population": {
       "label": "População",
-      "description": "Número de residentes",
-      "sources": [
-        "census"
-      ]
+      "description": "Número de residentes"
     },
     "census_landuse_population_density": {
       "label": "Densidade populacional",
-      "description": "Densidade populacional (residentes/km2)",
-      "sources": [
-        "census"
-      ]
+      "description": "Densidade populacional (residentes/km2)"
     },
     "census_landuse_youth_ratio": {
       "label": "Rácio de jovens",
-      "description": "Proporção da população com menos de 15 anos",
-      "sources": [
-        "census"
-      ]
+      "description": "Proporção da população com menos de 15 anos"
     },
     "census_landuse_elderly_ratio": {
       "label": "Rácio de idosos",
-      "description": "Proporção da população com mais de 65 anos",
-      "sources": [
-        "census"
-      ]
+      "description": "Proporção da população com mais de 65 anos"
     },
     "census_landuse_women_percentage": {
       "label": "Percentagem de mulheres",
-      "description": "Percentagem de mulheres",
-      "sources": [
-        "census"
-      ]
+      "description": "Percentagem de mulheres"
     },
     "mobility_infrastructure_road_length": {
       "label": "Extensão vias rodoviárias",
-      "description": "Comprimento total da rede rodoviária",
-      "sources": [
-        "osm"
-      ]
+      "description": "Comprimento total da rede rodoviária"
     },
     "mobility_infrastructure_cycleway_length": {
       "label": "Extensão rede ciclável",
-      "description": "Comprimento total da rede ciclável",
-      "sources": [
-        "osm"
-      ]
+      "description": "Comprimento total da rede ciclável"
     },
     "mobility_infrastructure_cycleway_to_road_ratio": {
       "label": "Rácio rede ciclável",
-      "description": "Rácio da rede ciclável face à rede rodoviária",
-      "sources": [
-        "osm"
-      ]
+      "description": "Rácio da rede ciclável face à rede rodoviária"
     },
     "mobility_infrastructure_pedpath_length": {
       "label": "Extensão rede pedonal",
-      "description": "Comprimento total da rede pedonal",
-      "sources": [
-        "osm"
-      ]
+      "description": "Comprimento total da rede pedonal"
     },
     "mobility_infrastructure_pedpath_to_road_ratio": {
       "label": "Rácio rede pedonal",
-      "description": "Rácio da rede pedonal face à rede rodoviária",
-      "sources": [
-        "osm"
-      ]
+      "description": "Rácio da rede pedonal face à rede rodoviária"
     },
     "census_landuse_buildings_pre1945_percentage": {
       "label": "Edifícios pré-1945 (%)",
-      "description": "Percentagem de edifícios construídos antes de 1945 (<i>sem garagem automóvel</i>)",
-      "sources": [
-        "census"
-      ]
+      "description": "Percentagem de edifícios construídos antes de 1945 (<i>sem garagem automóvel</i>)"
     },
     "census_landuse_volume_density": {
       "label": "Densidade de volume edificado",
-      "description": "Densidade de volume edificado (m3/m2)",
-      "sources": [
-        "gba"
-      ]
+      "description": "Densidade de volume edificado (m3/m2)"
     },
     "safety_inner_total_acidentes": {
       "label": "Total de acidentes",
-      "description": "Número total de acidentes rodoviários registados (2019-2023)",
-      "sources": [
-        "ansr",
-        "pmus"
-      ]
+      "description": "Número total de acidentes rodoviários registados (2019-2023)"
     },
     "safety_inner_total_veiculos": {
       "label": "Total de veículos envolvidos",
-      "description": "Número total de veículos envolvidos em acidentes rodoviários",
-      "sources": [
-        "ansr",
-        "pmus"
-      ]
+      "description": "Número total de veículos envolvidos em acidentes rodoviários"
     },
     "safety_inner_indice_gravidade": {
       "label": "Índice de gravidade",
-      "description": "Rácio de gravidade dos acidentes",
-      "sources": [
-        "ansr",
-        "pmus"
-      ]
+      "description": "Rácio de gravidade dos acidentes"
     },
     "affordability_total_money": {
       "label": "Custo da deslocação para o trabalho",
-      "description": "Despesa estimada em transportes por deslocação para o trabalho",
-      "sources": [
-        "iptoll",
-        "accounting"
-      ]
+      "description": "Despesa estimada em transportes por deslocação para o trabalho"
     },
     "modal_census_share": {
       "label": "Repartição modal (Trabalho e Escola)",
-      "description": "Repartição modal baseada nos dados dos Censos para deslocações pendulares habituais",
-      "sources": [
-        "census"
-      ]
+      "description": "Repartição modal baseada nos dados dos Censos para deslocações pendulares habituais"
     },
     "census_income_income_hh": {
       "label": "Rendimento das famílias",
-      "description": "Rendimento líquido médio anual por agregado familiar",
-      "sources": [
-        "ine"
-      ]
+      "description": "Rendimento líquido médio anual por agregado familiar"
     },
     "census_income_gini_coef": {
       "label": "Coeficiente de Gini",
-      "description": "Medida de desigualdade na distribuição de rendimentos",
-      "sources": [
-        "ine"
-      ]
+      "description": "Medida de desigualdade na distribuição de rendimentos"
     },
     "census_income_housing_costs": {
       "label": "Custos com habitação",
-      "description": "Despesa média mensal com habitação (renda ou prestação bancária)",
-      "sources": [
-        "ine"
-      ]
+      "description": "Despesa média mensal com habitação (renda ou prestação bancária)"
     },
     "modal_imob_share": {
       "label": "Repartição Modal (Todas as viagens)",
-      "description": "Repartição modal para todas as deslocações",
-      "sources": [
-        "imob"
-      ]
+      "description": "Repartição modal para todas as deslocações"
     },
     "mobility_commuting_avg_tt": {
       "label": "Tempo médio de deslocação pendular ",
-      "description": "Tempo médio de viagem para deslocações pendulares (casa-trabalho/escola)",
-      "sources": [
-        "imob",
-        "gba"
-      ]
+      "description": "Tempo médio de viagem para deslocações pendulares (casa-trabalho/escola)"
     },
     "mobility_cost": {
       "label": "Tempo médio de deslocação a serviços",
@@ -273,70 +202,39 @@
     },
     "mobility_cost_health_n1_residents": {
       "label": "Acesso a Saúde",
-      "description": "Tempo de viagem para o hospital ou centro de saúde mais próximo",
-      "sources": [
-        "pmus",
-        "gba"
-      ]
+      "description": "Tempo de viagem para o hospital ou centro de saúde mais próximo"
     },
     "mobility_cost_schools_primary_n1_kids": {
       "label": "Acesso a Escolas Primárias",
-      "description": "Tempo de viagem para a escola primária mais próxima",
-      "sources": [
-        "pmus"
-      ]
+      "description": "Tempo de viagem para a escola primária mais próxima"
     },
     "mobility_cost_greenspaces_n1_residents": {
       "label": "Acesso a Espaços Verdes",
-      "description": "Tempo de viagem para o espaço verde mais próximo",
-      "sources": [
-        "osm"
-      ]
+      "description": "Tempo de viagem para o espaço verde mais próximo"
     },
     "mobility_cost_recreation_n3_residents": {
       "label": "Acesso a Lazer",
-      "description": "Tempo médio de viagem para os locais de lazer mais próximos",
-      "sources": [
-        "osm"
-      ]
+      "description": "Tempo médio de viagem para os locais de lazer mais próximos"
     },
     "mobility_cost_groceries_n3_residents": {
       "label": "Acesso a Bens Alimentares",
-      "description": "Tempo médio de viagem para os supermercados e mercearias mais próximos",
-      "sources": [
-        "osm"
-      ]
+      "description": "Tempo médio de viagem para os supermercados e mercearias mais próximos"
     },
     "mobility_shared_mobility_points": {
       "label": "Pontos de Mobilidade Partilhada",
-      "description": "Número de pontos de oferta de sistemas de mobilidade partilhada na área",
-      "sources": [
-        "pmus"
-      ]
+      "description": "Número de pontos de oferta de sistemas de mobilidade partilhada na área"
     },
     "mobility_stop_coverage_ratio_served_population": {
       "label": "Cobertura de Paragens TP",
-      "description": "Proporção da população com acesso em 500m a paragens de transporte público",
-      "sources": [
-        "gtfs",
-        "census"
-      ]
+      "description": "Proporção da população com acesso em 500m a paragens de transporte público"
     },
     "access_gap_money_cost_gap": {
       "label": "Diferença de Custo de Viagem",
-      "description": "Diferença de custo entre TP e Automóvel. Valores positivos indicam que o TP é mais caro que o Automóvel",
-      "sources": [
-        "iptoll",
-        "accounting"
-      ]
+      "description": "Diferença de custo entre TP e Automóvel. Valores positivos indicam que o TP é mais caro que o Automóvel"
     },
     "access_gap_money_relative_gap_cost": {
       "label": "Diferença de Custo de Viagem (Relativo)",
-      "description": "Diferença relativa de custo entre TP e Automóvel. Valores positivos indicam que o TP é X vezes mais caro que o Automóvel",
-      "sources": [
-        "iptoll",
-        "accounting"
-      ]
+      "description": "Diferença relativa de custo entre TP e Automóvel. Valores positivos indicam que o TP é X vezes mais caro que o Automóvel"
     },
     "access_gap_time_accessibility_gap": {
       "label": "Diferença de Tempo de Viagem",
@@ -348,17 +246,11 @@
     },
     "veh_ownership_total_motor_vehicles_per_hh": {
       "label": "Veículos motorizados por agregado",
-      "description": "Número médio de veículos motorizados por agregado familiar",
-      "sources": [
-        "imob"
-      ]
+      "description": "Número médio de veículos motorizados por agregado familiar"
     },
     "veh_ownership_pct_hh_no_vehicle": {
       "label": "Agregados sem veículos (%)",
-      "description": "Percentagem de agregados familiares que não possuem veículo próprios (motorizados ou velocípedes)",
-      "sources": [
-        "imob"
-      ]
+      "description": "Percentagem de agregados familiares que não possuem veículo próprios (motorizados ou velocípedes)"
     },
     "access": {
       "label": "Número de oportunidades",

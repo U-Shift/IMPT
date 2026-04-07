@@ -96,6 +96,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.GreenToRed,
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
+            sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
         },
         {
             id: 'IMPT_score_pca_geom',
@@ -104,7 +105,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
             pallete: COLORS.GreenToRed,
-            default: true
+            default: true,
+            sources: ['census', 'imob', 'osm', 'ansr', 'pmus', 'gba', 'gtfs']
         },
         {
             id: 'IMPT_dynamic',
@@ -155,7 +157,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.RedToGreen,
             showAlwaysOnDetails: true,
-            isContributory: true, defaultWeight: 0.25
+            isContributory: true, defaultWeight: 0.25,
+            sources: ['ansr', 'pmus', 'osm', 'ine', 'iptoll', 'accounting']
         }
     ],
     'metrics.categories.mobility': [
@@ -166,6 +169,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
+            sources: ['census']
         },
         {
             id: 'modal_imob_share',
@@ -173,7 +177,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.modal_imob_share.description',
             format: (v, _min, _max) => (v || 0).toFixed(1), unit: '%',
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen
+            pallete: COLORS.WhiteToGreen,
+            sources: ['imob']
         },
         {
             id: 'mobility_commuting_avg_tt',
@@ -181,7 +186,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_commuting_avg_tt.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: 'min',
             scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed
+            pallete: COLORS.GreenToRed,
+            sources: ['imob', 'gba']
         },
         {
             id: 'mobility_cost{poi_type}{n_transfers}{n_opportunities}{population}',
@@ -205,7 +211,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_cost.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: 'min',
             scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed
+            pallete: COLORS.GreenToRed,
+            sources: ['pmus', 'gba', 'osm']
         },
         {
             id: 'mobility_shared_mobility_points',
@@ -213,7 +220,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_shared_mobility_points.description',
             format: (v, _min, _max) => (v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.Inferno.reverse()
+            pallete: COLORS.Inferno.reverse(),
+            sources: ['pmus']
         },
         {
             id: 'mobility_stop_coverage_ratio_served_population',
@@ -221,7 +229,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_stop_coverage_ratio_served_population.description',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen
+            pallete: COLORS.WhiteToGreen,
+            sources: ['gtfs', 'census']
         }
     ],
     'metrics.categories.accessibility': [
@@ -247,7 +256,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.access.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.Viridis.reverse()
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['pmus', 'gba', 'osm']
         },
         {
             id: 'access_gap_time_accessibility_gap',
@@ -255,7 +265,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.access_gap_time_accessibility_gap.description',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [0, null], unit: 'min',
             scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.GreenToRed
+            pallete: COLORS.GreenToRed,
+            sources: ['pmus', 'gba']
         },
         {
             id: 'access_gap_time_relative_gap_time',
@@ -263,7 +274,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.access_gap_time_relative_gap_time.description',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [null],
             scaleMethod: continuousScale, scaleMinEqualsMax: false,
-            pallete: COLORS.GreenToRed
+            pallete: COLORS.GreenToRed,
+            sources: ['pmus', 'gba']
         }
     ],
     'metrics.categories.safety': [
@@ -273,7 +285,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.safety_inner_total_acidentes.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: logarithmicScale, steps: 10, ignoreValues: [0, null],
-            pallete: COLORS.WhiteToRed
+            pallete: COLORS.WhiteToRed,
+            sources: ['ansr', 'pmus']
         },
         {
             id: 'safety_inner_total_veiculos',
@@ -281,7 +294,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.safety_inner_total_veiculos.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: logarithmicScale, steps: 10, ignoreValues: [0, null],
-            pallete: COLORS.WhiteToRed
+            pallete: COLORS.WhiteToRed,
+            sources: ['ansr', 'pmus']
         },
         {
             id: 'safety_inner_indice_gravidade',
@@ -289,7 +303,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.safety_inner_indice_gravidade.description',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.WhiteToRed
+            pallete: COLORS.WhiteToRed,
+            sources: ['ansr', 'pmus']
         }
     ],
     'metrics.categories.affordability': [
@@ -300,7 +315,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [0, null],
             scaleMethod: continuousScale, unit: '€',
             scaleMin: 0,
-            pallete: COLORS.Viridis.reverse()
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['iptoll', 'accounting']
         },
         {
             id: 'access_gap_money_cost_gap',
@@ -308,7 +324,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.access_gap_money_cost_gap.description',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [0, null], unit: '€',
             scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.GreenToRed
+            pallete: COLORS.GreenToRed,
+            sources: ['iptoll', 'accounting']
         },
         {
             id: 'access_gap_money_relative_gap_cost',
@@ -316,7 +333,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.access_gap_money_relative_gap_cost.description',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [null],
             scaleMethod: continuousScale, scaleMinEqualsMax: true,
-            pallete: COLORS.GreenToRed
+            pallete: COLORS.GreenToRed,
+            sources: ['iptoll', 'accounting']
         },
         // census_income_income_hh, census_income_gini_coef, census_income_housing_costs, veh_ownership_total_motor_vehicles_per_hh, veh_ownership_pct_hh_no_vehicle
         {
@@ -325,7 +343,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_income_income_hh.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale, ignoreValues: [null], unit: "€",
-            pallete: COLORS.Viridis.reverse()
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['ine']
         },
         {
             id: 'census_income_gini_coef',
@@ -333,7 +352,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_income_gini_coef.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: "%",
             scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse()
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['ine']
         },
         {
             id: 'census_income_housing_costs',
@@ -341,7 +361,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_income_housing_costs.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: "€",
             scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse()
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['ine']
         },
         {
             id: 'veh_ownership_total_motor_vehicles_per_hh',
@@ -349,7 +370,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.veh_ownership_total_motor_vehicles_per_hh.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: 'vh',
             scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse()
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['imob']
         },
         {
             id: 'veh_ownership_pct_hh_no_vehicle',
@@ -357,7 +379,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.veh_ownership_pct_hh_no_vehicle.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: '%',
             scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse()
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['imob']
         }
     ],
     'metrics.categories.census_landuse': [
@@ -367,7 +390,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_landuse_population.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['census']
         },
         {
             id: 'census_landuse_population_density',
@@ -375,7 +399,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_landuse_population_density.description',
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['census']
         },
         {
             id: 'census_landuse_youth_ratio',
@@ -383,7 +408,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_landuse_youth_ratio.description',
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['census']
         },
         {
             id: 'census_landuse_elderly_ratio',
@@ -391,7 +417,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_landuse_elderly_ratio.description',
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['census']
         },
         {
             id: 'census_landuse_women_percentage',
@@ -399,7 +426,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_landuse_women_percentage.description',
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['census']
         },
         {
             id: 'mobility_infrastructure_road_length',
@@ -407,7 +435,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_infrastructure_road_length.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['osm']
         },
         {
             id: 'mobility_infrastructure_cycleway_length',
@@ -415,7 +444,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_infrastructure_cycleway_length.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['osm']
         },
         {
             id: 'mobility_infrastructure_cycleway_to_road_ratio',
@@ -423,7 +453,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.description',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['osm']
         },
         {
             id: 'mobility_infrastructure_pedpath_length',
@@ -431,7 +462,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_infrastructure_pedpath_length.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['osm']
         },
         {
             id: 'mobility_infrastructure_pedpath_to_road_ratio',
@@ -439,7 +471,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.mobility_infrastructure_pedpath_to_road_ratio.description',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['osm']
         },
         {
             id: 'census_landuse_buildings_pre1945_percentage',
@@ -447,7 +480,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_landuse_buildings_pre1945_percentage.description',
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['census']
         },
         {
             id: 'census_landuse_volume_density',
@@ -455,7 +489,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.census_landuse_volume_density.description',
             format: (v, _min, _max) => (v || 0).toFixed(1),
             scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue
+            pallete: COLORS.WhiteToBlue,
+            sources: ['gba']
         }
     ]
 };
