@@ -181,6 +181,14 @@
       "label": "Custo da deslocação para o trabalho",
       "description": "Despesa estimada em transportes por deslocação para o trabalho"
     },
+    "affordability_transp_inc_comp": {
+      "label": "Peso Transporte",
+      "description": "Percentagem do rendimento do agregado familiar gasto em transporte para o trabalho"
+    },
+    "affordability_h_transp_inc_comp": {
+      "label": "Peso Transporte + Habitação",
+      "description": "Percentagem do rendimento do agregado familiar gasto em transporte e habitação"
+    },
     "modal_census_share": {
       "label": "Repartição modal (Trabalho e Escola)",
       "description": "Repartição modal baseada nos dados dos Censos para deslocações pendulares habituais"

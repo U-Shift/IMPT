@@ -2,9 +2,9 @@ import React from 'react';
 import { MetricDef, ViewLevel, ScaleMethod } from './types';
 
 export const LEVEL_CONFIG: Record<ViewLevel, { file: string, parent?: ViewLevel }> = {
-    'municipality': { file: 'https://ushift.tecnico.ulisboa.pt/content/impt/municipios_aggregated.geojson' },
-    'freguesia': { file: 'https://ushift.tecnico.ulisboa.pt/content/impt/freguesias_aggregated.geojson', parent: 'municipality' },
-    'hex': { file: 'https://ushift.tecnico.ulisboa.pt/content/impt/grid_aggregated.geojson', parent: 'freguesia' }
+    'municipality': { file: 'data/municipios_aggregated.geojson' },
+    'freguesia': { file: 'data/freguesias_aggregated.geojson', parent: 'municipality' },
+    'hex': { file: 'data/grid_aggregated.geojson', parent: 'freguesia' }
 };
 
 export const COLORS = {
@@ -421,7 +421,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.GreenToRed,
             sources: ['iptoll', 'accounting']
         },
-        // census_income_income_hh, census_income_gini_coef, census_income_housing_costs, veh_ownership_total_motor_vehicles_per_hh, veh_ownership_pct_hh_no_vehicle
         {
             id: 'census_income_income_hh',
             label: 'metrics.census_income_income_hh.label',
@@ -448,6 +447,27 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale, ignoreValues: [null],
             pallete: COLORS.Viridis.reverse(),
             sources: ['census']
+        },
+        // affordability_transp_inc_comp_pass, affordability_transp_inc_comp_sf, affordability_h_transp_inc_comp_pass, affordability_h_transp_inc_comp_sf
+        {
+            id: 'affordability_transp_inc_comp',
+            label: 'metrics.affordability_transp_inc_comp.label',
+            description: 'metrics.affordability_transp_inc_comp.description',
+            icon: '🎫',
+            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
+            scaleMethod: continuousScale, ignoreValues: [null],
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['ine', 'census', 'iptoll', 'accounting']
+        },
+        {
+            id: 'affordability_h_transp_inc_comp',
+            label: 'metrics.affordability_h_transp_inc_comp.label',
+            description: 'metrics.affordability_h_transp_inc_comp.description',
+            icon: '🏠',
+            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
+            scaleMethod: continuousScale, ignoreValues: [null],
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['ine', 'census', 'iptoll', 'accounting']
         },
         {
             id: 'veh_ownership_total_motor_vehicles_per_hh',

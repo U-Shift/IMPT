@@ -181,6 +181,14 @@
       "label": "Cost of Commuting",
       "description": "Estimated expenditure on commuting per trip"
     },
+    "affordability_transp_inc_comp": {
+      "label": "Transport Burden",
+      "description": "Percentage of household income spent on commuting"
+    },
+    "affordability_h_transp_inc_comp": {
+      "label": "Transport + Housing Burden",
+      "description": "Percentage of household income spent on transport and housing"
+    },
     "modal_census_share": {
       "label": "Modal share (Commuting)",
       "description": "Modal share based on Census data for standard commuting trips"
