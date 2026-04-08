@@ -78,11 +78,11 @@
       "top_contributors": "Principais Contribuidores"
     },
     "impt_entropy": {
-      "label": "IMPT com entropia",
+      "label": "IMPT contrastante",
       "description": "Índice composto utilizando entropia, que atribui mais peso às variáveis com maior contraste"
     },
     "impt_geom": {
-      "label": "IMPT com média geométrica",
+      "label": "IMPT crítico",
       "description": "Índice composto utilizando a média geométrica, que penaliza pontuações baixas em qualquer dimensão, garantindo que uma única pontuação baixa reduza significativamente o resultado final"
     },
     "impt_equal": {

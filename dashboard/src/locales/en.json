@@ -78,11 +78,11 @@
       "top_contributors": "Top Contributors"
     },
     "impt_entropy": {
-      "label": "IMPT with entropy",
+      "label": "IMPT contrasting",
       "description": "Composite index using entropy, which gives more weight to variables that show the most contrast"
     },
     "impt_geom": {
-      "label": "IMPT with geometric mean",
+      "label": "IMPT critical",
       "description": "Composite index using geometric mean, which penalizes low scores in any dimension, ensuring that a single low score significantly drags down the entire result"
     },
     "impt_equal": {
