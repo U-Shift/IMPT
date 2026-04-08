@@ -214,8 +214,8 @@
       "description": "Average travel time for commuting trips (home-work/school)"
     },
     "mobility_cost": {
-      "label": "Average access time to services",
-      "description": "Travel time to the nearest facilities by chosen transport mode"
+      "label": "Average travel time to facilities",
+      "description": "Travel time to the nearest facilities by transport mode"
     },
     "mobility_cost_health_n1_residents": {
       "label": "Health Access",

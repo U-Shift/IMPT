@@ -214,8 +214,8 @@
       "description": "Tempo médio de viagem para deslocações pendulares (casa-trabalho/escola)"
     },
     "mobility_cost": {
-      "label": "Tempo médio de deslocação a serviços",
-      "description": "Tempo de viagem até às instalações mais próximas pelo modo de transporte escolhido"
+      "label": "Tempo de deslocação para oportunidades",
+      "description": "Tempo médio de viagem até às oportunidades mais próximas por modo de transporte"
     },
     "mobility_cost_health_n1_residents": {
       "label": "Acesso a Saúde",
