@@ -365,11 +365,11 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['ansr', 'pmus', 'census']
         },
         {
-            id: 'safety_inner_total_veiculos',
-            label: 'metrics.safety_inner_total_veiculos.label',
-            description: 'metrics.safety_inner_total_veiculos.description',
+            id: 'safety_inner_total_vitimas30',
+            label: 'metrics.safety_inner_total_vitimas30.label',
+            description: 'metrics.safety_inner_total_vitimas30.description',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
-            scaleMethod: logarithmicScale, steps: 10, ignoreValues: [0, null],
+            scaleMethod: continuousScale, ignoreValues: [0, null],
             pallete: COLORS.WhiteToRed,
             sources: ['ansr', 'pmus']
         },
@@ -379,6 +379,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.safety_inner_indice_gravidade.description',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale, ignoreValues: [null],
+            pallete: COLORS.WhiteToRed,
+            sources: ['ansr', 'pmus']
+        },
+        {
+            id: 'safety_inner_total_veiculos',
+            label: 'metrics.safety_inner_total_veiculos.label',
+            description: 'metrics.safety_inner_total_veiculos.description',
+            format: (v, _min, _max) => Math.round(v || 0).toString(),
+            scaleMethod: logarithmicScale, steps: 10, ignoreValues: [0, null],
             pallete: COLORS.WhiteToRed,
             sources: ['ansr', 'pmus']
         }

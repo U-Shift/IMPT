@@ -163,15 +163,19 @@
     },
     "safety_inner_total_veiculos": {
       "label": "Total involved vehicles",
-      "description": "Total number of vehicles involved in road accidents"
+      "description": "Total number of vehicles involved in road accidents, by mode, in urban areas (2019-2023)"
     },
     "safety_inner_acidentes_per_1000res": {
       "label": "Accidents per 1000 residents",
       "description": "Total number of recorded road accidents per 1000 residents, in urban areas (2019-2023)"
     },
+    "safety_inner_total_vitimas30": {
+      "label": "Total fatalities within 30 days",
+      "description": "Total number of fatalities within 30 days of road accidents, in urban areas (2019-2023)"
+    },
     "safety_inner_indice_gravidade": {
       "label": "Severity index",
-      "description": "Accident severity ratio"
+      "description": "Accident severity ratio. Number of fatalities within 30 days per number of accidents"
     },
     "affordability_total_money": {
       "label": "Cost of Commuting",

@@ -162,16 +162,20 @@
       "description": "Número total de acidentes rodoviários registados, dentro das localidades (2019-2023)"
     },
     "safety_inner_acidentes_per_1000res": {
-      "label": "Acidentes por 1000 residentes",
-      "description": "Número total de acidentes rodoviários registados por 1000 residentes, dentro das localidades (2019-2023)"
+      "label": "Acidentes por 1000 habitantes",
+      "description": "Número total de acidentes rodoviários registados por 1000 habitantes, dentro das localidades (2019-2023)"
+    },
+    "safety_inner_total_vitimas30": {
+      "label": "Total de vítimas mortais a 30 dias",
+      "description": "Número total de vítimas mortais a 30 dias de acidentes rodoviários, dentro das localidades (2019-2023)"
     },
     "safety_inner_total_veiculos": {
       "label": "Total de veículos envolvidos",
-      "description": "Número total de veículos envolvidos em acidentes rodoviários"
+      "description": "Número total de veículos envolvidos em acidentes rodoviários, por modo, dentro das localidades (2019-2023)"
     },
     "safety_inner_indice_gravidade": {
       "label": "Índice de gravidade",
-      "description": "Rácio de gravidade dos acidentes"
+      "description": "Rácio de gravidade dos acidentes. Número de vítimas mortais a 30 dias por número de acidentes"
     },
     "affordability_total_money": {
       "label": "Custo da deslocação para o trabalho",
