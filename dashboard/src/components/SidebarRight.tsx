@@ -252,9 +252,11 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
             if (b.id === 'census_landuse_population') return 1;
             return 0;
         }).map(m => {
-            const effectiveId = `${m.id}${selectedMode.suffix}`;
+            const effectiveId = `${m.id}${selectedMode.suffix || ''}`;
             const fallbackId = selectedMode.suffixFallback !== undefined ? `${m.id}${selectedMode.suffixFallback}` : undefined;
-            const val = (selectedFeature[effectiveId] ?? (fallbackId ? selectedFeature[fallbackId] : undefined));
+            const val = selectedFeature[effectiveId] ??
+                (fallbackId ? selectedFeature[fallbackId] : undefined) ??
+                selectedFeature[m.id];
             if (isMetricValueIgnored(val, m)) {
                 return null;
             }

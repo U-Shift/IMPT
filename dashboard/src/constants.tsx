@@ -243,7 +243,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: 'min',
             scaleMethod: continuousScale,
             pallete: COLORS.GreenToRed,
-            showAlwaysOnDetails: true,
             sources: ['imob', 'gba']
         },
         {
