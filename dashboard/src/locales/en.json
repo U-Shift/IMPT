@@ -169,7 +169,7 @@
       "label": "Accidents per 1000 residents",
       "description": "Total number of recorded road accidents per 1000 residents, in urban areas (2019-2023)"
     },
-    "safety_inner_total_vitimas30": {
+    "safety_inner_vitimas_mortais30": {
       "label": "Total fatalities within 30 days",
       "description": "Total number of fatalities within 30 days of road accidents, in urban areas (2019-2023)"
     },

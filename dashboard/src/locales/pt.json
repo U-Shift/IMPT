@@ -165,7 +165,7 @@
       "label": "Acidentes por 1000 habitantes",
       "description": "Número total de acidentes rodoviários registados por 1000 habitantes, dentro das localidades (2019-2023)"
     },
-    "safety_inner_total_vitimas30": {
+    "safety_inner_vitimas_mortais30": {
       "label": "Total de vítimas mortais a 30 dias",
       "description": "Número total de vítimas mortais a 30 dias de acidentes rodoviários, dentro das localidades (2019-2023)"
     },
