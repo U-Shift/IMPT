@@ -89,7 +89,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-0">
                     <div className="flex gap-1">
                         <Tooltip content={t('tooltips.toggle_theme')} isDarkMode={true}>
                             <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
@@ -117,7 +117,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
             </div>
 
             {/* Tab Navigation */}
-            <div className="px-6 py-2">
+            <div className="px-6 py-0">
                 <div className={`p-1 rounded-2xl flex gap-1 ${isDarkMode ? 'bg-neutral-800/50' : 'bg-neutral-100/50'} backdrop-blur-sm`}>
                     <button
                         onClick={() => setActiveTab('index')}
@@ -162,40 +162,40 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
 
                                         return (
                                             <div key={m.id} className="space-y-1">
-                                                    <button onClick={() => {
-                                                        setSelectedMetricId(m.id);
+                                                <button onClick={() => {
+                                                    setSelectedMetricId(m.id);
 
-                                                        // Enforce valid variations for the new metric
-                                                        if (validVariations && validVariations.length > 0) {
-                                                            setSelectedVariations((prev: any) => {
-                                                                const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
-                                                                    const gDef = m.id_variations![g];
-                                                                    const opts = Array.isArray(gDef) ? gDef : gDef.options;
-                                                                    acc[g] = prev[g] || opts[0];
-                                                                    return acc;
-                                                                }, {} as Record<string, string>);
+                                                    // Enforce valid variations for the new metric
+                                                    if (validVariations && validVariations.length > 0) {
+                                                        setSelectedVariations((prev: any) => {
+                                                            const currentComb = Object.keys(m.id_variations || {}).reduce((acc, g) => {
+                                                                const gDef = m.id_variations![g];
+                                                                const opts = Array.isArray(gDef) ? gDef : gDef.options;
+                                                                acc[g] = prev[g] || opts[0];
+                                                                return acc;
+                                                            }, {} as Record<string, string>);
 
-                                                                const isValid = validVariations.some((validComb: any) => {
-                                                                    return Object.entries(currentComb).every(([k, v]) => validComb[k] === v);
-                                                                });
-
-                                                                if (!isValid) {
-                                                                    // Fallback to first valid combination for this metric
-                                                                    return { ...prev, ...validVariations[0] };
-                                                                }
-                                                                return prev;
+                                                            const isValid = validVariations.some((validComb: any) => {
+                                                                return Object.entries(currentComb).every(([k, v]) => validComb[k] === v);
                                                             });
-                                                        }
-                                                    }}
-                                                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${isSelected
-                                                            ? 'bg-sky-900 text-white shadow-lg'
-                                                            : (isDarkMode ? 'hover:bg-neutral-800 text-neutral-500' : 'hover:bg-neutral-100 text-neutral-500')}`}
-                                                    >
-                                                        <span className="flex items-center gap-3">
-                                                            <span>{m.icon}</span>
-                                                            <span className="truncate">{t(m.label)}</span>
-                                                        </span>
-                                                    </button>
+
+                                                            if (!isValid) {
+                                                                // Fallback to first valid combination for this metric
+                                                                return { ...prev, ...validVariations[0] };
+                                                            }
+                                                            return prev;
+                                                        });
+                                                    }
+                                                }}
+                                                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[12px] font-bold transition-all ${isSelected
+                                                        ? 'bg-sky-900 text-white shadow-lg'
+                                                        : (isDarkMode ? 'hover:bg-neutral-800 text-neutral-500' : 'hover:bg-neutral-100 text-neutral-500')}`}
+                                                >
+                                                    <span className="flex items-center gap-3">
+                                                        <span>{m.icon}</span>
+                                                        <span className="truncate">{t(m.label)}</span>
+                                                    </span>
+                                                </button>
 
                                                 {isSelected && m.id_variations && (
                                                     <div className={`mt-2 mb-3 p-3 rounded-2xl space-y-3 ${isDarkMode ? 'bg-neutral-950/50' : 'bg-white/50 border border-neutral-100'}`}>
