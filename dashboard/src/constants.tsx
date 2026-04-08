@@ -356,6 +356,15 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['ansr', 'pmus']
         },
         {
+            id: 'safety_inner_acidentes_per_1000res',
+            label: 'metrics.safety_inner_acidentes_per_1000res.label',
+            description: 'metrics.safety_inner_acidentes_per_1000res.description',
+            format: (v, _min, _max) => Math.round(v || 0).toString(),
+            scaleMethod: continuousScale, ignoreValues: [0, null],
+            pallete: COLORS.WhiteToRed,
+            sources: ['ansr', 'pmus', 'census']
+        },
+        {
             id: 'safety_inner_total_veiculos',
             label: 'metrics.safety_inner_total_veiculos.label',
             description: 'metrics.safety_inner_total_veiculos.description',

@@ -159,7 +159,11 @@
     },
     "safety_inner_total_acidentes": {
       "label": "Total de acidentes",
-      "description": "Número total de acidentes rodoviários registados (2019-2023)"
+      "description": "Número total de acidentes rodoviários registados, dentro das localidades (2019-2023)"
+    },
+    "safety_inner_acidentes_per_1000res": {
+      "label": "Acidentes por 1000 residentes",
+      "description": "Número total de acidentes rodoviários registados por 1000 residentes, dentro das localidades (2019-2023)"
     },
     "safety_inner_total_veiculos": {
       "label": "Total de veículos envolvidos",
