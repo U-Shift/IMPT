@@ -276,6 +276,33 @@
     "pois": {
       "label": "POIs Density",
       "description": "Number of facilities of each type in the area"
+    },
+    "indice_gravidade": {
+      "label": "Severity Index"
+    },
+    "indice_gravidade_peoes": {
+      "label": "Severity Index (Pedestrians)"
+    },
+    "indice_gravidade_carro": {
+      "label": "Severity Index (Car)"
+    },
+    "mobility_cost_groceries_walk_n3_residents": {
+      "label": "Access to Groceries - 3 nearest (Walk)"
+    },
+    "mobility_cost_groceries_car_n3_residents": {
+      "label": "Access to Groceries - 3 nearest (Car)"
+    },
+    "mobility_cost_groceries_transit_2t_n3_residents": {
+      "label": "Access to Groceries - 3 nearest (PT - 2 transfers)"
+    },
+    "mobility_commuting_avg_tt_transit_2t_120m_15w": {
+      "label": "Average commuting time (PT - 2 transfers, 120 min)"
+    },
+    "mobility_transit_weighted_waiting_time_peak": {
+      "label": "Weighted waiting time (Peak hour)"
+    },
+    "PT_Waitingtime": {
+      "label": "Waiting Time (PT)"
     }
   },
   "regions": {

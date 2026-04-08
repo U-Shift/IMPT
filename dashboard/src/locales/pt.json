@@ -276,6 +276,33 @@
     "pois": {
       "label": "Pontos de Interesse",
       "description": "Número de locais de cada tipo existentes na área"
+    },
+    "indice_gravidade": {
+      "label": "Índice de Gravidade"
+    },
+    "indice_gravidade_peoes": {
+      "label": "Índice de Gravidade (Peões)"
+    },
+    "indice_gravidade_carro": {
+      "label": "Índice de Gravidade (Carro)"
+    },
+    "mobility_cost_groceries_walk_n3_residents": {
+      "label": "Acesso a Supermercados - 3 próximos (Pedonal)"
+    },
+    "mobility_cost_groceries_car_n3_residents": {
+      "label": "Acesso a Supermercados - 3 próximos (Automóvel)"
+    },
+    "mobility_cost_groceries_transit_2t_n3_residents": {
+      "label": "Acesso a Supermercados - 3 próximos (TP - 2 transbordos)"
+    },
+    "mobility_commuting_avg_tt_transit_2t_120m_15w": {
+      "label": "Tempo médio deslocação (TP - 2 transbordos, 120 min)"
+    },
+    "mobility_transit_weighted_waiting_time_peak": {
+      "label": "Tempo de espera (TP - hora de ponta)"
+    },
+    "PT_Waitingtime": {
+      "label": "Tempo de espera (TP)"
     }
   },
   "regions": {
