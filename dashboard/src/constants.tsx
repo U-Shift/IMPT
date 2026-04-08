@@ -134,7 +134,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 const list = data[metricId] || [];
                 if (!list.length) return null;
                 return (
-                    <div className="mt-2 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
+                    <div className="mt-2 p-3 bg-neutral-500/10 rounded-xl">
                         <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
                         <ul className="text-[11px] space-y-1">
                             {list.slice(0, limit).map((item: string) => (
@@ -162,7 +162,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 const list = data[metricId] || [];
                 if (!list.length) return null;
                 return (
-                    <div className="mt-2 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
+                    <div className="mt-2 p-3 bg-neutral-500/10 rounded-xl">
                         <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
                         <ul className="text-[11px] space-y-1">
                             {list.slice(0, limit).map((item: string) => (
@@ -190,7 +190,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 const list = data[metricId] || [];
                 if (!list.length) return null;
                 return (
-                    <div className="mt-2 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
+                    <div className="mt-2 p-3 bg-neutral-500/10 rounded-xl">
                         <h4 className="text-[10px] font-black uppercase mb-2 opacity-50 tracking-widest">{t('metrics.categories.top_contributors')}</h4>
                         <ul className="text-[11px] space-y-1">
                             {list.slice(0, limit).map((item: string) => (

@@ -50,7 +50,7 @@ const AuxiliaryDataRenderer: React.FC<{
     }, [url]);
 
     if (loading) return (
-        <div className="mt-2 p-3 animate-pulse bg-neutral-100 dark:bg-neutral-800 rounded-xl h-20 flex items-center justify-center">
+        <div className="mt-2 p-3 animate-pulse bg-neutral-500/10 rounded-xl h-20 flex items-center justify-center">
             <div className="w-5 h-5 border-2 border-sky-800 border-t-transparent rounded-full animate-spin" />
         </div>
     );
