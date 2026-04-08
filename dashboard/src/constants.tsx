@@ -463,7 +463,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'census_income_housing_costs',
             label: 'metrics.census_income_housing_costs.label',
             description: 'metrics.census_income_housing_costs.description',
-            icon: '🏠💸',
+            icon: '💸🏠',
             format: (v, _min, _max) => Math.round(v || 0).toString(), unit: "€",
             scaleMethod: continuousScale, ignoreValues: [null],
             pallete: COLORS.Viridis.reverse(),
