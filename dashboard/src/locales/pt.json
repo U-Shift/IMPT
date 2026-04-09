@@ -199,7 +199,7 @@
     },
     "census_income_gini_coef": {
       "label": "Coeficiente de Gini",
-      "description": "Medida de desigualdade na distribuição de rendimentos"
+      "description": "Medida de desigualdade na distribuição de rendimentos. 0 = igualdade total, 1 = desigualdade total"
     },
     "census_income_housing_costs": {
       "label": "Custos com habitação",

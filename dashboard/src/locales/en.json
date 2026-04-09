@@ -199,7 +199,7 @@
     },
     "census_income_gini_coef": {
       "label": "Gini coefficient",
-      "description": "Measure of inequality in income distribution"
+      "description": "Measure of inequality in income distribution. 0 = total equality, 1 = total inequality"
     },
     "census_income_housing_costs": {
       "label": "Housing costs",
