@@ -201,6 +201,10 @@
       "label": "Gini coefficient",
       "description": "Measure of inequality in income distribution. 0 = total equality, 1 = total inequality"
     },
+    "census_income_palma_ratio": {
+      "label": "Palma ratio",
+      "description": "Measure of inequality in income distribution. 1 = equality between the richest 10% and the poorest 40%"
+    },
     "census_income_housing_costs": {
       "label": "Housing costs",
       "description": "Average monthly expenditure on housing (rent or mortgage)"

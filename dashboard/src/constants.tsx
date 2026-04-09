@@ -449,17 +449,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             showAlwaysOnDetails: true,
             sources: ['ine']
         },
-        {
-            id: 'census_income_gini_coef',
-            label: 'metrics.census_income_gini_coef.label',
-            description: 'metrics.census_income_gini_coef.description',
-            icon: '⚖️',
-            format: (v, _min, _max) => Math.round(v || 0).toString(), unit: "%",
-            scaleMethod: continuousScale, ignoreValues: [null],
-            pallete: COLORS.Viridis.reverse(),
-            sources: ['ine']
-        },
-        {
+       {
             id: 'census_income_housing_costs',
             label: 'metrics.census_income_housing_costs.label',
             description: 'metrics.census_income_housing_costs.description',
@@ -510,6 +500,26 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             pallete: COLORS.Viridis.reverse(),
             showAlwaysOnDetails: true,
             sources: ['imob']
+        },
+         {
+            id: 'census_income_gini_coef',
+            label: 'metrics.census_income_gini_coef.label',
+            description: 'metrics.census_income_gini_coef.description',
+            icon: '⚖️',
+            format: (v, _min, _max) => Math.round(v || 0).toString(), unit: "%",
+            scaleMethod: continuousScale, ignoreValues: [null],
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['ine']
+        },
+        {
+            id: 'census_income_palma_ratio',
+            label: 'metrics.census_income_palma_ratio.label',
+            description: 'metrics.census_income_palma_ratio.description',
+            icon: '⚖️',
+            format: (v, _min, _max) => (v || 0).toFixed(2),
+            scaleMethod: continuousScale, ignoreValues: [null],
+            pallete: COLORS.Viridis.reverse(),
+            sources: ['ine']
         }
     ],
     'metrics.categories.census_landuse': [

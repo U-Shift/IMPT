@@ -201,6 +201,10 @@
       "label": "Coeficiente de Gini",
       "description": "Medida de desigualdade na distribuição de rendimentos. 0 = igualdade total, 1 = desigualdade total"
     },
+    "census_income_palma_ratio": {
+      "label": "Rácio de Palma",
+      "description": "Medida de desigualdade na distribuição de rendimentos. 1 = igualdade entre os 10% mais ricos e os 40% mais pobres"
+    },
     "census_income_housing_costs": {
       "label": "Custos com habitação",
       "description": "Despesa média mensal com habitação (renda ou prestação bancária)"
