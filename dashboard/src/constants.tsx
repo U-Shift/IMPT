@@ -370,7 +370,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.safety_inner_acidentes_per_1000res.description',
             icon: '⚠️',
             format: (v, _min, _max) => Math.round(v || 0).toString(),
-            scaleMethod: continuousScale, ignoreValues: [0, null],
+            scaleMethod: logarithmicScale, steps: 100, ignoreValues: [0, null],
             pallete: COLORS.WhiteToRed,
             showAlwaysOnDetails: true,
             sources: ['ansr', 'pmus', 'census']
@@ -391,7 +391,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             description: 'metrics.safety_inner_indice_gravidade.description',
             icon: '🤕',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
-            scaleMethod: continuousScale, ignoreValues: [null],
+            scaleMethod: logarithmicScale, steps: 100, ignoreValues: [null],
             pallete: COLORS.WhiteToRed,
             sources: ['ansr', 'pmus']
         },
