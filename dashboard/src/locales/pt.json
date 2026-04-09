@@ -210,7 +210,7 @@
       "description": "Repartição modal para todas as deslocações"
     },
     "mobility_commuting_avg_tt": {
-      "label": "Tempo médio de deslocação pendular ",
+      "label": "Tempo de deslocação para o trabalho",
       "description": "Tempo médio de viagem para deslocações pendulares (casa-trabalho/escola)"
     },
     "mobility_cost": {

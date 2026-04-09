@@ -216,26 +216,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     ],
     'metrics.categories.mobility': [
         {
-            id: 'modal_census_share',
-            label: 'metrics.modal_census_share.label',
-            description: 'metrics.modal_census_share.description',
-            icon: '📊💼',
-            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['census']
-        },
-        {
-            id: 'modal_imob_share',
-            label: 'metrics.modal_imob_share.label',
-            description: 'metrics.modal_imob_share.description',
-            icon: '📊',
-            format: (v, _min, _max) => (v || 0).toFixed(1), unit: '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToGreen,
-            sources: ['imob']
-        },
-        {
             id: 'mobility_commuting_avg_tt',
             label: 'metrics.mobility_commuting_avg_tt.label',
             description: 'metrics.mobility_commuting_avg_tt.description',
@@ -290,6 +270,26 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToGreen,
             sources: ['gtfs', 'census']
+        },
+        {
+            id: 'modal_census_share',
+            label: 'metrics.modal_census_share.label',
+            description: 'metrics.modal_census_share.description',
+            icon: '📊💼',
+            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['census']
+        },
+        {
+            id: 'modal_imob_share',
+            label: 'metrics.modal_imob_share.label',
+            description: 'metrics.modal_imob_share.description',
+            icon: '📊',
+            format: (v, _min, _max) => (v || 0).toFixed(1), unit: '%',
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['imob']
         }
     ],
     'metrics.categories.accessibility': [
