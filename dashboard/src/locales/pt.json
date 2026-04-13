@@ -5,7 +5,7 @@
     "impt_2": "nos Transportes",
     "loading": "A carregar o dashboard...",
     "loading_note": "Da primeira vez demora um pouco mais",
-    "beta": "Versão Beta",
+    "beta": "Beta",
     "lma": "Área Metropolitana de Lisboa",
     "close": "Fechar",
     "reset": "Repor",
@@ -19,6 +19,7 @@
   },
   "tooltips": {
     "toggle_theme": "Alternar Tema",
+    "toggle_colorblind": "Modo daltónico",
     "download_data": "Descarregar Dados",
     "about": "Sobre"
   },

@@ -65,6 +65,7 @@ const Dashboard = () => {
     const [showAbout, setShowAbout] = useState(false);
     const [showDownload, setShowDownload] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isColorBlindMode, setIsColorBlindMode] = useState(false);
     const [isAHPModalOpen, setIsAHPModalOpen] = useState(false);
     const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
         const keys = Object.keys(METRICS);
@@ -297,7 +298,7 @@ const Dashboard = () => {
         const val = getMetricValue(feature.properties, selectedMetric, effectiveMode, effectiveLevel, selectedVariations);
         const isSelected = selectedFeature && feature.properties.id === selectedFeature.id;
         return {
-            fillColor: getColor(val, currentDomain, selectedMetric),
+            fillColor: getColor(val, currentDomain, selectedMetric, isColorBlindMode),
             weight: isSelected ? 3 : (effectiveLevel === 'hex' ? 0.3 : 0.6),
             opacity: 1,
             color: isSelected ? '#a6a6a6' : 'white',
@@ -316,7 +317,7 @@ const Dashboard = () => {
             ? (dataState.parentLookup[`${parentLevel}-${props.group_id}`] || props.group_id)
             : '';
 
-        const metricColor = getColor(val, currentDomain, selectedMetric);
+        const metricColor = getColor(val, currentDomain, selectedMetric, isColorBlindMode);
         const getContrastColor = (hexcolor: string) => {
             const r = parseInt(hexcolor.slice(1, 3), 16);
             const g = parseInt(hexcolor.slice(3, 5), 16);
@@ -408,12 +409,12 @@ const Dashboard = () => {
                     name: String(f.properties?.name || f.properties?.id || 'Unknown'),
                     group: groupName,
                     value: val,
-                    color: getColor(val, currentDomain, selectedMetric)
+                    color: getColor(val, currentDomain, selectedMetric, isColorBlindMode)
                 };
             });
         const sorted = [...feats].sort((a, b) => b.value - a.value);
         return { bestPerformers: sorted.slice(0, 5), worstPerformers: [...sorted].reverse().slice(0, 5).reverse() };
-    }, [computedGeoData, selectedMetric, effectiveMode, currentDomain, getColor, effectiveLevel, dataState.parentLookup, selectedVariations]);
+    }, [computedGeoData, selectedMetric, effectiveMode, currentDomain, getColor, effectiveLevel, dataState.parentLookup, selectedVariations, isColorBlindMode]);
 
     const resetWeights = () => {
         setWeights(defaultWeights);
@@ -436,6 +437,8 @@ const Dashboard = () => {
                 <SidebarLeft
                     isDarkMode={isDarkMode}
                     setIsDarkMode={setIsDarkMode}
+                    isColorBlindMode={isColorBlindMode}
+                    setIsColorBlindMode={setIsColorBlindMode}
                     setShowDownload={setShowDownload}
                     setShowAbout={setShowAbout}
                     selectedMetric={selectedMetric}
@@ -514,7 +517,7 @@ const Dashboard = () => {
                                 <div className="flex flex-col gap-3">
                                     <div
                                         className="h-2.5 rounded-full w-full shadow-inner"
-                                        style={{ background: getLegendGradient(selectedMetric, currentDomain) }}
+                                        style={{ background: getLegendGradient(selectedMetric, currentDomain, isColorBlindMode) }}
                                     />
                                     <div className="flex justify-between text-[13px] font-black opacity-40 uppercase tracking-tighter">
                                         <span>{selectedMetric.format(currentDomain[0], currentDomain[0], currentDomain[currentDomain.length - 1])}</span>
@@ -547,7 +550,7 @@ const Dashboard = () => {
                         })()}
                         <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} />
                         {computedGeoData?.features && (
-                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveMode.id}-${isDarkMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
+                            <GeoJSON key={`${effectiveLevel}-${nutFilter}-${selectedMetricId}-${effectiveMode.id}-${isDarkMode}-${isColorBlindMode}-${selectedFeature?.id}-${i18n.language}-${JSON.stringify(weights)}-${JSON.stringify(selectedVariations)}`} data={computedGeoData as any} style={getStyle} onEachFeature={onEachFeature} />
                         )}
                         <Pane name="limits-pane" style={{ zIndex: 450 }}>
                             {effectiveLevel !== 'municipality' && filteredLimits && (
@@ -561,6 +564,7 @@ const Dashboard = () => {
             {!isMobile && (selectedFeature || viewLevel !== 'hex') && (
                 <SidebarRight
                     isDarkMode={isDarkMode}
+                    isColorBlindMode={isColorBlindMode}
                     selectedFeature={selectedFeature}
                     viewLevel={effectiveLevel}
                     selectedMetric={selectedMetric}

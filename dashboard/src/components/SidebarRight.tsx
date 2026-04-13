@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 interface SidebarRightProps {
     isDarkMode: boolean;
+    isColorBlindMode: boolean;
     selectedFeature: any;
     viewLevel: string;
     selectedMetric: MetricDef;
@@ -27,7 +28,7 @@ interface SidebarRightProps {
 }
 
 export const SidebarRight: React.FC<SidebarRightProps> = ({
-    isDarkMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
+    isDarkMode, isColorBlindMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
     selectedMode, dataState, allDomains, subLevelData, chartData,
     setSelectedFeature, computedGeoData, setZoomRequest, setViewLevel,
     selectedVariations
@@ -76,7 +77,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 
                                     const rawFormattedVal = selectedMetric.format(val, allDomains[selectedMetric.id]?.[0] || 0, allDomains[selectedMetric.id]?.[allDomains[selectedMetric.id].length - 1] || 1);
                                     const formattedVal = rawFormattedVal.split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.');
-                                    const color = getColor(val, allDomains[selectedMetric.id] || [0, 1], selectedMetric);
+                                    const color = getColor(val, allDomains[selectedMetric.id] || [0, 1], selectedMetric, isColorBlindMode);
 
                                     const getContrastColor = (hexcolor: string) => {
                                         if (!hexcolor || hexcolor.length < 7) return '#fff';
@@ -101,7 +102,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 
                             {!isIMPT && (
                                 <div className="grid grid-cols-2 gap-2 mb-3">
-                                    {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, isDarkMode, t, selectedVariations, viewLevel)}
+                                    {FLAT_METRICS_FILTERED(selectedMetricId, selectedMode, selectedFeature, allDomains, isDarkMode, t, selectedVariations, viewLevel, isColorBlindMode)}
                                 </div>
                             )}
 
@@ -126,7 +127,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                     label={t(m.label)}
                                                     value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 100).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
                                                     unit={m.unit}
-                                                    hexColor={getColor(val, allDomains[m.id] || [0, 100], m)}
+                                                    hexColor={getColor(val, allDomains[m.id] || [0, 100], m, isColorBlindMode)}
                                                     isDark={isDarkMode}
                                                 />
                                             </div>
@@ -168,20 +169,20 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                                                     }
                                                     return null;
                                                 }} />
-                                                <Bar dataKey="car" stackId="a" fill="#ef4444" radius={[4, 0, 0, 4]}>
+                                                <Bar dataKey="car" stackId="a" fill={isColorBlindMode ? "#D55E00" : "#ef4444"} radius={[4, 0, 0, 4]}>
                                                     <LabelList dataKey="car" position="insideLeft" formatter={(v: any) => (typeof v === 'number' && v > 15) ? `${v.toFixed(0)}%` : ''} style={{ fontSize: '11px', fill: 'white', fontWeight: 'bold' }} />
                                                 </Bar>
-                                                <Bar dataKey="pt" stackId="a" fill="#075985" />
-                                                <Bar dataKey="walk" stackId="a" fill="#10b981" />
-                                                <Bar dataKey="bike" stackId="a" fill="#eab308" radius={[0, 4, 4, 0]} />
+                                                <Bar dataKey="pt" stackId="a" fill={isColorBlindMode ? "#0072B2" : "#075985"} />
+                                                <Bar dataKey="walk" stackId="a" fill={isColorBlindMode ? "#009E73" : "#10b981"} />
+                                                <Bar dataKey="bike" stackId="a" fill={isColorBlindMode ? "#F0E442" : "#eab308"} radius={[0, 4, 4, 0]} />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>
                                     <div className="flex justify-between mt-2 px-1">
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-[10px] opacity-40 uppercase">{t('modes.car')}</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-sky-800" /><span className="text-[10px] opacity-40 uppercase">{t('modes.pt')}</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className="text-[10px] opacity-40 uppercase">{t('modes.walk')}</span></div>
-                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-yellow-500" /><span className="text-[10px] opacity-40 uppercase">{t('modes.bike')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#D55E00' : '#ef4444' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.car')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#0072B2' : '#075985' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.pt')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#009E73' : '#10b981' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.walk')}</span></div>
+                                        <div className="flex flex-col items-center gap-1"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isColorBlindMode ? '#F0E442' : '#eab308' }} /><span className="text-[10px] opacity-40 uppercase">{t('modes.bike')}</span></div>
                                     </div>
                                 </div>
                             )}
@@ -275,7 +276,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
 
 
 
-const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any) => {
+const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, selectedFeature: any, allDomains: any, isDarkMode: boolean, t: any, selectedVariations: any, viewLevel: any, isColorBlindMode: boolean) => {
     return FLAT_METRICS.filter(m =>
         m.showAlwaysOnDetails && m.id !== selectedMetricId
     )
@@ -301,7 +302,7 @@ const FLAT_METRICS_FILTERED = (selectedMetricId: string, selectedMode: any, sele
                         label={t(m.label)}
                         value={m.format(val, allDomains[m.id]?.[0] || 0, allDomains[m.id]?.[allDomains[m.id].length - 1] || 1).split('.').map((p, i) => i === 0 ? p.replace(/\B(?=(\d{3})+(?!\d))/g, " ") : p).join('.')}
                         unit={m.unit}
-                        hexColor={getColor(val, allDomains[m.id] || [0, 1], m)}
+                        hexColor={getColor(val, allDomains[m.id] || [0, 1], m, isColorBlindMode)}
                         isDark={isDarkMode}
                     />
                 </div>

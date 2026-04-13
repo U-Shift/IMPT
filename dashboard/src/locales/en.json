@@ -5,7 +5,7 @@
     "impt_2": "Index",
     "loading": "Loading dashboard...",
     "loading_note": "It takes a little longer the first time",
-    "beta": "Beta version",
+    "beta": "Beta",
     "lma": "Lisbon Metro Area",
     "close": "Close",
     "reset": "Reset",
@@ -19,6 +19,7 @@
   },
   "tooltips": {
     "toggle_theme": "Toggle Theme",
+    "toggle_colorblind": "Colorblind mode",
     "download_data": "Download Data",
     "about": "About"
   },

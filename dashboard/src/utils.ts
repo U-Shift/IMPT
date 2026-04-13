@@ -1,4 +1,4 @@
-import { continuousScale, equalIntervalScale } from "./constants";
+import { continuousScale, equalIntervalScale, COLORS } from "./constants";
 import { MetricDef } from "./types";
 
 
@@ -67,12 +67,23 @@ const getPaletteIndex = (val: number, domain: number[], paletteLength: number): 
     }
 };
 /**
+ * Maps a palette to a color blind friendly alternative if applicable.
+ */
+export const getAlternatePalette = (palette: string[]): string[] => {
+    if (palette === COLORS.RedToGreen) return COLORS.PiYG;
+    if (palette === COLORS.GreenToRed) return COLORS.PiYGRev;
+    if (palette === COLORS.WhiteToRed) return COLORS.WhiteToBlue;
+    if (palette === COLORS.RedToWhite) return COLORS.BlueToWhite;
+    return palette;
+};
+
+/**
  * Returns the color for a given value based on the metric palette and domain.
  */
 
-export const getColor = (val: number, domain: number[], metric: MetricDef): string => {
+export const getColor = (val: number, domain: number[], metric: MetricDef, isColorBlindMode: boolean = false): string => {
     if (isMetricValueIgnored(val, metric)) return 'rgba(0,0,0,0.05)';
-    const palette = metric.pallete;
+    const palette = isColorBlindMode ? getAlternatePalette(metric.pallete) : metric.pallete;
     const idx = getPaletteIndex(val, domain, palette.length);
     return palette[idx];
 };
@@ -80,8 +91,8 @@ export const getColor = (val: number, domain: number[], metric: MetricDef): stri
  * Generates a CSS linear-gradient for the legend representation of a metric.
  */
 
-export const getLegendGradient = (metric: MetricDef, domain: number[]): string => {
-    const palette = metric.pallete;
+export const getLegendGradient = (metric: MetricDef, domain: number[], isColorBlindMode: boolean = false): string => {
+    const palette = isColorBlindMode ? getAlternatePalette(metric.pallete) : metric.pallete;
     if (domain.length > 2) {
         const nSlices = domain.length - 1;
         const gradientParts = [];

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Languages } from 'lucide-react';
+import { Sun, Moon, Download, Info, ListFilter, ChevronDown, Activity, Languages, Eye, EyeOff } from 'lucide-react';
 import { MetricDef } from '../types';
 import { METRICS, FLAT_METRICS } from '../constants';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,8 @@ import { Tooltip } from './Tooltip';
 interface SidebarLeftProps {
     isDarkMode: boolean;
     setIsDarkMode: (val: boolean) => void;
+    isColorBlindMode: boolean;
+    setIsColorBlindMode: (val: boolean) => void;
     setShowDownload: (val: boolean) => void;
     setShowAbout: (val: boolean) => void;
     selectedMetric: MetricDef;
@@ -60,7 +62,7 @@ const AuxiliaryDataRenderer: React.FC<{
 };
 
 export const SidebarLeft: React.FC<SidebarLeftProps> = ({
-    isDarkMode, setIsDarkMode, setShowDownload, setShowAbout,
+    isDarkMode, setIsDarkMode, isColorBlindMode, setIsColorBlindMode, setShowDownload, setShowAbout,
     selectedMetric, selectedMetricId, setSelectedMetricId,
     collapsedSections, toggleSection,
     weights, setWeights, resetWeights, setIsAHPModalOpen,
@@ -94,6 +96,11 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                         <Tooltip content={t('tooltips.toggle_theme')} isDarkMode={true}>
                             <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
                                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                            </button>
+                        </Tooltip>
+                        <Tooltip content={t('tooltips.toggle_colorblind')} isDarkMode={true}>
+                            <button onClick={() => setIsColorBlindMode(!isColorBlindMode)} className={`p-2.5 rounded-xl transition-all ${isDarkMode ? 'hover:bg-neutral-800 text-neutral-400' : 'hover:bg-neutral-100 text-neutral-500'}`}>
+                                {isColorBlindMode ? <Eye className="w-5 h-5 text-sky-600" /> : <EyeOff className="w-5 h-5" />}
                             </button>
                         </Tooltip>
                         <Tooltip content={i18n.language === 'en' ? 'Português' : 'English'} isDarkMode={true}>
