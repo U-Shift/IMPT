@@ -350,11 +350,11 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.access_gap_time_relative_gap_time.label',
             description: 'metrics.access_gap_time_relative_gap_time.description',
             icon: '⚖️🚍🚗⏳',
-            format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [null],
-            scaleMethod: continuousScale, scaleMinEqualsMax: false,
+            format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [38.67, 35.5, 22.8, 18.83, 18.13],
+            scaleMethod: continuousScale, scaleMinEqualsMax: true,
             pallete: COLORS.GreenToRed,
             sources: ['pmus', 'gba']
-        }
+        },
         {
             id: 'access_gap_time_accessibility_gap_bike',
             label: 'metrics.access_gap_time_accessibility_gap_bike.label',
@@ -366,12 +366,12 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['pmus', 'gba']
         },
         {
-            id: 'access_gap_time_relative_gap_bike_time',
+            id: 'access_gap_time_relative_gap_time_bike',
             label: 'metrics.access_gap_time_relative_gap_bike_time.label',
             description: 'metrics.access_gap_time_relative_gap_bike_time.description',
             icon: '⚖️🚲🚗⏳',
             format: (v, _min, _max) => (v || 0).toFixed(2), ignoreValues: [null],
-            scaleMethod: continuousScale, scaleMinEqualsMax: false,
+            scaleMethod: continuousScale, scaleMinEqualsMax: true,
             pallete: COLORS.GreenToRed,
             sources: ['pmus', 'gba']
         }
