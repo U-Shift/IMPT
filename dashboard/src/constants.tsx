@@ -508,7 +508,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             label: 'metrics.veh_ownership_total_motor_vehicles_per_hh.label',
             description: 'metrics.veh_ownership_total_motor_vehicles_per_hh.description',
             icon: '🚗🛵',
-            format: (v, _min, _max) => Math.round(v || 0).toString(), unit: 'vh',
+            format: (v, _min, _max) => (v || 0).toFixed(1), unit: 'vh',
             scaleMethod: continuousScale, ignoreValues: [null],
             pallete: COLORS.Viridis.reverse(),
             sources: ['imob']
@@ -666,6 +666,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue,
             sources: ['gba']
+        },
+        {
+            id: 'cos_builtarea',
+            label: 'metrics.categories.cos_builtarea_title',
+            description: 'metrics.categories.cos_builtarea_desc',
+            icon: '🏗️',
+            format: (v, min, max) => v === min ? '0.3' : (v === max ? '3.0' : String(v)),
+            scaleMethod: continuousScale,
+            pallete: ['#fed976', '#fd8d3c', '#e31a1c', '#800026'],
+            sources: ['cos']
         }
     ]
 };
