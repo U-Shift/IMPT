@@ -245,6 +245,16 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['imob', 'gba']
         },
         {
+            id: 'mobility_commuting_mean_transfers',
+            label: 'metrics.mobility_commuting_mean_transfers_pt.label',
+            description: 'metrics.mobility_commuting_mean_transfers_pt.description',
+            icon: '🔀',
+            format: (v, _min, _max) => (v || 0).toFixed(1),
+            scaleMethod: continuousScale,
+            pallete: COLORS.GreenToRed,
+            sources: ['gtfs', 'census']
+        },
+        {
             id: 'mobility_cost{poi_type}{n_transfers}{n_opportunities}{population}',
             id_variations: {
                 poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],

@@ -299,6 +299,10 @@
     },
     "PT_Waitingtime": {
       "label": "Tempo de espera (TP)"
+    },
+    "mobility_commuting_mean_transfers_pt": {
+      "label": "Número médio de transbordos pendulares",
+      "description": "Número médio de transbordos para deslocações pendulares em TP"
     }
   },
   "regions": {
