@@ -15,6 +15,8 @@ interface ModeSelectorProps {
 }
 
 export const ModeSelector: React.FC<ModeSelectorProps> = ({ value, options, onChange, isDark }) => {
+    if (!options || options.length < 2) return null;
+
     return (
         <div className={`flex flex-col gap-2 p-1.5 rounded-[24px] border backdrop-blur-md shadow-2xl pointer-events-auto transition-all duration-300
             ${isDark ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-200'}
@@ -27,8 +29,8 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({ value, options, onCh
                             onClick={() => onChange(option.id)}
                             className={`
                                 w-11 h-11 rounded-[18px] flex items-center justify-center transition-all duration-300 relative group
-                                ${isActive 
-                                    ? 'bg-sky-800 text-white shadow-lg shadow-sky-900/20 scale-105' 
+                                ${isActive
+                                    ? 'bg-sky-800 text-white shadow-lg shadow-sky-900/20 scale-105'
                                     : `${isDark ? 'text-neutral-500 hover:bg-white/5 hover:text-neutral-200' : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-800'}`
                                 }
                             `}
