@@ -594,9 +594,9 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['census']
         },
         {
-            id: 'mobility_infrastructure_road_length',
-            label: 'metrics.mobility_infrastructure_road_length.label',
-            description: 'metrics.mobility_infrastructure_road_length.description',
+            id: 'mobility_infrastructure_length',
+            label: 'metrics.mobility_infrastructure_length.label',
+            description: 'metrics.mobility_infrastructure_length.description',
             icon: '🛣️',
             format: (v, _min, _max) => Math.round((v || 0) / 1000).toString(), unit: 'km',
             scaleMethod: continuousScale,
@@ -604,40 +604,10 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['osm']
         },
         {
-            id: 'mobility_infrastructure_cycleway_length',
-            label: 'metrics.mobility_infrastructure_cycleway_length.label',
-            description: 'metrics.mobility_infrastructure_cycleway_length.description',
-            icon: '🚲',
-            format: (v, _min, _max) => ((v || 0) / 1000).toFixed(1), unit: 'km',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['osm']
-        },
-        {
-            id: 'mobility_infrastructure_cycleway_to_road_ratio',
-            label: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.label',
-            description: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.description',
+            id: 'mobility_infrastructure_to_ratio_car',
+            label: 'metrics.mobility_infrastructure_to_ratio_car.label',
+            description: 'metrics.mobility_infrastructure_to_ratio_car.description',
             icon: '🚵',
-            format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['osm']
-        },
-        {
-            id: 'mobility_infrastructure_pedpath_length',
-            label: 'metrics.mobility_infrastructure_pedpath_length.label',
-            description: 'metrics.mobility_infrastructure_pedpath_length.description',
-            icon: '🚶',
-            format: (v, _min, _max) => Math.round((v || 0) / 1000).toString(), unit: 'km',
-            scaleMethod: continuousScale,
-            pallete: COLORS.WhiteToBlue,
-            sources: ['osm']
-        },
-        {
-            id: 'mobility_infrastructure_pedpath_to_road_ratio',
-            label: 'metrics.mobility_infrastructure_pedpath_to_road_ratio.label',
-            description: 'metrics.mobility_infrastructure_pedpath_to_road_ratio.description',
-            icon: '👟',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue,
@@ -707,9 +677,8 @@ export const MODES = [
     { id: 'pt_no_pass', label: 'modes.pt_no_pass', suffix: '_pt_no_pass', suffixFallback: '_pt', icon: '🚍🎫' },
     { id: 'walk', label: 'modes.walk', suffix: '_walk', icon: '🚶' },
     { id: 'bike', label: 'modes.bike', suffix: '_bike', icon: '🚲' },
-    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' },
-    // Cycleway segregation
-    { id: 'segregated', label: 'modes.segregated', suffix: '_segregated', icon: '🚫' }
+    { id: 'bike_segregated', label: 'modes.segregated', suffix: '_bike_segregated', icon: '🚲🪖' },
+    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' }
 ] as const;
 
 export type ModeId = (typeof MODES)[number]['id'];

@@ -133,25 +133,13 @@
       "label": "Women percentage",
       "description": "Percentage of women in the population"
     },
-    "mobility_infrastructure_road_length": {
-      "label": "Road infrastructure length",
-      "description": "Total length of road network"
+    "mobility_infrastructure_length": {
+      "label": "Infrastructure length by mode",
+      "description": "Total length of network for mode"
     },
-    "mobility_infrastructure_cycleway_length": {
-      "label": "Cycling infrastructure length",
-      "description": "Total length of cycling network"
-    },
-    "mobility_infrastructure_cycleway_to_road_ratio": {
-      "label": "Cycling infrastructure ratio",
-      "description": "Ratio of cycling infrastructure to road length"
-    },
-    "mobility_infrastructure_pedpath_length": {
-      "label": "Pedestrian infrastructure length",
-      "description": "Total length of pedestrian paths"
-    },
-    "mobility_infrastructure_pedpath_to_road_ratio": {
-      "label": "Pedestrian infrastructure ratio",
-      "description": "Ratio of pedestrian paths to road length"
+    "mobility_infrastructure_to_ratio_car": {
+      "label": "Infrastructure ratio mode/car",
+      "description": "Ratio of mode infrastructure to road length"
     },
     "census_landuse_buildings_pre1945_percentage": {
       "label": "Buildings pre-1945 (%)",
@@ -328,7 +316,7 @@
     "pt_pass": "PT (with Navegante)",
     "pt_no_pass": "PT (without Navegante)",
     "walk": "Walk",
-    "segregated": "Segregated"
+    "segregated": "Segregated Cycleway"
   },
   "about": {
     "title": "IMPT",
