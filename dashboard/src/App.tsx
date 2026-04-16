@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Pane } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, Activity, Layers, Globe, RocketIcon } from 'lucide-react';
+import { Loader2, Activity, Layers, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
@@ -15,6 +15,7 @@ import { SidebarRight } from './components/SidebarRight';
 import { AboutModal } from './components/AboutModal';
 import { DownloadModal } from './components/DownloadModal';
 import { MapFilterDropdown } from './components/MapFilterDropdown';
+import { ModeSelector } from './components/ModeSelector';
 import { MobileOverlay } from './components/MobileOverlay';
 import { MapTools } from './components/MapTools';
 
@@ -498,18 +499,8 @@ const Dashboard = () => {
                 <style>{`.leaflet-container { outline: none !important; } .leaflet-path { cursor: pointer; outline: none !important; }`}</style>
 
                 {!isMobile && (
-                    <div className="absolute top-8 left-[416px] z-[1002] flex items-start pointer-events-none">
+                    <div className="absolute top-8 left-[416px] z-[1002] flex flex-col gap-4 items-start pointer-events-none">
                         <div className="flex gap-4 pointer-events-auto items-center">
-                            <MapFilterDropdown
-                                label={t('map.mode')}
-                                value={effectiveMode.id}
-                                isDark={isDarkMode}
-                                icon={<RocketIcon className="w-3.5 h-3.5" />}
-                                options={MODES.filter(m => isModeAvailable(m.id, selectedMetricId, effectiveLevel))
-                                    .map(m => ({ id: m.id, label: t(m.label), icon: m.icon }))}
-                                onChange={(id) => setSelectedModeId(id as ModeId)}
-                            />
-
                             <MapFilterDropdown
                                 label={t('map.view_level')}
                                 value={viewLevel}
@@ -537,8 +528,15 @@ const Dashboard = () => {
                                     setSelectedFeature(null);
                                 }}
                             />
-
                         </div>
+
+                        <ModeSelector
+                            value={effectiveMode.id}
+                            isDark={isDarkMode}
+                            options={MODES.filter(m => isModeAvailable(m.id, selectedMetricId, effectiveLevel))
+                                .map(m => ({ id: m.id, label: t(m.label), icon: m.icon }))}
+                            onChange={(id) => setSelectedModeId(id as ModeId)}
+                        />
                     </div>
                 )}
 

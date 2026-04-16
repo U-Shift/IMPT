@@ -617,7 +617,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             id: 'mobility_infrastructure_cycleway_to_road_ratio',
             label: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.label',
             description: 'metrics.mobility_infrastructure_cycleway_to_road_ratio.description',
-            icon: '🛤️',
+            icon: '🚵',
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue,
@@ -700,14 +700,16 @@ export const MODES = [
     // suffixFallback is used only on IMPT dynamic computation 
     // > It tells that for that mode, if no metric with suffix, suffixFallback metric should be used instead 
     { id: 'all', label: 'modes.all', suffix: '', icon: '🌐' },
-    { id: 'all_pass', label: 'modes.all_pass', suffix: '_pass', suffixFallback: '', icon: '🌐' },
-    { id: 'all_no_pass', label: 'modes.all_no_pass', suffix: '_no_pass', suffixFallback: '', icon: '🌐' },
+    { id: 'all_pass', label: 'modes.all_pass', suffix: '_pass', suffixFallback: '', icon: '🌐🟡' },
+    { id: 'all_no_pass', label: 'modes.all_no_pass', suffix: '_no_pass', suffixFallback: '', icon: '🌐🎫' },
     { id: 'pt', label: 'modes.pt', suffix: '_pt', icon: '🚍' },
-    { id: 'pt_pass', label: 'modes.pt_pass', suffix: '_pt_pass', suffixFallback: '_pt', icon: '🚍' },
-    { id: 'pt_no_pass', label: 'modes.pt_no_pass', suffix: '_pt_no_pass', suffixFallback: '_pt', icon: '🚍' },
+    { id: 'pt_pass', label: 'modes.pt_pass', suffix: '_pt_pass', suffixFallback: '_pt', icon: '🚍🟡' },
+    { id: 'pt_no_pass', label: 'modes.pt_no_pass', suffix: '_pt_no_pass', suffixFallback: '_pt', icon: '🚍🎫' },
     { id: 'walk', label: 'modes.walk', suffix: '_walk', icon: '🚶' },
     { id: 'bike', label: 'modes.bike', suffix: '_bike', icon: '🚲' },
-    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' }
+    { id: 'car', label: 'modes.car', suffix: '_car', icon: '🚗' },
+    // Cycleway segregation
+    { id: 'segregated', label: 'modes.segregated', suffix: '_segregated', icon: '🚫' }
 ] as const;
 
 export type ModeId = (typeof MODES)[number]['id'];
