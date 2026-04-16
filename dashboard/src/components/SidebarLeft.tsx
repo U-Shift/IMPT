@@ -229,7 +229,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                                     return validSubset.some((comb: any) => comb[group] === opt);
                                                                 });
                                                             }
-                                                            if (visibleOptions.length === 0) return null;
+                                                            if (visibleOptions.length == 0 || (optionsDef as any).visible === false) return null;
 
                                                             const isSlider = !Array.isArray(optionsDef) && optionsDef.formSlider;
                                                             const selectedOpt = selectedVariations[group] || options[0];

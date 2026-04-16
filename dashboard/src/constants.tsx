@@ -219,7 +219,23 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     ],
     'metrics.categories.mobility': [
         {
-            id: 'mobility_commuting_avg_tt',
+            id: 'mobility_commuting_avg_tt{n_transfers}{cut_off}{walking_time}',
+            id_variations: {
+                // mobility_commuting_avg_tt_1t_120m_15w_pt
+                cut_off: {
+                    options: ['_120m'],
+                    modes: ['pt'],
+                    visible: false
+                },
+                n_transfers: {
+                    options: ['_0t', '_1t', '_2t', '_3t'],
+                    modes: ['pt']
+                },
+                walking_time: {
+                    options: ['_15w', '_20w', '_30w'],
+                    modes: ['pt']
+                }
+            },
             label: 'metrics.mobility_commuting_avg_tt.label',
             description: 'metrics.mobility_commuting_avg_tt.description',
             icon: '⌛💼',

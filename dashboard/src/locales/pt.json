@@ -398,6 +398,11 @@
     "_60min": "60 min",
     "_75min": "75 min",
     "_90min": "90 min",
+    "_120m": "120 min",
+    "_240m": "240 min",
+    "_15w": "15 min",
+    "_20w": "20 min",
+    "_30w": "30 min",
     "_residents": "Residentes (Total)",
     "_active": "População Ativa",
     "_elder": "População Idosa",
@@ -410,6 +415,8 @@
     "_n3": "3",
     "_jobs": "Empregos",
     "_schools_high": "Escolas Secundárias",
-    "_pt": "Paragens de Transportes Públicos"
+    "_pt": "Paragens de Transportes Públicos",
+    "cut_off": "Tempo Máx. Viagem",
+    "walking_time": "Tempo Máx. a Pé (entre paragens)"
   }
 }
