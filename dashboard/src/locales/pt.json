@@ -327,7 +327,8 @@
     "pt": "TP",
     "pt_pass": "TP (com Navegante)",
     "pt_no_pass": "TP (sem Navegante)",
-    "walk": "Pedonal"
+    "walk": "Pedonal",
+    "segregated": "Segregada"
   },
   "about": {
     "title": "IMPT",

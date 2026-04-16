@@ -327,7 +327,8 @@
     "pt": "PT",
     "pt_pass": "PT (with Navegante)",
     "pt_no_pass": "PT (without Navegante)",
-    "walk": "Walk"
+    "walk": "Walk",
+    "segregated": "Segregated"
   },
   "about": {
     "title": "IMPT",
