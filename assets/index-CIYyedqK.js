@@ -280,7 +280,7 @@ Error generating stack: `+a.message+`
                     `,children:O.jsx("div",{className:"p-1.5 flex flex-col",children:n.map(y=>O.jsxs("button",{onClick:()=>{r(y.id),c(!1)},className:`
                                     flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all
                                     ${t===y.id?"bg-sky-900 text-white shadow-lg":`${i?"text-neutral-500 hover:bg-white/5 hover:text-neutral-200":"text-neutral-400 hover:bg-neutral-50 hover:text-neutral-800"}`}
-                                `,children:[y.icon&&O.jsx("span",{className:"text-base",children:y.icon}),y.label]},y.id))})}),document.body)]})},TK=({value:e,options:t,onChange:n,isDark:r})=>O.jsx("div",{className:`flex flex-col gap-2 p-1.5 rounded-[24px] border backdrop-blur-md shadow-2xl pointer-events-auto transition-all duration-300
+                                `,children:[y.icon&&O.jsx("span",{className:"text-base",children:y.icon}),y.label]},y.id))})}),document.body)]})},TK=({value:e,options:t,onChange:n,isDark:r})=>!t||t.length<2?null:O.jsx("div",{className:`flex flex-col gap-2 p-1.5 rounded-[24px] border backdrop-blur-md shadow-2xl pointer-events-auto transition-all duration-300
             ${r?"bg-neutral-900/90 border-neutral-800":"bg-white/90 border-neutral-200"}
         `,children:t.map(i=>{const a=e===i.id;return O.jsx(ma,{content:i.label,isDarkMode:r,children:O.jsx("button",{onClick:()=>n(i.id),className:`
                                 w-11 h-11 rounded-[18px] flex items-center justify-center transition-all duration-300 relative group
