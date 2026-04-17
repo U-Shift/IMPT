@@ -192,62 +192,6 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                 </div>
 
                 <div className={`flex-1 flex flex-col ${isMobile ? 'overflow-y-auto' : 'overflow-hidden'} scrollbar-hide`}>
-                    {/* Mobile Map Settings Section */}
-                    {isMobile && (
-                        <section className="px-6 py-4">
-                            <h4 className={`text-[12px] font-black uppercase tracking-[0.2em] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>
-                                {t('sidebar.map_settings')}
-                            </h4>
-                            <div className="flex flex-col gap-4 mt-4">
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex w-full">
-                                        <MapFilterDropdown
-                                            isMobile={isMobile}
-                                            label={t('map.view_level')}
-                                            value={viewLevel}
-                                            isDark={isDarkMode}
-                                            icon={<Layers className="w-3.5 h-3.5" />}
-                                            options={(['hex', 'freguesia', 'municipality'] as const)
-                                                .filter(l => isMetricAvailable?.(selectedMetricId, l, selectedMode))
-                                                .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
-                                            onChange={(id) => {
-                                                setViewLevel?.(id);
-                                                if (isMobile) setIsOpen?.(false);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="w-full">
-                                        <MapFilterDropdown
-                                            isMobile={isMobile}
-                                            label={t('map.region')}
-                                            value={nutFilter}
-                                            isDark={isDarkMode}
-                                            icon={<Globe className="w-3.5 h-3.5" />}
-                                            options={REGION_KEYS.map(n => ({ id: n, label: t(REGIONS[n].name) }))}
-                                            onChange={(id) => {
-                                                setNutFilter?.(id);
-                                                if (isMobile) setIsOpen?.(false);
-                                            }}
-                                        />
-                                    </div>
-                                    <MapTools
-                                        isMobile={true}
-                                        isDarkMode={isDarkMode}
-                                        mapStyle={mapStyle}
-                                        setMapStyle={setMapStyle}
-                                        showBuiltArea={showBuiltArea}
-                                        setShowBuiltArea={setShowBuiltArea}
-                                        onZoomIn={onZoomIn}
-                                        onZoomOut={onZoomOut}
-                                        onChange={() => {
-                                            if (isMobile) setIsOpen?.(false);
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </section>
-                    )}
-
                     {/* Tab Navigation */}
                     {
                         isMobile && (
@@ -534,6 +478,62 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                             </div>
                         </section>
                     </div>
+
+                    {/* Mobile Map Settings Section */}
+                    {isMobile && (
+                        <section className="px-6 py-4">
+                            <h4 className={`text-[12px] font-black uppercase tracking-[0.2em] ${isDarkMode ? 'text-neutral-500' : 'text-neutral-400'}`}>
+                                {t('sidebar.map_settings')}
+                            </h4>
+                            <div className="flex flex-col gap-4 mt-4">
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex w-full">
+                                        <MapFilterDropdown
+                                            isMobile={isMobile}
+                                            label={t('map.view_level')}
+                                            value={viewLevel}
+                                            isDark={isDarkMode}
+                                            icon={<Layers className="w-3.5 h-3.5" />}
+                                            options={(['hex', 'freguesia', 'municipality'] as const)
+                                                .filter(l => isMetricAvailable?.(selectedMetricId, l, selectedMode))
+                                                .map(l => ({ id: l, label: l === 'hex' ? t('map.grid') : t(`map.${l}`) }))}
+                                            onChange={(id) => {
+                                                setViewLevel?.(id);
+                                                if (isMobile) setIsOpen?.(false);
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="w-full">
+                                        <MapFilterDropdown
+                                            isMobile={isMobile}
+                                            label={t('map.region')}
+                                            value={nutFilter}
+                                            isDark={isDarkMode}
+                                            icon={<Globe className="w-3.5 h-3.5" />}
+                                            options={REGION_KEYS.map(n => ({ id: n, label: t(REGIONS[n].name) }))}
+                                            onChange={(id) => {
+                                                setNutFilter?.(id);
+                                                if (isMobile) setIsOpen?.(false);
+                                            }}
+                                        />
+                                    </div>
+                                    <MapTools
+                                        isMobile={true}
+                                        isDarkMode={isDarkMode}
+                                        mapStyle={mapStyle}
+                                        setMapStyle={setMapStyle}
+                                        showBuiltArea={showBuiltArea}
+                                        setShowBuiltArea={setShowBuiltArea}
+                                        onZoomIn={onZoomIn}
+                                        onZoomOut={onZoomOut}
+                                        onChange={() => {
+                                            if (isMobile) setIsOpen?.(false);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </section>
+                    )}
                 </div>
             </div>
         </>
