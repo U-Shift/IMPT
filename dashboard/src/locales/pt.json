@@ -35,7 +35,9 @@
     "constituent_dynamics": "Freguesias",
     "regional_contrast": "Contrastes Regionais",
     "top_performers": "Valores mais elevados",
-    "low_performers": "Valores mais baixos"
+    "low_performers": "Valores mais baixos",
+    "map_settings": "Configurar mapa",
+    "map_layers": "Camadas"
   },
   "map": {
     "view_level": "Visualização",

@@ -35,7 +35,9 @@
     "constituent_dynamics": "Subareas",
     "regional_contrast": "Regional Contrasts",
     "top_performers": "Highest values",
-    "low_performers": "Lowest values"
+    "low_performers": "Lowest values",
+    "map_settings": "Map Settings",
+    "map_layers": "Map Layers"
   },
   "map": {
     "view_level": "View Level",
