@@ -1,14 +1,21 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, GeoJSON, Pane } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, Pane, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, Activity, Layers, Globe } from 'lucide-react';
+import { Loader2, Activity, Layers, Globe, Info, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ViewLevel } from './types';
 import { METRICS, FLAT_METRICS, REGION_KEYS, REGIONS, DEFAULT_REGION, MODES, RegionKey, ModeId, LEVEL_CONFIG, MAP_LAYERS, DATA_BASE_URL } from './constants';
 import { getMetricDomain, getColor, getLegendGradient, isMetricValueIgnored, getMetricValue, discoverMetricVariations } from './utils';
 import { ZoomHandler, SelectedFeatureCentering, MapDeselectHandler } from './components/MapHandlers';
+const MapRefCapture: React.FC<{ setMap: (map: L.Map) => void }> = ({ setMap }) => {
+    const map = useMap();
+    useEffect(() => {
+        setMap(map);
+    }, [map, setMap]);
+    return null;
+};
 import { AHPModal } from './components/AHPModal';
 import { SidebarLeft } from './components/SidebarLeft';
 import { SidebarRight } from './components/SidebarRight';
@@ -16,7 +23,6 @@ import { AboutModal } from './components/AboutModal';
 import { DownloadModal } from './components/DownloadModal';
 import { MapFilterDropdown } from './components/MapFilterDropdown';
 import { ModeSelector } from './components/ModeSelector';
-import { MobileOverlay } from './components/MobileOverlay';
 import { MapTools } from './components/MapTools';
 
 const Dashboard = () => {
@@ -73,6 +79,8 @@ const Dashboard = () => {
         return keys.reduce((acc, key, i) => ({ ...acc, [key]: i !== 0 }), {});
     });
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [showLegendMobile, setShowLegendMobile] = useState(false);
     const [showBuiltArea, setShowBuiltArea] = useState(false);
     const [builtAreaData, setBuiltAreaData] = useState<any>(null);
 
@@ -86,10 +94,16 @@ const Dashboard = () => {
     }, [showBuiltArea, selectedMetricId, builtAreaData]);
 
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 1024);
+        const handleResize = () => {
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (!mobile) setIsSidebarOpen(true);
+        };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
     const [dataState, setDataState] = useState<{
         geo: Record<string, any>; limits: any; loading: boolean; error: string | null;
@@ -97,7 +111,7 @@ const Dashboard = () => {
     }>({ geo: {}, limits: null, loading: true, error: null, parentLookup: {} });
 
     useEffect(() => {
-        if (isMobile || Object.keys(dataState.geo).length > 0) return;
+        if (Object.keys(dataState.geo).length > 0) return;
 
         const load = async () => {
             try {
@@ -130,7 +144,7 @@ const Dashboard = () => {
             }
         };
         load();
-    }, [isMobile, dataState.geo]);
+    }, [dataState.geo]);
 
     const selectedMetric = useMemo(() => FLAT_METRICS.find(m => m.id === selectedMetricId) || FLAT_METRICS[0], [selectedMetricId]);
     const selectedMode = useMemo(() => MODES.find(m => m.id === selectedModeId) || MODES[0], [selectedModeId]);
@@ -454,7 +468,7 @@ const Dashboard = () => {
         setWeights(defaultWeights);
     };
 
-    if (dataState.loading && !isMobile) return (
+    if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-2`}>
             <Loader2 className="w-12 h-12 text-sky-800 animate-spin" />
             <div className="flex flex-col items-center gap-1">
@@ -467,32 +481,43 @@ const Dashboard = () => {
     return (
         <div className={`relative h-screen w-screen ${isDarkMode ? 'bg-neutral-950 text-neutral-100' : 'bg-neutral-50 text-neutral-900'} font-sans overflow-hidden transition-colors duration-300`}>
 
-            {!isMobile && (
-                <SidebarLeft
-                    isDarkMode={isDarkMode}
-                    setIsDarkMode={setIsDarkMode}
-                    isColorBlindMode={isColorBlindMode}
-                    setIsColorBlindMode={setIsColorBlindMode}
-                    setShowDownload={setShowDownload}
-                    setShowAbout={setShowAbout}
-                    selectedMetric={selectedMetric}
-                    selectedMetricId={selectedMetricId}
-                    setSelectedMetricId={setSelectedMetricId}
-                    collapsedSections={collapsedSections}
-                    toggleSection={toggleSection}
-                    weights={weights}
-                    setWeights={setWeights}
-                    resetWeights={resetWeights}
-                    setIsAHPModalOpen={setIsAHPModalOpen}
-                    selectedVariations={selectedVariations}
-                    setSelectedVariations={setSelectedVariations}
-                    discoveredVariations={discoveredVariations}
-                    selectedMode={effectiveMode}
-                    viewLevel={effectiveLevel}
-                    showBuiltArea={showBuiltArea}
-                    setShowBuiltArea={setShowBuiltArea}
-                />
-            )}
+            <SidebarLeft
+                isDarkMode={isDarkMode}
+                setIsDarkMode={setIsDarkMode}
+                isColorBlindMode={isColorBlindMode}
+                setIsColorBlindMode={setIsColorBlindMode}
+                setShowDownload={setShowDownload}
+                setShowAbout={setShowAbout}
+                selectedMetric={selectedMetric}
+                selectedMetricId={selectedMetricId}
+                setSelectedMetricId={setSelectedMetricId}
+                collapsedSections={collapsedSections}
+                toggleSection={toggleSection}
+                weights={weights}
+                setWeights={setWeights}
+                resetWeights={resetWeights}
+                setIsAHPModalOpen={setIsAHPModalOpen}
+                selectedVariations={selectedVariations}
+                setSelectedVariations={setSelectedVariations}
+                discoveredVariations={discoveredVariations}
+                selectedMode={effectiveMode}
+                viewLevel={effectiveLevel}
+                showBuiltArea={showBuiltArea}
+                setShowBuiltArea={setShowBuiltArea}
+                isMobile={isMobile}
+                isOpen={isSidebarOpen}
+                setIsOpen={setIsSidebarOpen}
+                nutFilter={nutFilter}
+                setNutFilter={setNutFilter}
+                setViewLevel={setViewLevel}
+                setSelectedModeId={setSelectedModeId}
+                isMetricAvailable={isMetricAvailable}
+                isModeAvailable={isModeAvailable}
+                mapStyle={mapStyle}
+                setMapStyle={setMapStyle}
+                onZoomIn={() => mapInstance?.zoomIn()}
+                onZoomOut={() => mapInstance?.zoomOut()}
+            />
 
             {/* Map Canvas: Main View */}
             <div className="absolute inset-0 bg-neutral-950 z-0">
@@ -540,8 +565,16 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {!isMobile && (
-                    <div className="absolute bottom-8 right-8 z-[1000] pointer-events-none w-[320px]">
+                {(!isMobile || showLegendMobile) && (
+                    <div className={`absolute bottom-8 right-8 z-[1000] ${isMobile ? 'pointer-events-auto' : 'pointer-events-none'} w-[320px] max-w-[calc(100vw-64px)]`}>
+                        {isMobile && (
+                            <button
+                                onClick={() => setShowLegendMobile(false)}
+                                className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-sky-900 text-white flex items-center justify-center shadow-lg z-10 transition-transform hover:scale-110 active:scale-95"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
                         <div className={`p-6 rounded-[32px] border pointer-events-auto shadow-2xl backdrop-blur-xl ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800' : 'bg-white/90 border-neutral-100'}`}>
                             <h4 className="flex items-center gap-2.5 text-[12px] font-black text-sky-800 mb-5 uppercase tracking-[0.1em]">
                                 <Activity className="w-3.5 h-3.5" /> {nutFilter !== REGION_KEYS[0] ? t('map.local_rescaling') : t('map.global_scale')}
@@ -551,8 +584,8 @@ const Dashboard = () => {
                                     <div className="flex flex-col gap-3 pt-1">
                                         {selectedMetric.legendCategories.map((cat, i) => (
                                             <div key={i} className="flex items-center gap-3 group transition-transform hover:translate-x-1">
-                                                <div 
-                                                    className="w-4 h-4 rounded-sm shadow-sm flex-shrink-0 border border-black/5" 
+                                                <div
+                                                    className="w-4 h-4 rounded-sm shadow-sm flex-shrink-0 border border-black/5"
                                                     style={{ backgroundColor: cat.color }}
                                                 />
                                                 <span className={`text-[11px] font-black uppercase tracking-tight leading-tight ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
@@ -587,8 +620,18 @@ const Dashboard = () => {
                     </div>
                 )}
 
+                {isMobile && !showLegendMobile && (
+                    <button
+                        onClick={() => setShowLegendMobile(true)}
+                        className={`absolute bottom-8 right-8 z-[1000] w-12 h-12 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-xl border transition-all hover:scale-110 active:scale-95 animate-in fade-in zoom-in duration-300 ${isDarkMode ? 'bg-neutral-900/90 border-neutral-800 text-neutral-400' : 'bg-white/90 border-neutral-100 text-neutral-500'}`}
+                    >
+                        <Info className="w-6 h-6" />
+                    </button>
+                )}
+
                 <div className="absolute inset-0">
                     <MapContainer center={[38.74, -9.14]} zoom={11} className="h-full w-full" zoomControl={false} style={{ background: isDarkMode ? '#0a0a0a' : '#f0f0f0' }}>
+                        <MapRefCapture setMap={setMapInstance} />
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
                         <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
@@ -597,7 +640,7 @@ const Dashboard = () => {
                             const url = 'getUrl' in layer && typeof layer.getUrl === 'function' ? layer.getUrl(isDarkMode) : layer.url;
                             return <TileLayer url={url!} attribution={layer.attribution} />;
                         })()}
-                        <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} showBuiltArea={showBuiltArea} setShowBuiltArea={setShowBuiltArea} />
+                        {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} showBuiltArea={showBuiltArea} setShowBuiltArea={setShowBuiltArea} />}
                         <Pane name="builtarea-pane" style={{ zIndex: 350 }}>
                             {(showBuiltArea || selectedMetricId === 'cos_builtarea') && builtAreaData && (
                                 <GeoJSON
@@ -647,7 +690,7 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {!isMobile && (selectedFeature || viewLevel !== 'hex') && selectedMetricId !== 'cos_builtarea' && (
+            {(selectedFeature || (!isMobile && viewLevel !== 'hex')) && selectedMetricId !== 'cos_builtarea' && (
                 <SidebarRight
                     isDarkMode={isDarkMode}
                     isColorBlindMode={isColorBlindMode}
@@ -665,6 +708,7 @@ const Dashboard = () => {
                     computedGeoData={computedGeoData}
                     setZoomRequest={setZoomRequest}
                     setViewLevel={setViewLevel}
+                    isMobile={isMobile}
                 />
             )}
 
@@ -692,9 +736,6 @@ const Dashboard = () => {
                 }}
             />
 
-            {isMobile && !showAbout && (
-                <MobileOverlay onShowAbout={() => setShowAbout(true)} />
-            )}
         </div >
     );
 };

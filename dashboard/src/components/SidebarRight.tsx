@@ -25,20 +25,29 @@ interface SidebarRightProps {
     setZoomRequest: (req: any) => void;
     setViewLevel: (l: any) => void;
     selectedVariations: Record<string, string>;
+    isMobile?: boolean;
 }
 
 export const SidebarRight: React.FC<SidebarRightProps> = ({
     isDarkMode, isColorBlindMode, selectedFeature, viewLevel, selectedMetric, selectedMetricId,
     selectedMode, dataState, allDomains, subLevelData, chartData,
     setSelectedFeature, computedGeoData, setZoomRequest, setViewLevel,
-    selectedVariations
+    selectedVariations, isMobile
 }) => {
     const { t } = useTranslation();
     const isIMPT = ['IMPT_entropy_pca', 'IMPT_score_pca_geom', 'IMPT_dynamic'].includes(selectedMetricId);
 
+    if (isMobile && !selectedFeature) return null;
+
     return (
-        <div className={`absolute top-4 right-4 w-[360px] max-h-[calc(100vh-22rem)] flex flex-col ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800' : 'bg-white/95 border-neutral-200'} border rounded-[32px] shadow-2xl z-[1001] backdrop-blur-xl transition-all overflow-hidden`}>
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide">
+        <div className={`
+            ${isMobile 
+                ? 'fixed inset-0 w-full max-h-none rounded-none z-[1005]' 
+                : 'absolute top-4 right-4 w-[360px] max-h-[calc(100vh-22rem)] rounded-[32px] z-[1001]'}
+            flex flex-col ${isDarkMode ? 'bg-neutral-900/95 border-neutral-800' : 'bg-white/95 border-neutral-200'} 
+            border shadow-2xl backdrop-blur-xl transition-all overflow-hidden
+        `}>
+            <div className={`flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide ${isMobile ? 'pt-20' : ''}`}>
 
                 {/* Selection Detail - Visible only when an area is selected */}
                 {selectedFeature && (
@@ -223,8 +232,8 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
                     </section>
                 )}
 
-                {/* Comparative Analytics - Visible only when NO area is selected */}
-                {!selectedFeature && (
+                {/* Comparative Analytics - Visible only when NO area is selected AND NOT on mobile */}
+                {!selectedFeature && !isMobile && (
                     <section className="animate-in fade-in slide-in-from-right-4 duration-300">
                         <h3 className="text-[12px] font-black opacity-30 uppercase tracking-[0.3em] mb-5 flex items-center gap-2">
                             <TrendingUp className="w-3.5 h-3.5 text-sky-800" /> {t('sidebar.regional_contrast')}

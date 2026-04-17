@@ -9,6 +9,7 @@ interface Option {
 }
 
 interface MapFilterDropdownProps {
+    isMobile?: boolean;
     label: string;
     value: string;
     options: Option[];
@@ -19,7 +20,7 @@ interface MapFilterDropdownProps {
 }
 
 export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
-    label, value, options, onChange, isDark, icon, direction = 'down'
+    label, value, options, onChange, isDark, icon, direction = 'down', isMobile = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -52,14 +53,15 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
     };
 
     return (
-        <div className="relative pointer-events-auto" ref={dropdownRef}>
+        <div className={`relative pointer-events-auto ${isMobile ? 'w-full grow' : ''}`} ref={dropdownRef}>
             <button
                 onClick={toggleDropdown}
                 className={`
                     flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-300
                     backdrop-blur-md shadow-xl hover:scale-[1.02] active:scale-95
-                    ${isDark 
-                        ? 'bg-neutral-900/90 border-neutral-800 text-neutral-300 hover:text-white' 
+                    ${isMobile ? 'w-full' : ''}
+                    ${isDark
+                        ? 'bg-neutral-900/90 border-neutral-800 text-neutral-300 hover:text-white'
                         : 'bg-white/90 border-neutral-200 text-neutral-600 hover:text-neutral-900'}
                 `}
             >
@@ -71,11 +73,11 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
                         <span className="text-[13px] font-black uppercase tracking-widest">{selectedOption.label}</span>
                     </div>
                 </div>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 opacity-40 ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-300 opacity-40 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && createPortal(
-                <div 
+                <div
                     id="portal-dropdown-menu"
                     style={{
                         position: 'fixed',
@@ -101,8 +103,8 @@ export const MapFilterDropdown: React.FC<MapFilterDropdownProps> = ({
                                 }}
                                 className={`
                                     flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all
-                                    ${value === option.id 
-                                        ? 'bg-sky-900 text-white shadow-lg' 
+                                    ${value === option.id
+                                        ? 'bg-sky-900 text-white shadow-lg'
                                         : `${isDark ? 'text-neutral-500 hover:bg-white/5 hover:text-neutral-200' : 'text-neutral-400 hover:bg-neutral-50 hover:text-neutral-800'}`}
                                 `}
                             >
