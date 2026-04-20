@@ -291,7 +291,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['pmus']
         },
         {
-            id: 'mobility_stop_coverage_ratio_served_population',
+            id: 'mobility_stop_coverage_pct_all_pt',
             label: 'metrics.mobility_stop_coverage_ratio_served_population.label',
             description: 'metrics.mobility_stop_coverage_ratio_served_population.description',
             icon: '🚏',
