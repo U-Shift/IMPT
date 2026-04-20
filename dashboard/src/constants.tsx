@@ -473,11 +473,11 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['ansr', 'pmus']
         },
         {
-            id: 'safety_inner_total_veiculos',
+            id: 'safety_inner_veh_per',
             label: 'metrics.safety_inner_total_veiculos.label',
             description: 'metrics.safety_inner_total_veiculos.description',
             icon: '🚗',
-            format: (v, _min, _max) => Math.round(v || 0).toString(),
+            format: (v, _min, _max) => (v || 0).toString(),
             scaleMethod: logarithmicScale, steps: 100, ignoreValues: [0, null],
             pallete: COLORS.WhiteToRed,
             sources: ['ansr', 'pmus']
