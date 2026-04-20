@@ -289,7 +289,19 @@
       "label": "Severity Index (Car)"
     },
     "total_acidentes": {
-      "label": "Total accidents (all modes)"
+      "label": "Total accidents"
+    },
+    "total_veiculos": {
+      "label": "Total vehicles involved"
+    },
+    "total_vitimas30": {
+      "label": "Total victims within 30 days"
+    },
+    "feridos_ligeiros30": {
+      "label": "Total injured within 30 days"
+    },
+    "feridos_graves30": {
+      "label": "Total seriously injured within 30 days"
     },
     "vitimas_mortais30_per_1000res": {
       "label": "Fatalities per 1000 residents"

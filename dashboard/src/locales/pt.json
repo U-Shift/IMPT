@@ -289,7 +289,19 @@
       "label": "Índice de Gravidade (Carro)"
     },
     "total_acidentes": {
-      "label": "Total de acidentes (todos os modos)"
+      "label": "Total de acidentes"
+    },
+    "total_veiculos": {
+      "label": "Total de veículos envolvidos"
+    },
+    "total_vitimas30": {
+      "label": "Total de vítimas a 30 dias"
+    },
+    "feridos_ligeiros30": {
+      "label": "Total de feridos ligeiros a 30 dias"
+    },
+    "feridos_graves30": {
+      "label": "Total de feridos graves a 30 dias"
     },
     "vitimas_mortais30_per_1000res": {
       "label": "Vítimas mortais por 1000 habitantes"
