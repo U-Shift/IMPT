@@ -317,6 +317,22 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['gtfs', 'census']
         },
         {
+            id: 'mobility_total_frequency{time_of_day}',
+            id_variations: {
+                time_of_day: {
+                    options: ['_peak', '_night', '_weekend'],
+                    modes: ['pt']
+                }
+            },
+            label: 'metrics.mobility_total_frequency_pt.label',
+            description: 'metrics.mobility_total_frequency_pt.description',
+            icon: '🕐🚍',
+            format: (v, _min, _max) => (v || 0).toString(),
+            scaleMethod: continuousScale,
+            pallete: COLORS.WhiteToGreen,
+            sources: ['gtfs', 'census']
+        },
+        {
             id: 'mobility_frequency_ratio_peak{time_of_day}',
             id_variations: {
                 time_of_day: {

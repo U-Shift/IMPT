@@ -332,6 +332,10 @@
       "label": "PT Waiting Time",
       "description": "Weighted average waiting time for PT by time of day"
     },
+    "mobility_total_frequency_pt": {
+      "label": "PT Frequency",
+      "description": "Number of PT services provided at time of day"
+    },
     "mobility_frequency_ratio_peak_pt": {
       "label": "PT Frequency Ratio",
       "description": "Ratio of PT frequency during other periods compared to peak hours"

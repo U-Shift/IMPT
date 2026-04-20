@@ -332,6 +332,10 @@
       "label": "Tempo de espera TP",
       "description": "Tempo médio de espera pelo transporte público em diferentes momentos do dia"
     },
+    "mobility_total_frequency_pt": {
+      "label": "Frequência TP",
+      "description": "Número de serviços de TP prestados em diferentes momentos do dia"
+    },
     "mobility_frequency_ratio_peak_pt": {
       "label": "Rácio de Frequências TP",
       "description": "Rácio da frequência de TP em diferentes períodos face à hora de ponta"
