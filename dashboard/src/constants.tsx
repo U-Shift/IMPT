@@ -255,7 +255,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['gtfs', 'census']
         },
         {
-            id: 'mobility_cost{poi_type}{n_transfers}{n_opportunities}{population}',
+            id: 'mobility_cost{poi_type}{n_transfers}{time_of_day}{n_opportunities}{population}',
             id_variations: {
                 poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
                 population: {
@@ -269,8 +269,11 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 n_transfers: {
                     options: ['_1t', '_2t'],
                     modes: ['pt']
+                },
+                time_of_day: {
+                    options: ['_peak', '_night', '_weekend'], //'_day', 
+                    modes: ['pt']
                 }
-
             },
             label: 'metrics.mobility_cost.label',
             description: 'metrics.mobility_cost.description',
@@ -371,7 +374,7 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
     ],
     'metrics.categories.accessibility': [
         {
-            id: 'access{poi_type}{n_transfers}{n_time}{population}',
+            id: 'access{poi_type}{n_transfers}{time_of_day}{n_time}{population}',
             id_variations: {
                 poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
                 population: {
@@ -385,8 +388,11 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
                 n_transfers: {
                     options: ['_1t', '_2t'],
                     modes: ['pt']
+                },
+                time_of_day: {
+                    options: ['_peak', '_night', '_weekend'], //'_day', 
+                    modes: ['pt']
                 }
-
             },
             label: 'metrics.access.label',
             description: 'metrics.access.description',
