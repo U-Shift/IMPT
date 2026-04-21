@@ -668,7 +668,8 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max) => Math.round((v || 0) * 100).toString(), unit: '%',
             scaleMethod: continuousScale,
             pallete: COLORS.WhiteToBlue,
-            sources: ['osm']
+            sources: ['osm'],
+            ignoreValues: [63.85, 23.42, 1, 0.98]
         },
         {
             id: 'census_landuse_buildings_pre1945_percentage',
