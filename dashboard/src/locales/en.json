@@ -372,7 +372,11 @@
     "pt_pass": "PT (with Navegante)",
     "pt_no_pass": "PT (without Navegante)",
     "walk": "Walk",
-    "segregated": "Segregated Cycleway"
+    "segregated": "Segregated Cycleway",
+    "all_pt": "All PT",
+    "metrolr_pt": "Metro/Light rail",
+    "trainferry_pt": "Train/Ferry",
+    "bus_pt": "Bus"
   },
   "about": {
     "title": "IMPT",

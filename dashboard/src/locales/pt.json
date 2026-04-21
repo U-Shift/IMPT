@@ -378,7 +378,11 @@
     "pt_pass": "TP (com Navegante)",
     "pt_no_pass": "TP (sem Navegante)",
     "walk": "Pedonal",
-    "segregated": "Ciclovia Segregada"
+    "segregated": "Ciclovia Segregada",
+    "all_pt": "Todos os TP",
+    "metrolr_pt": "Metro (Ligeiro)",
+    "trainferry_pt": "Comboio/Barco",
+    "bus_pt": "Autocarro"
   },
   "about": {
     "title": "IMPT",
