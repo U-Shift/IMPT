@@ -272,7 +272,8 @@ const Dashboard = () => {
             console.log("Computing dynamic IMPT for", dynamicId, "(" + fallbackId + ")", dynamicMetricConfig, effectiveMode, weights);
 
             features = features.map((f: any, i: number) => {
-                let computedIndex = 0;
+                let accumulatedIndex = 0;
+                let totalWeight = 0;
 
                 Object.entries(weights).forEach(([metricId, weight]) => {
                     const effectiveMetricId = `${metricId}${effectiveMode.suffix}`;
@@ -280,7 +281,8 @@ const Dashboard = () => {
                     // Use a fallback to the base metric ID if the mode-specific suffix version is missing
                     const val = (f.properties[effectiveMetricId] ?? (fallbackMetricId ? f.properties[fallbackMetricId] : undefined));
                     if (val !== undefined) {
-                        computedIndex += val * weight;
+                        accumulatedIndex += val * weight;
+                        totalWeight += weight;
                     }
                     if (val !== undefined && i == 0) {
                         if (f.properties[effectiveMetricId] !== undefined) {
@@ -293,8 +295,9 @@ const Dashboard = () => {
                     }
                 });
 
-                // Invert index, a lowed ranking in aggregated dimensions, means more poverty, and therefore a higher IMPT
-                computedIndex = 100 - computedIndex;
+                // Invert index, a lower ranking in aggregated dimensions means more poverty, and therefore a higher IMPT
+                // We normalize by totalWeight to keep the final index in the [0, 100] range
+                const computedIndex = totalWeight > 0 ? (100 * totalWeight - accumulatedIndex) / totalWeight : undefined;
 
                 return {
                     ...f,
