@@ -72,7 +72,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                     <h3 className="text-lg lg:text-xl font-black tracking-tighter mb-3">{t('about.authors_section')}</h3>
                     <p className='flex opacity-60'>{t('about.authors_paragraph')} </p>
                     <h4 className="opacity-60 text-md lg:text-lg font-black tracking-tighter mt-3"><a href='https://ushift.pt' target='_blank'>U-Shift Lab, Instituto Superior Técnico</a></h4>
-                    <p className='flex opacity-60'>Filipe Moura <a className='ml-1' href="https://orcid.org/0000-0001-7749-8490" target='_blank'><IdCard /></a>,
+                    <p className='flex flex-wrap opacity-60'>Filipe Moura <a className='ml-1' href="https://orcid.org/0000-0001-7749-8490" target='_blank'><IdCard /></a>,
                         Rosa Félix <a className='ml-1' href="https://orcid.org/0000-0002-5642-6006" target='_blank'><IdCard /></a>,
                         Mauricio Orozco-Fontalvo <a className='ml-1' href="https://orcid.org/0000-0003-0514-4647" target='_blank'><IdCard /></a>,
                         Gonçalo Matos <a className='ml-1' href="https://orcid.org/0009-0001-3489-1732" target='_blank'><IdCard /></a>,
@@ -80,7 +80,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                         Margarida Pimentel
                     </p>
                     <h4 className="opacity-60 text-md lg:text-lg font-black tracking-tighter mt-3"><a href='https://www.tmlmobilidade.pt/' target='_blank'>Transportes Metropolitanos de Lisboa (TML)</a></h4>
-                    <p className='flex opacity-60'>
+                    <p className='flex flex-wrap opacity-60'>
                         Camila Garcia <a className='ml-1' href="https://orcid.org/0000-0002-1114-0979" target='_blank'><IdCard /></a>,
                         Catarina Marcelino
                     </p>
