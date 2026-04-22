@@ -389,10 +389,20 @@
     "title_desc": "Índice de Monitorização da Pobreza de Transportes",
     "p1": "A pobreza de transportes refere-se à incapacidade de um indivíduo ou agregado familiar de aceder a serviços essenciais, oportunidades e participação social devido a meios de transporte limitados, inadequados, dispendiosos, pouco fiáveis ou inexistentes (Mejía Dorantes e Murauskaite-Bull, 2022). No entanto, devido à falta de uma definição universal e à sua natureza multidimensional, a identificação e medição da pobreza de transportes pode ser um desafio.",
     "p2": "Este projeto visa enfrentá-lo através do desenvolvimento de um índice multidimensional que permita a sua medição e monitorização ao longo do tempo, tanto a nível nacional como regional, com o objetivo de identificar áreas prioritárias de intervenção e apoiar uma transição de mobilidade justa.",
-    "source_code": "Código Fonte",
+    "about_section": "Sobre",
+    "useful_links": "Ligações úteis",
+    "authors_section": "Autores",
+    "authors_paragraph": "Este projeto foi desenvolvido pelo U-Shift Lab, do Instituto Superior Técnico, Universidade de Lisboa, em colaboração com a Transportes Metropolitanos de Lisboa (TML).",
+    "source_code_web": "Código Fonte (Web)",
+    "source_code_data": "Código Fonte (Dados)",
+    "metadata": "Metadados",
+    "methodological_report": "Relatório Metodológico",
+    "cite_as": "Como citar",
     "lab": "U-Shift Lab",
     "funded_by": "Financiado por",
-    "copyright": "U-Shift, CERIS, Instituto Superior Técnico, Universidade de Lisboa"
+    "copyright": "U-Shift, CERIS, Instituto Superior Técnico, Universidade de Lisboa",
+    "funding_section": "Financiamento",
+    "funding_paragraph": "Este projeto é financiado pelo programa Science4Policy, do PLANAPP - Centro de Planeamento e de Avaliação de Políticas Públicas, uma iniciativa que suporta a definição e implementação de políticas públicas com base em evidência científica."
   },
   "ahp": {
     "survey_title": "Inquérito de Dimensões",
