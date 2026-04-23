@@ -75,7 +75,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ showAbout, setShowAbout,
                     <p className='flex flex-wrap opacity-60'>Filipe Moura <a className='ml-1' href="https://orcid.org/0000-0001-7749-8490" target='_blank'><IdCard /></a>,
                         Rosa Félix <a className='ml-1' href="https://orcid.org/0000-0002-5642-6006" target='_blank'><IdCard /></a>,
                         Mauricio Orozco-Fontalvo <a className='ml-1' href="https://orcid.org/0000-0003-0514-4647" target='_blank'><IdCard /></a>,
-                        Gonçalo Matos <a className='ml-1' href="https://orcid.org/0009-0001-3489-1732" target='_blank'><IdCard /></a>,
+                        Gonçalo F. Matos <a className='ml-1' href="https://orcid.org/0009-0001-3489-1732" target='_blank'><IdCard /></a>,
                         Miguel Alvelos,
                         Margarida Pimentel
                     </p>
