@@ -44,6 +44,7 @@ interface SidebarLeftProps {
     setMapStyle: (val: string) => void;
     onZoomIn?: () => void;
     onZoomOut?: () => void;
+    onDownloadAHP?: () => void;
 }
 
 const AuxiliaryDataRenderer: React.FC<{
@@ -91,7 +92,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
     nutFilter, setNutFilter, setViewLevel, setSelectedModeId,
     isMetricAvailable, isModeAvailable,
     mapStyle, setMapStyle,
-    onZoomIn, onZoomOut
+    onZoomIn, onZoomOut, onDownloadAHP
 }) => {
     const { t, i18n } = useTranslation();
     const toggleLanguage = () => {
@@ -455,6 +456,16 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                         </div>
                                                     ))}
                                                 </div>
+
+                                                {onDownloadAHP && (
+                                                    <button
+                                                        onClick={onDownloadAHP}
+                                                        className={`w-full mb-4 py-2.5 rounded-xl ${isDarkMode ? 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300' : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600'} text-[12px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2`}
+                                                    >
+                                                        <Download className="w-4 h-4" />
+                                                        {t('tooltips.download_results')} (CSV)
+                                                    </button>
+                                                )}
 
                                                 <div className={`p-4 rounded-2xl border ${isDarkMode ? 'bg-sky-800/5 border-sky-800/10' : 'bg-sky-50 border-sky-100'}`}>
                                                     <p className={`text-[12px] leading-relaxed mb-4 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>

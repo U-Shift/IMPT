@@ -21,6 +21,7 @@
     "toggle_theme": "Toggle Theme",
     "toggle_colorblind": "Colorblind mode",
     "download_data": "Download Data",
+    "download_results": "Download Results",
     "about": "About"
   },
   "sidebar": {

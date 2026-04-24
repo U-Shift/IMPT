@@ -471,6 +471,68 @@ const Dashboard = () => {
         setWeights(defaultWeights);
     };
 
+    const handleDownloadAHP = useCallback(() => {
+        if (!computedGeoData?.features) return;
+
+        const header = [
+            'id',
+            'name',
+            'IMPT_dynamic',
+            'Mobility_Index', 'Mobility_Weight',
+            'Accessibility_Index', 'Accessibility_Weight',
+            'Safety_Index', 'Safety_Weight',
+            'Affordability_Index', 'Affordability_Weight'
+        ];
+        const rows = [header.join(',')];
+
+        const modeAny = effectiveMode as any;
+        const dynamicMetricConfig = FLAT_METRICS.find(m => m.isCalculated);
+        if (!dynamicMetricConfig) return;
+        const dynamicId = `${dynamicMetricConfig.id}${effectiveMode.suffix}`;
+
+        computedGeoData.features.forEach((f: any) => {
+            const props = f.properties;
+            const geoId = props.id || '';
+            const geoName = props.name || '';
+            const impt = props[dynamicId];
+
+            const getIndex = (mId: string) => {
+                const effId = `${mId}${effectiveMode.suffix}`;
+                const fallId = modeAny.suffixFallback !== undefined ? `${mId}${modeAny.suffixFallback}` : undefined;
+                return props[effId] ?? (fallId ? props[fallId] : undefined);
+            };
+
+            const mobVal = getIndex('Mobility_Index');
+            const accVal = getIndex('Accessibility_Index');
+            const safVal = getIndex('Safety_Index');
+            const affVal = getIndex('Affordability_Index');
+
+            const mobW = mobVal !== undefined ? (weights['Mobility_Index'] || 0) : 0;
+            const accW = accVal !== undefined ? (weights['Accessibility_Index'] || 0) : 0;
+            const safW = safVal !== undefined ? (weights['Safety_Index'] || 0) : 0;
+            const affW = affVal !== undefined ? (weights['Affordability_Index'] || 0) : 0;
+
+            rows.push([
+                geoId,
+                geoName,
+                impt ? impt.toFixed(2) : '',
+                mobVal ?? '', mobW,
+                accVal ?? '', accW,
+                safVal ?? '', safW,
+                affVal ?? '', affW
+            ].join(','));
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + rows.join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `ahp_results_${effectiveLevel}_${effectiveMode.id}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }, [computedGeoData, effectiveMode, weights, effectiveLevel]);
+
     if (dataState.loading) return (
         <div className={`h-screen w-screen ${isDarkMode ? 'bg-neutral-950' : 'bg-neutral-50'} flex flex-col items-center justify-center gap-2`}>
             <Loader2 className="w-12 h-12 text-sky-800 animate-spin" />
@@ -520,6 +582,7 @@ const Dashboard = () => {
                 setMapStyle={setMapStyle}
                 onZoomIn={() => mapInstance?.zoomIn()}
                 onZoomOut={() => mapInstance?.zoomOut()}
+                onDownloadAHP={handleDownloadAHP}
             />
 
             {/* Map Canvas: Main View */}
