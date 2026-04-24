@@ -39,7 +39,8 @@
     "top_performers": "Highest values",
     "low_performers": "Lowest values",
     "map_settings": "Map Settings",
-    "map_layers": "Map Layers"
+    "map_layers": "Map Layers",
+    "dimension_weighting_note": "Note: When all dimensions have equal weights you will get the \"Political\" IMPT. We do not recommended using it for decision making, as it assumes that all dimensions are equally important, which can mask inequalities. We reccomend the usage of AHP methodology to determine the weights that best suit your local context."
   },
   "map": {
     "view_level": "View Level",
@@ -519,6 +520,7 @@
     "step_18": "Find out more abut the project.",
     "step_19": "To revisit this tutorial.",
     "dynamic_step_1": "You can define your own weights for each dimension. Use these sliders to adjust how much each dimension contributes to your custom index.",
+    "dynamic_step_1_note": "Please mind this note before proceeding.",
     "dynamic_step_2": "If you're not sure about the weights, we recommend taking the AHP survey. It helps you derive consistent weights through simple pairwise comparisons.",
     "dynamic_step_3": "Once you're satisfied with your custom index, you can download the results for all areas in a CSV file."
   }

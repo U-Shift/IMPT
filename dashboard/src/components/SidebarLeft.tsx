@@ -465,6 +465,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                                         </button>
                                                     </div>
                                                 </div>
+                                                <p className="text-xs text-neutral-400 mb-4" data-tour="dynamic-weights-note">{t('sidebar.dimension_weighting_note')}</p>
                                                 <div data-tour="dynamic-weights-sliders" className="space-y-4 mb-6">
                                                     {FLAT_METRICS.filter(m => m.isContributory).map(m => (
                                                         <div key={m.id} className="space-y-2">

@@ -66,6 +66,7 @@ export const Tutorial: React.FC<TutorialProps> = ({ isDarkMode, runExternal, onS
         {
             target: '[data-tour="sidebar-left"]',
             content: t('tutorial.step_2'),
+            placement: "right"
         },
         {
             target: '[data-tour="section-metrics.categories.mobility_poverty_index"]',
@@ -151,6 +152,11 @@ export const Tutorial: React.FC<TutorialProps> = ({ isDarkMode, runExternal, onS
         {
             target: '[data-tour="download-results-btn"]',
             content: t('tutorial.dynamic_step_3'),
+            placement: 'right',
+        },
+        {
+            target: '[data-tour="dynamic-weights-note"]',
+            content: t('tutorial.dynamic_step_1_note'),
             placement: 'right',
         },
     ];
