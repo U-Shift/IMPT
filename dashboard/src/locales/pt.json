@@ -318,6 +318,9 @@
     "mobility_cost_groceries_transit_2t_n3_residents": {
       "label": "Acesso a Supermercados - 3 próximos (TP - 2 transbordos)"
     },
+    "mobility_cost_health_transit_2t_n1_residents": {
+      "label": "Acesso à Saúde - 1 próximo (TP - 2 transbordos)"
+    },
     "mobility_cost_health_bike_n1_residents": {
       "label": "Acesso à Saúde - 1 próximo (Bicicleta)"
     },

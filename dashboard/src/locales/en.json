@@ -327,6 +327,9 @@
     "mobility_commuting_avg_tt_transit_2t_120m_15w": {
       "label": "Average commuting time (PT - 2 transfers, 120 min)"
     },
+    "mobility_cost_health_transit_2t_n1_residents": {
+      "label": "Access to Health - 1 nearest (PT - 2 transfers)"
+    },
     "mobility_transit_weighted_waiting_time_peak": {
       "label": "Weighted waiting time (Peak hour)"
     },
