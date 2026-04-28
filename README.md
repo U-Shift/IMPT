@@ -21,11 +21,12 @@ Data preparation is available at https://github.com/U-Shift/IMPT-data repository
 
 ## Acknowledgement
 
-IMPT project is developed and maintained by
-[U-Shift](https://ushift.tecnico.ulisboa.pt) urban mobility research
-group, part of [CERIS](https://ceris.pt/) research unit, at [Instituto
-Superior Técnico](https://tecnico.ulisboa.pt/pt/), Lisbon, Portugal.
-
-<br/>
+This research was conducted by the U-Shift Lab at Instituto Superior Técnico - University of Lisbon, in collaboration with the Transportes Metropolitanos de Lisboa (TML). 
 
 <img src="figures/logo_acknowledgement.png" width="75%">
+
+## Funding 
+
+This research was funded by Science4Policy, a PLANAPP - Centre for Planning and Evaluation of Public Policies iniciative to support the definition and implementation of public policies based on scientific evidence, under the [Science4Policy (S4P)](https://www.planapp.gov.pt/science4policy-2025/): Concurso de Estudos de Ciência para as Políticas Públicas call (PLANAPP-S4P/8042/2025).
+
+![](figures/logo_planapp.png)
