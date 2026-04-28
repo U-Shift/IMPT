@@ -206,7 +206,6 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                                 </button>
                             </Tooltip>
                         </div>
-                        {!isMobile && <div className={`px-2.5 py-1 rounded-lg text-[13px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-neutral-800 text-neutral-500' : 'bg-neutral-100 text-neutral-400'}`}>{t('common.beta')}</div>}
                     </div>
                 </div>
 
