@@ -256,35 +256,6 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             sources: ['gtfs', 'census']
         },
         {
-            id: 'mobility_cost{poi_type}{n_transfers}{time_of_day}{n_opportunities}{population}',
-            id_variations: {
-                poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
-                population: {
-                    options: ['_residents', '_elder', '_kids', '_active', '_young'],
-                    viewLevels: ['freguesia', 'municipality']
-                },
-                n_opportunities: {
-                    options: ['_n1', '_n2', '_n3'],
-                    formSlider: true
-                },
-                n_transfers: {
-                    options: ['_1t', '_2t'],
-                    modes: ['pt']
-                },
-                time_of_day: {
-                    options: ['_peak', '_night', '_weekend'], //'_day', 
-                    modes: ['pt']
-                }
-            },
-            label: 'metrics.mobility_cost.label',
-            description: 'metrics.mobility_cost.description',
-            icon: '⌛',
-            format: (v, _min, _max, _mode) => Math.round(v || 0).toString(), unit: () => 'min',
-            scaleMethod: continuousScale,
-            pallete: COLORS.GreenToRed,
-            sources: ['pmus', 'gba', 'osm']
-        },
-        {
             id: 'mobility_shared_mobility_points',
             label: 'metrics.mobility_shared_mobility_points.label',
             description: 'metrics.mobility_shared_mobility_points.description',
@@ -401,6 +372,35 @@ const METRIC_DATA: Record<string, Omit<MetricDef, 'category'>[]> = {
             format: (v, _min, _max, _mode) => Math.round(v || 0).toString(),
             scaleMethod: continuousScale,
             pallete: COLORS.Viridis.reverse(),
+            sources: ['pmus', 'gba', 'osm']
+        },
+        {
+            id: 'mobility_cost{poi_type}{n_transfers}{time_of_day}{n_opportunities}{population}',
+            id_variations: {
+                poi_type: ['_health', '_health_primary', '_health_hospital', '_groceries', '_greenspaces', '_recreation', '_schools_primary'],
+                population: {
+                    options: ['_residents', '_elder', '_kids', '_active', '_young'],
+                    viewLevels: ['freguesia', 'municipality']
+                },
+                n_opportunities: {
+                    options: ['_n1', '_n2', '_n3'],
+                    formSlider: true
+                },
+                n_transfers: {
+                    options: ['_1t', '_2t'],
+                    modes: ['pt']
+                },
+                time_of_day: {
+                    options: ['_peak', '_night', '_weekend'], //'_day',
+                    modes: ['pt']
+                }
+            },
+            label: 'metrics.mobility_cost.label',
+            description: 'metrics.mobility_cost.description',
+            icon: '⌛',
+            format: (v, _min, _max, _mode) => Math.round(v || 0).toString(), unit: () => 'min',
+            scaleMethod: continuousScale,
+            pallete: COLORS.GreenToRed,
             sources: ['pmus', 'gba', 'osm']
         },
         {
