@@ -761,23 +761,25 @@ export const MAP_LAYERS = [
         id: 'carto',
         label: 'map.layer_carto',
         icon: '',
-        attribution: '&copy; CARTO',
+        attribution: (isDark: boolean) => isDark
+            ? '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            : 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
         getUrl: (isDark: boolean) => isDark
-            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+            : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
     },
     {
         id: 'satellite',
         label: 'map.layer_satellite',
         icon: '',
-        attribution: '&copy; ESRI',
+        attribution: () => '&copy; ESRI',
         url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     },
     {
         id: 'osm',
         label: 'map.layer_osm',
         icon: '',
-        attribution: '&copy; OpenStreetMap',
+        attribution: () => '&copy; OpenStreetMap',
         url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     }
 ];

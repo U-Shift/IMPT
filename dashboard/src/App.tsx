@@ -731,7 +731,7 @@ const Dashboard = () => {
                         {(() => {
                             const layer = MAP_LAYERS.find(l => l.id === mapStyle) || MAP_LAYERS[0];
                             const url = 'getUrl' in layer && typeof layer.getUrl === 'function' ? layer.getUrl(isDarkMode) : layer.url;
-                            return <TileLayer url={url!} attribution={layer.attribution} />;
+                            return <TileLayer url={url!} attribution={layer.attribution(isDarkMode)} />;
                         })()}
                         {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} showBuiltArea={showBuiltArea} setShowBuiltArea={setShowBuiltArea} />}
                         <Pane name="builtarea-pane" style={{ zIndex: 350 }}>
