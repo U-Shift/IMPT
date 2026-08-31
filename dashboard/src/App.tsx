@@ -2,6 +2,18 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, GeoJSON, Pane, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import * as maplibregl from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import '@maplibre/maplibre-gl-leaflet';
+
+if (maplibregl.setWorkerUrl) {
+    maplibregl.setWorkerUrl(maplibreWorkerUrl);
+}
+
+if (typeof window !== 'undefined' && !(window as any).maplibregl) {
+    (window as any).maplibregl = maplibregl;
+}
 import { Loader2, Activity, Layers, Globe, Info, X, Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -105,6 +117,38 @@ const Dashboard = () => {
     }, []);
 
     const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+
+    useEffect(() => {
+        if (!mapInstance) return;
+
+        const layerDef = MAP_LAYERS.find(l => l.id === mapStyle) || MAP_LAYERS[0];
+        let tileLayerObj: L.Layer;
+
+        if (layerDef.id === 'carto') {
+            const styleUrl = layerDef.getUrl(isDarkMode);
+            tileLayerObj = (L as any).maplibreGL({
+                style: styleUrl,
+            }).addTo(mapInstance);
+
+            const container = (tileLayerObj as any).getContainer?.();
+            if (container) {
+                container.style.opacity = String(layerDef.getOpacity(isDarkMode));
+            }
+        } else {
+            const url = 'getUrl' in layerDef && typeof layerDef.getUrl === 'function'
+                ? layerDef.getUrl(isDarkMode)
+                : layerDef.url;
+            tileLayerObj = L.tileLayer(url!, {
+                attribution: layerDef.attribution(isDarkMode),
+            }).addTo(mapInstance);
+        }
+
+        return () => {
+            if (mapInstance && tileLayerObj) {
+                mapInstance.removeLayer(tileLayerObj);
+            }
+        };
+    }, [mapInstance, mapStyle, isDarkMode]);
 
     const [dataState, setDataState] = useState<{
         geo: Record<string, any>; limits: any; loading: boolean; error: string | null;
@@ -728,11 +772,6 @@ const Dashboard = () => {
                         <ZoomHandler extent={nutFilter === REGION_KEYS[0] ? DEFAULT_REGION : nutFilter} />
                         <SelectedFeatureCentering zoomRequest={zoomRequest} activeGeoData={computedGeoData} />
                         <MapDeselectHandler onDeselect={() => setSelectedFeature(null)} />
-                        {(() => {
-                            const layer = MAP_LAYERS.find(l => l.id === mapStyle) || MAP_LAYERS[0];
-                            const url = 'getUrl' in layer && typeof layer.getUrl === 'function' ? layer.getUrl(isDarkMode) : layer.url;
-                            return <TileLayer url={url!} attribution={layer.attribution(isDarkMode)} />;
-                        })()}
                         {!isMobile && <MapTools isDarkMode={isDarkMode} mapStyle={mapStyle} setMapStyle={setMapStyle} showBuiltArea={showBuiltArea} setShowBuiltArea={setShowBuiltArea} />}
                         <Pane name="builtarea-pane" style={{ zIndex: 350 }}>
                             {(showBuiltArea || selectedMetricId === 'cos_builtarea') && builtAreaData && (

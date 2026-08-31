@@ -761,12 +761,11 @@ export const MAP_LAYERS = [
         id: 'carto',
         label: 'map.layer_carto',
         icon: '',
-        attribution: (isDark: boolean) => isDark
-            ? '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            : 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+        attribution: () => '&copy; <a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
         getUrl: (isDark: boolean) => isDark
-            ? 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-            : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+            ? 'https://tiles.openfreemap.org/styles/dark'
+            : 'https://tiles.openfreemap.org/styles/positron',
+        getOpacity: (isDark: boolean) => isDark ? 0.9 : 0.5,
     },
     {
         id: 'satellite',
